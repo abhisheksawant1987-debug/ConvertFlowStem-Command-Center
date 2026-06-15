@@ -6,6 +6,7 @@
 <title>ConvertFlowSystems — Command Centre</title>
 <style>
 :root{--green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;--blue:#378ADD;--blue-light:#E6F1FB;--blue-dark:#0C447C;--amber:#EF9F27;--amber-light:#FAEEDA;--amber-dark:#633806;--red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;--gray-light:#F1EFE8;--bg:#F7F7F5;--surface:#FFFFFF;--border:#E5E5E2;--text-primary:#1A1A18;--text-secondary:#6B6B68;--text-tertiary:#9B9B98;--radius:10px;--radius-sm:6px}
+html.dark{--bg:#111110;--surface:#1C1C1A;--border:#2D2D2B;--text-primary:#EEEEED;--text-secondary:#9B9B98;--text-tertiary:#5A5A58;--gray-light:#252523;--green-light:#0D2A1E;--green-dark:#34D399;--blue-light:#0A1929;--blue-dark:#60A5FA;--amber-light:#231700;--amber-dark:#FCD34D;--red-light:#2A0C0C;--red-dark:#F87171}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh}
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
@@ -51,20 +52,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .col-inp .kc-count{background:var(--amber-light);color:var(--amber-dark)}
 .col-done .kc-count{background:var(--green-light);color:var(--green-dark)}
 .col-block .kc-count{background:#F3E8FF;color:#6B21A8}
-.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;cursor:pointer}
-.task-card:hover{border-color:var(--green)}
-.tc-title{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;line-height:1.4}
-.tc-meta{display:flex;flex-wrap:wrap;gap:5px}
-.tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0;margin-bottom:8px;cursor:pointer;overflow:hidden;transition:box-shadow .15s,border-color .15s}
+.task-card:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tc-stripe{height:3px;width:100%}
+.tc-stripe.todo{background:var(--red)}.tc-stripe.inp{background:var(--amber)}.tc-stripe.done{background:var(--green)}.tc-stripe.block{background:#9333EA}
+.tc-body{padding:11px 12px 10px}
+.tc-title{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:7px;line-height:1.45}
+.tc-title.done-txt{text-decoration:line-through;color:var(--text-tertiary);font-weight:400}
+.tc-meta{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.02em}
 .tag-day{background:#DBEAFE;color:#1E40AF}
 .tag-asset{background:var(--green-light);color:var(--green-dark)}
 .tag-out{background:var(--amber-light);color:var(--amber-dark)}
 .tag-admin{background:#F3E8FF;color:#6B21A8}
+.tag-content{background:#FFF0FB;color:#86198F}
+.tag-client{background:#E0F2FE;color:#0369A1}
 .tag-time{background:var(--gray-light);color:var(--text-secondary)}
-.tc-done{display:flex;align-items:center;gap:6px;margin-top:8px}
-.chk{width:14px;height:14px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tag-hi{background:var(--red-light);color:var(--red-dark)}
+.tag-med{background:var(--amber-light);color:var(--amber-dark)}
+.tag-lo{background:var(--green-light);color:var(--green-dark)}
+.tc-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding:6px 12px}
+.chk-row{display:flex;align-items:center;gap:6px}
+.chk{width:15px;height:15px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .chk.on{background:var(--green);border-color:var(--green)}
-.chk-lbl{font-size:11px;color:var(--text-tertiary)}
+.chk-lbl{font-size:11px;color:var(--text-tertiary);font-weight:500}
+.tc-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-todo{background:var(--red)}.dot-inp{background:var(--amber)}.dot-done{background:var(--green)}.dot-block{background:#9333EA}
 .pipe-stages{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
 .ps{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;text-align:center}
 .ps.on{background:var(--green-light);border-color:var(--green)}
@@ -140,6 +153,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="display:flex;align-items:center;gap:16px">
     <div class="date-txt" id="date-txt"></div>
     <button class="sync-btn" onclick="syncAll()">⟳ Sync Airtable</button>
+    <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
     <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" onclick="openSettings()">⚙ Token</button>
   </div>
 </div>
@@ -411,25 +425,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <div class="modal-ov" id="task-detail-modal">
-  <div class="modal">
-    <div class="modal-title" id="tdm-title">Task detail</div>
-    <label>Description</label>
-    <div id="tdm-desc" style="font-size:13px;color:var(--text-secondary);padding:8px 0;min-height:32px;line-height:1.5"></div>
-    <div class="form-row" style="margin-top:12px">
-      <div><label>Status</label><div id="tdm-status" style="font-size:13px;padding:6px 0"></div></div>
-      <div><label>Priority</label><div id="tdm-priority" style="font-size:13px;padding:6px 0"></div></div>
+  <div class="modal" style="width:520px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px">
+      <div class="modal-title" id="tdm-title" style="margin-bottom:0;flex:1"></div>
+      <span id="tdm-pri-badge" class="badge" style="flex-shrink:0;margin-top:2px"></span>
+    </div>
+    <div id="tdm-desc" style="font-size:13px;color:var(--text-secondary);padding:6px 0 14px;line-height:1.7;min-height:20px;border-bottom:1px solid var(--border)"></div>
+
+    <label style="margin-top:14px">Move to status</label>
+    <div id="tdm-status-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+
+    <div class="form-row" style="margin-top:14px">
+      <div>
+        <label>Day</label>
+        <div id="tdm-day" style="font-size:13px;color:var(--text-primary);padding:4px 0;font-weight:500"></div>
+      </div>
+      <div>
+        <label>Category</label>
+        <div id="tdm-cat" style="font-size:13px;color:var(--text-primary);padding:4px 0;font-weight:500"></div>
+      </div>
     </div>
     <div class="form-row">
-      <div><label>Day</label><div id="tdm-day" style="font-size:13px;padding:6px 0"></div></div>
-      <div><label>Category</label><div id="tdm-cat" style="font-size:13px;padding:6px 0"></div></div>
+      <div>
+        <label>Time estimate</label>
+        <div id="tdm-time" style="font-size:13px;color:var(--text-primary);padding:4px 0;font-weight:500"></div>
+      </div>
+      <div>
+        <label>Due date</label>
+        <div id="tdm-due" style="font-size:13px;color:var(--text-primary);padding:4px 0;font-weight:500"></div>
+      </div>
     </div>
-    <div class="form-row">
-      <div><label>Time estimate</label><div id="tdm-time" style="font-size:13px;padding:6px 0"></div></div>
-      <div><label>Due date</label><div id="tdm-due" style="font-size:13px;padding:6px 0"></div></div>
-    </div>
-    <div class="modal-footer">
+
+    <div class="modal-footer" style="margin-top:20px;justify-content:space-between">
+      <button class="btn" style="background:var(--red-light);color:var(--red-dark);border:1px solid var(--red-light)" id="tdm-delete-btn">🗑 Delete task</button>
       <button class="btn btn-s" onclick="closeModal('task-detail-modal')">Close</button>
-      <button class="btn btn-p" id="tdm-cycle-btn">Mark In Progress</button>
     </div>
   </div>
 </div>
@@ -666,6 +695,10 @@ function renderTasks(){
   }).join('')+'</div>';
 }
 
+function stripeClass(s){const m={'to do':'todo','in progress':'inp','done':'done','blocked':'block'};return m[(s||'').toLowerCase()]||'todo';}
+function dotClass(s){return 'dot-'+stripeClass(s);}
+function catCls2(c){if(!c)return 'tag-asset';const m={'Outreach':'tag-out','Admin':'tag-admin','Content':'tag-content','Client work':'tag-client'};return m[c]||'tag-asset';}
+
 function taskCard(r){
   const s=r.fields[F.tasks.status]||'To Do';
   const done=s.toLowerCase()==='done';
@@ -674,16 +707,27 @@ function taskCard(r){
   const time=getTime(r);
   const pri=r.fields[F.tasks.priority]||'';
   const name=r.fields[F.tasks.name]||'';
-  if(!name)return ''; // skip blank records
+  if(!name)return '';
+  const priCls=pri==='High'?'tag-hi':pri==='Low'?'tag-lo':'tag-med';
+  const sc=stripeClass(s);
   return `<div class="task-card" onclick="openTaskDetail('${r.id}')">
-    <div class="tc-title" style="${done?'text-decoration:line-through;color:var(--text-tertiary)':''}">${name}</div>
-    <div class="tc-meta">
-      ${day?`<span class="tag tag-day">${day}</span>`:''}
-      ${cat?`<span class="tag ${catCls(cat)}">${cat}</span>`:''}
-      ${time?`<span class="tag tag-time">${time}</span>`:''}
-      ${pri?`<span class="tag" style="background:${pri==='High'?'var(--red-light)':'var(--amber-light)'};color:${pri==='High'?'var(--red-dark)':'var(--amber-dark)'}">${pri}</span>`:''}
+    <div class="tc-stripe ${sc}"></div>
+    <div class="tc-body">
+      <div class="tc-title${done?' done-txt':''}">${name}</div>
+      <div class="tc-meta">
+        ${day?`<span class="tag tag-day">📅 ${day}</span>`:''}
+        ${cat?`<span class="tag ${catCls2(cat)}">${cat}</span>`:''}
+        ${time?`<span class="tag tag-time">⏱ ${time}</span>`:''}
+        ${pri?`<span class="tag ${priCls}">${pri}</span>`:''}
+      </div>
     </div>
-    <div class="tc-done" onclick="event.stopPropagation();cycleStatus('${r.id}','${s}')"><div class="chk ${done?'on':''}">${done?'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5 3.5-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>':''}</div><span class="chk-lbl">Done?</span></div>
+    <div class="tc-footer">
+      <div class="chk-row" onclick="event.stopPropagation();cycleStatus('${r.id}','${s}')">
+        <div class="chk ${done?'on':''}">${done?'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5 3.5-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>':''}</div>
+        <span class="chk-lbl">${done?'Completed':'Mark done'}</span>
+      </div>
+      <div class="tc-status-dot ${dotClass(s)}" title="${s}"></div>
+    </div>
   </div>`;
 }
 
@@ -713,26 +757,86 @@ async function cycleStatus(id,cur){
 }
 window.cycleStatus=cycleStatus;
 
+const STATUS_LIST=['To Do','In Progress','Done','Blocked'];
+const STATUS_COLORS={'To Do':'btodo','In Progress':'binp','Done':'bdone','Blocked':'bblock'};
+
 function openTaskDetail(id){
   const r=S.tasks.find(t=>t.id===id);
   if(!r)return;
   const s=r.fields[F.tasks.status]||'To Do';
-  const map={'To Do':'In Progress','In Progress':'Done','Done':'To Do','Blocked':'To Do'};
-  const next=map[s]||'To Do';
+  const pri=r.fields[F.tasks.priority]||'';
+  const priCls=pri==='High'?'tag-hi':pri==='Low'?'tag-lo':'tag-med';
+
   document.getElementById('tdm-title').textContent=r.fields[F.tasks.name]||'Task';
-  document.getElementById('tdm-desc').textContent=r.fields[F.tasks.desc]||'—';
-  document.getElementById('tdm-status').innerHTML=`<span class="badge ${badgeCls(s)}">${s}</span>`;
-  document.getElementById('tdm-priority').textContent=r.fields[F.tasks.priority]||'—';
+  const descEl=document.getElementById('tdm-desc');
+  const desc=r.fields[F.tasks.desc]||'';
+  if(desc){
+    descEl.innerHTML=desc.split('\n').filter(l=>l.trim()).map(l=>`<div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--green);font-weight:700;flex-shrink:0">•</span><span>${l}</span></div>`).join('');
+  } else {
+    descEl.innerHTML='<span style="color:var(--text-tertiary);font-style:italic">No description</span>';
+  }
+  document.getElementById('tdm-pri-badge').className='badge '+(pri?priCls:'bnot');
+  document.getElementById('tdm-pri-badge').textContent=pri||'No priority';
   document.getElementById('tdm-day').textContent=getDay(r)||'—';
   document.getElementById('tdm-cat').textContent=getCat(r)||'—';
   document.getElementById('tdm-time').textContent=getTime(r)||'—';
   document.getElementById('tdm-due').textContent=r.fields[F.tasks.due]||'—';
-  const btn=document.getElementById('tdm-cycle-btn');
-  btn.textContent='Mark '+next;
-  btn.onclick=()=>{closeModal('task-detail-modal');cycleStatus(id,s);};
+
+  // Status picker buttons — highlight current
+  document.getElementById('tdm-status-btns').innerHTML=STATUS_LIST.map(st=>{
+    const active=st===s;
+    return `<button onclick="setTaskStatus('${id}','${st}')" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid ${active?'var(--green)':'var(--border)'};background:${active?'var(--green)':'var(--surface)'};color:${active?'#fff':'var(--text-secondary)'};transition:all .15s">${st}</button>`;
+  }).join('');
+
+  // Delete button
+  document.getElementById('tdm-delete-btn').onclick=()=>deleteTask(id);
   openModal('task-detail-modal');
 }
 window.openTaskDetail=openTaskDetail;
+
+async function setTaskStatus(id,newStatus){
+  const r=S.tasks.find(t=>t.id===id);
+  if(!r)return;
+  r.fields[F.tasks.status]=newStatus;
+  saveState();
+  // Re-render status buttons in modal immediately
+  document.getElementById('tdm-status-btns').innerHTML=STATUS_LIST.map(st=>{
+    const active=st===newStatus;
+    return `<button onclick="setTaskStatus('${id}','${st}')" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid ${active?'var(--green)':'var(--border)'};background:${active?'var(--green)':'var(--surface)'};color:${active?'#fff':'var(--text-secondary)'};transition:all .15s">${st}</button>`;
+  }).join('');
+  renderTasks();renderOverview();
+  if(id.startsWith('l')){toast('Status updated ✓');return;}
+  try{
+    await atPatch(TBL.tasks,id,{[F.tasks.status]:newStatus});
+    toast('Status saved to Airtable ✓');
+  }catch(e){toast('Saved locally — syncs next time');}
+}
+window.setTaskStatus=setTaskStatus;
+
+async function deleteTask(id){
+  if(!confirm('Delete this task? This cannot be undone.'))return;
+  closeModal('task-detail-modal');
+  S.tasks=S.tasks.filter(t=>t.id!==id);
+  saveState();renderTasks();renderOverview();
+  if(id.startsWith('l')){toast('Task deleted ✓');return;}
+  try{
+    await fetch(`https://api.airtable.com/v0/${BASE}/${TBL.tasks}/${id}`,{method:'DELETE',headers:{Authorization:'Bearer '+TOKEN}});
+    toast('Task deleted from Airtable ✓');
+  }catch(e){toast('Deleted locally — syncs next time');}
+}
+window.deleteTask=deleteTask;
+
+function toggleTheme(){
+  const dark=document.documentElement.classList.toggle('dark');
+  localStorage.setItem('cfs_theme',dark?'dark':'light');
+  document.getElementById('theme-btn').textContent=dark?'☀️ Light':'🌙 Dark';
+}
+window.toggleTheme=toggleTheme;
+// Apply saved theme before first paint
+(function(){
+  const t=localStorage.getItem('cfs_theme');
+  if(t==='dark'){document.documentElement.classList.add('dark');}
+})();
 
 function setTaskView(v){
   S.taskView=v;
@@ -905,6 +1009,7 @@ window.setupConnect=setupConnect;window.setupSkip=setupSkip;window.openSettings=
 
 // ── STARTUP ──────────────────────────────────────────────────────────────────
 document.getElementById('date-txt').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('theme-btn').textContent=document.documentElement.classList.contains('dark')?'☀️ Light':'🌙 Dark';
 if(TOKEN){
   // Token already saved — show "continue" option, auto-proceed after 1s
   document.getElementById('setup-token').value=TOKEN;
