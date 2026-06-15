@@ -23,19 +23,26 @@
 }
 /* ── DARK THEME ── */
 html.dark{
-  --bg:#0A0A0B;--surface:#131316;--border:#222228;--border-subtle:#1A1A1F;
-  --text-primary:#F1F1F3;--text-secondary:#8B8B96;--text-tertiary:#4A4A55;
+  --bg:#080809;--surface:#111115;--border:#26262E;--border-subtle:#16161B;
+  --text-primary:#EEEEF0;--text-secondary:#C4C4CC;--text-tertiary:#6B6B7A;
   --gray-light:#1A1A1F;
-  --green:#4ADE80;--green-light:rgba(74,222,128,.12);--green-dark:#4ADE80;
-  --blue:#60A5FA;--blue-light:rgba(96,165,250,.12);--blue-dark:#60A5FA;
-  --amber:#FCD34D;--amber-light:rgba(252,211,77,.12);--amber-dark:#FCD34D;
-  --red:#F87171;--red-light:rgba(248,113,113,.12);--red-dark:#F87171;
-  --purple:#C084FC;--purple-light:rgba(192,132,252,.12);--purple-dark:#C084FC;
-  --shadow:0 1px 3px rgba(0,0,0,.4);--shadow-md:0 4px 20px rgba(0,0,0,.5);
+  --green:#4ADE80;--green-light:rgba(74,222,128,.13);--green-dark:#4ADE80;
+  --blue:#60A5FA;--blue-light:rgba(96,165,250,.13);--blue-dark:#60A5FA;
+  --amber:#FCD34D;--amber-light:rgba(252,211,77,.13);--amber-dark:#FCD34D;
+  --red:#F87171;--red-light:rgba(248,113,113,.13);--red-dark:#F87171;
+  --purple:#C084FC;--purple-light:rgba(192,132,252,.13);--purple-dark:#C084FC;
+  --shadow:0 1px 3px rgba(0,0,0,.4);--shadow-md:0 4px 24px rgba(0,0,0,.6);
+  --glow-green:0 0 20px rgba(74,222,128,.15),0 0 60px rgba(74,222,128,.06);
+  --glow-card:0 0 0 1px rgba(255,255,255,.04),0 4px 24px rgba(0,0,0,.5);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── BACKGROUND GLOW (dark only) ── */
+html.dark body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse at center,rgba(74,222,128,.07) 0%,transparent 70%);pointer-events:none;z-index:0}
+html.dark body::after{content:'';position:fixed;bottom:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(ellipse at center,rgba(96,165,250,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+.header,.tab-bar,.page{position:relative;z-index:1}
 
 /* ── HEADER ── */
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
@@ -59,13 +66,15 @@ html.dark .tab-bar{background:rgba(19,19,22,.92)}
 .page.active{display:block}
 
 /* ── CARDS ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
-html.dark .card{box-shadow:none}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transition:box-shadow .2s}
+html.dark .card{box-shadow:var(--glow-card,none);border-color:#26262E}
+html.dark .card:hover{box-shadow:0 0 0 1px rgba(74,222,128,.2),0 8px 32px rgba(0,0,0,.6),0 0 40px rgba(74,222,128,.06)}
 
 /* ── METRIC CARDS ── */
-.metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
-.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-html.dark .metric{box-shadow:none}
+.metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:all .2s}
+html.dark .metric{box-shadow:var(--glow-card,none)}
+html.dark .metric:hover{box-shadow:0 0 0 1px rgba(74,222,128,.25),0 8px 32px rgba(0,0,0,.6),0 0 50px rgba(74,222,128,.08);transform:translateY(-2px)}
 .metric-label{font-size:11px;color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
 .metric-value{font-size:34px;font-weight:800;color:var(--text-primary);line-height:1;letter-spacing:-.03em}
 .metric-value.green{color:var(--green-dark)}
@@ -91,9 +100,9 @@ html.dark .bar-bg{background:var(--border)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
 
 /* ── KANBAN ── */
-.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.kanban-col{background:var(--border-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:14px;min-height:320px}
-html.dark .kanban-col{background:#0E0E11}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kanban-col{background:var(--border-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:16px;min-height:340px}
+html.dark .kanban-col{background:#0D0D10;border-color:#1E1E25;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .kc-bar{height:3px;border-radius:99px;margin-bottom:12px}
 .col-todo .kc-bar{background:var(--red)}
 .col-inp .kc-bar{background:var(--amber)}
@@ -108,9 +117,10 @@ html.dark .kanban-col{background:#0E0E11}
 .col-block .kc-count{background:var(--purple-light);color:var(--purple-dark)}
 
 /* ── TASK CARDS ── */
-.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0;margin-bottom:8px;cursor:pointer;overflow:hidden;transition:all .15s}
-.task-card:hover{border-color:var(--green);box-shadow:var(--shadow-md);transform:translateY(-1px)}
-html.dark .task-card:hover{box-shadow:0 0 0 1px var(--green),0 4px 20px rgba(74,222,128,.08)}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0;margin-bottom:10px;cursor:pointer;overflow:hidden;transition:all .2s}
+html.dark .task-card{box-shadow:0 2px 8px rgba(0,0,0,.4);border-color:#26262E}
+.task-card:hover{border-color:var(--green);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+html.dark .task-card:hover{box-shadow:0 0 0 1px var(--green),0 8px 30px rgba(0,0,0,.6),0 0 30px rgba(74,222,128,.1);transform:translateY(-2px)}
 .tc-stripe{height:3px;width:100%}
 .tc-stripe.todo{background:var(--red)}.tc-stripe.inp{background:var(--amber)}.tc-stripe.done{background:var(--green)}.tc-stripe.block{background:var(--purple)}
 .tc-body{padding:12px 13px 10px}
@@ -848,9 +858,9 @@ function openTaskDetail(id){
   const descEl=document.getElementById('tdm-desc');
   const desc=r.fields[F.tasks.desc]||'';
   if(desc){
-    descEl.innerHTML=desc.split('\n').filter(l=>l.trim()).map(l=>`<div style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--green);font-weight:700;flex-shrink:0">•</span><span>${l}</span></div>`).join('');
+    descEl.innerHTML=desc.split('\n').filter(l=>l.trim()).map(l=>`<div style="display:flex;gap:10px;margin-bottom:6px;align-items:flex-start"><span style="color:var(--green);font-weight:800;flex-shrink:0;margin-top:1px">•</span><span style="color:var(--text-primary);font-size:13px;line-height:1.65;font-weight:500">${l.replace(/^•\s*/,'')}</span></div>`).join('');
   } else {
-    descEl.innerHTML='<span style="color:var(--text-tertiary);font-style:italic">No description</span>';
+    descEl.innerHTML='<span style="color:var(--text-tertiary);font-style:italic;font-size:13px">No description added</span>';
   }
   document.getElementById('tdm-pri-badge').className='badge '+(pri?priCls:'bnot');
   document.getElementById('tdm-pri-badge').textContent=pri||'No priority';
