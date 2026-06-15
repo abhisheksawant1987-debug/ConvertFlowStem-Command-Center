@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConvertFlowSystems — Command Centre</title>
+<style>
+:root{--green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;--blue:#378ADD;--blue-light:#E6F1FB;--blue-dark:#0C447C;--amber:#EF9F27;--amber-light:#FAEEDA;--amber-dark:#633806;--red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;--gray-light:#F1EFE8;--bg:#F7F7F5;--surface:#FFFFFF;--border:#E5E5E2;--text-primary:#1A1A18;--text-secondary:#6B6B68;--text-tertiary:#9B9B98;--radius:10px;--radius-sm:6px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.logo{font-size:15px;font-weight:600}
+.phase-badge{background:var(--green-light);color:var(--green-dark);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:10px}
+.date-txt{font-size:12px;color:var(--text-tertiary)}
+.sync-btn{font-size:12px;color:var(--green-dark);background:var(--green-light);border:none;padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-weight:500}
+.tab-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex}
+.tab{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--green-dark);border-bottom-color:var(--green)}
+.tab:hover:not(.active){color:var(--text-primary)}
+.page{display:none;padding:24px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.metric-label{font-size:11px;color:var(--text-tertiary);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.metric-value{font-size:26px;font-weight:600;color:var(--text-primary);line-height:1}
+.metric-value.green{color:var(--green-dark)}
+.metric-value.amber{color:var(--amber-dark)}
+.metric-sub{font-size:11px;color:var(--text-tertiary);margin-top:4px}
+.progress-wrap{margin-bottom:20px}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-title{font-size:13px;font-weight:500;color:var(--text-primary)}
+.prog-pct{font-size:13px;font-weight:600;color:var(--green-dark)}
+.bar-bg{height:10px;background:var(--gray-light);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;background:var(--green);transition:width 1s ease}
+.bar-fill.blue{background:var(--blue)}
+.bar-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--text-tertiary)}
+.sl{font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kanban-col{background:var(--bg);border-radius:var(--radius);padding:12px;min-height:300px}
+.kc-bar{height:3px;border-radius:99px;margin-bottom:10px}
+.col-todo .kc-bar{background:var(--red)}
+.col-inp .kc-bar{background:var(--amber)}
+.col-done .kc-bar{background:var(--green)}
+.col-block .kc-bar{background:#9333EA}
+.kc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kc-title{font-size:12px;font-weight:600;color:var(--text-secondary)}
+.kc-count{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px}
+.col-todo .kc-count{background:#FEE2E2;color:#991B1B}
+.col-inp .kc-count{background:var(--amber-light);color:var(--amber-dark)}
+.col-done .kc-count{background:var(--green-light);color:var(--green-dark)}
+.col-block .kc-count{background:#F3E8FF;color:#6B21A8}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;cursor:pointer}
+.task-card:hover{border-color:var(--green)}
+.tc-title{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;line-height:1.4}
+.tc-meta{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px}
+.tag-day{background:#DBEAFE;color:#1E40AF}
+.tag-asset{background:var(--green-light);color:var(--green-dark)}
+.tag-out{background:var(--amber-light);color:var(--amber-dark)}
+.tag-admin{background:#F3E8FF;color:#6B21A8}
+.tag-time{background:var(--gray-light);color:var(--text-secondary)}
+.tc-done{display:flex;align-items:center;gap:6px;margin-top:8px}
+.chk{width:14px;height:14px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chk.on{background:var(--green);border-color:var(--green)}
+.chk-lbl{font-size:11px;color:var(--text-tertiary)}
+.pipe-stages{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.ps{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;text-align:center}
+.ps.on{background:var(--green-light);border-color:var(--green)}
+.ps-count{font-size:22px;font-weight:600;color:var(--text-primary)}
+.ps.on .ps-count{color:var(--green-dark)}
+.ps-name{font-size:10px;color:var(--text-tertiary);margin-top:3px;font-weight:500}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;padding:0 12px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text-primary);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--bg)}
+.data-table .trow-total td{font-weight:600;border-top:2px solid var(--border);background:var(--gray-light)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.bp1{background:var(--green-light);color:var(--green-dark)}
+.bp2{background:var(--blue-light);color:var(--blue-dark)}
+.bp3{background:var(--amber-light);color:var(--amber-dark)}
+.btodo{background:#FEE2E2;color:#991B1B}
+.binp{background:var(--amber-light);color:var(--amber-dark)}
+.bdone{background:var(--green-light);color:var(--green-dark)}
+.bblock{background:#F3E8FF;color:#6B21A8}
+.bprop{background:var(--amber-light);color:var(--amber-dark)}
+.bnot{background:var(--gray-light);color:var(--text-secondary)}
+.bint{background:var(--blue-light);color:var(--blue-dark)}
+.bind{background:#FFF7ED;color:#9A3412}
+.bclosed{background:var(--green-light);color:var(--green-dark)}
+.out-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.out-lbl{font-size:12px;color:var(--text-secondary);width:65px;flex-shrink:0}
+.out-bg{flex:1;height:8px;background:var(--gray-light);border-radius:99px;overflow:hidden}
+.out-fill{height:100%;border-radius:99px;background:var(--blue);transition:width .6s}
+.out-val{font-size:13px;font-weight:600;color:var(--text-primary);width:28px;text-align:right}
+.out-goal{font-size:11px;color:var(--text-tertiary);width:36px}
+.rule-item{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.rule-item:last-child{border-bottom:none}
+.rnum{font-size:11px;font-weight:700;color:var(--green);min-width:18px;padding-top:1px}
+.rtxt{font-size:13px;color:var(--text-primary);line-height:1.5}
+.gap-neg{color:var(--red-dark);font-weight:500}
+.gap-pos{color:var(--green-dark);font-weight:500}
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none}
+.btn-p{background:var(--green);color:#fff}
+.btn-p:hover{background:var(--green-dark)}
+.btn-s{background:var(--bg);color:var(--text-secondary);border:1px solid var(--border)}
+.btn-s:hover{background:var(--gray-light)}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:500px;max-width:96vw;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px}
+.modal label{font-size:12px;font-weight:500;color:var(--text-secondary);display:block;margin-bottom:4px;margin-top:12px}
+.modal input,.modal select,.modal textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;color:var(--text-primary);background:var(--bg);font-family:inherit;outline:none}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--green)}
+.modal textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green-dark);color:#fff;padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.loading{text-align:center;padding:40px;color:var(--text-tertiary);font-size:13px}
+.sp{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pg-title{font-size:16px;font-weight:600;color:var(--text-primary)}
+.pg-sub{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+.sub-tabs{display:flex;gap:6px;margin-bottom:16px}
+.sub-tab{padding:6px 14px;font-size:12px;font-weight:500;color:var(--text-secondary);cursor:pointer;border:1px solid var(--border);border-radius:20px;background:none}
+.sub-tab.active{color:var(--green-dark);background:var(--green-light);border-color:var(--green)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center">
+    <div class="logo">ConvertFlowSystems</div>
+    <div class="phase-badge">Phase 1 — Foundation</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="date-txt" id="date-txt"></div>
+    <button class="sync-btn" onclick="syncAll()">⟳ Sync Airtable</button>
+    <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" onclick="openSettings()">⚙ Token</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('overview')">Overview</button>
+  <button class="tab" onclick="switchTab('tasks')">Weekly tasks</button>
+  <button class="tab" onclick="switchTab('pipeline')">Outreach pipeline</button>
+  <button class="tab" onclick="switchTab('revenue')">Revenue log</button>
+  <button class="tab" onclick="switchTab('weeklylog')">Weekly log</button>
+  <button class="tab" onclick="switchTab('content')">Content planner</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="page active">
+  <div class="metrics-row">
+    <div class="metric"><div class="metric-label">Days remaining</div><div class="metric-value green" id="m-days">200</div><div class="metric-sub">Until Dec 31, 2026</div></div>
+    <div class="metric"><div class="metric-label">Weeks remaining</div><div class="metric-value" id="m-weeks">29</div><div class="metric-sub" id="m-months">7 months</div></div>
+    <div class="metric"><div class="metric-label">Revenue earned</div><div class="metric-value green" id="m-earned">$0</div><div class="metric-sub">of $10,000 target</div></div>
+    <div class="metric"><div class="metric-label">Remaining</div><div class="metric-value amber" id="m-remaining">$10,000</div><div class="metric-sub" id="m-pace">—/week needed</div></div>
+    <div class="metric"><div class="metric-label">Prospects</div><div class="metric-value" id="m-prospects">0</div><div class="metric-sub" id="m-closed">0 closed</div></div>
+  </div>
+
+  <div class="card progress-wrap">
+    <div class="prog-header">
+      <div class="prog-title">Progress to $10,000 — Start: Jun 15, 2026 · Deadline: Dec 31, 2026</div>
+      <div class="prog-pct" id="ov-pct">0%</div>
+    </div>
+    <div class="bar-bg"><div class="bar-fill" id="ov-bar" style="width:0%"></div></div>
+    <div class="bar-labels"><span>Jun 15, 2026</span><span>Dec 31, 2026</span></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="sl">Monthly revenue targets</div>
+      <table class="data-table">
+        <thead><tr><th>Month</th><th>Phase</th><th>Target</th><th>Actual</th><th>Gap</th></tr></thead>
+        <tbody id="ov-monthly"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="sl">Outreach tracker</div>
+        <div class="out-row"><div class="out-lbl">Today</div><div class="out-bg"><div class="out-fill" id="ob-today" style="width:0%"></div></div><div class="out-val" id="ov-today">0</div><div class="out-goal">/ 5</div></div>
+        <div class="out-row"><div class="out-lbl">This week</div><div class="out-bg"><div class="out-fill" id="ob-week" style="width:0%"></div></div><div class="out-val" id="ov-week">0</div><div class="out-goal">/ 30</div></div>
+        <div class="out-row"><div class="out-lbl">This month</div><div class="out-bg"><div class="out-fill" id="ob-month" style="width:0%"></div></div><div class="out-val" id="ov-month">0</div><div class="out-goal">/ 130</div></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-p" onclick="logDM()">+ Log DM</button>
+          <button class="btn btn-s" onclick="resetToday()">Reset today</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sl">Rules — read every Monday</div>
+        <div class="rule-item"><div class="rnum">1</div><div class="rtxt">Never go more than 3 days without outreach</div></div>
+        <div class="rule-item"><div class="rnum">2</div><div class="rtxt">Even on worst week — send minimum 5 DMs</div></div>
+        <div class="rule-item"><div class="rnum">3</div><div class="rtxt">Every finished funnel → post a screenshot on LinkedIn same day</div></div>
+        <div class="rule-item"><div class="rnum">4</div><div class="rtxt">Never discount below $350 — offer free audit instead</div></div>
+        <div class="rule-item"><div class="rnum">5</div><div class="rtxt">During delivery weeks — still do outreach. Pipeline never stops.</div></div>
+        <div class="rule-item"><div class="rnum">6</div><div class="rtxt">Follow up every open proposal within 48 hours</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sl">Phase 1 task progress</div>
+    <div class="prog-header" style="margin-bottom:8px">
+      <div class="prog-title" id="tp-title">0 of 0 tasks complete</div>
+      <div class="prog-pct" id="tp-pct">0%</div>
+    </div>
+    <div class="bar-bg"><div class="bar-fill blue" id="tp-bar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- WEEKLY TASKS -->
+<div id="tasks" class="page">
+  <div class="pg-header">
+    <div><div class="pg-title">Weekly tasks</div><div class="pg-sub">Phase 1 · Jun 15–21, 2026</div></div>
+    <button class="btn btn-p" onclick="openModal('task-modal')">+ Add task</button>
+  </div>
+  <div class="sub-tabs">
+    <button class="sub-tab active" id="tv-board" onclick="setTaskView('board')">Board by status</button>
+    <button class="sub-tab" id="tv-day" onclick="setTaskView('day')">Board by day</button>
+    <button class="sub-tab" id="tv-list" onclick="setTaskView('list')">All tasks</button>
+  </div>
+  <div id="tasks-board"><div class="loading"><span class="sp"></span>Loading tasks...</div></div>
+</div>
+
+<!-- PIPELINE -->
+<div id="pipeline" class="page">
+  <div class="pg-header">
+    <div class="pg-title">Outreach pipeline</div>
+    <button class="btn btn-p" onclick="openModal('prospect-modal')">+ Add prospect</button>
+  </div>
+  <div class="sub-tabs">
+    <button class="sub-tab active" id="pv-table" onclick="setPipeView('table')">All prospects</button>
+    <button class="sub-tab" id="pv-board" onclick="setPipeView('board')">Pipeline board</button>
+  </div>
+  <div class="pipe-stages" id="pipe-stages"></div>
+  <div id="pipe-view"><div class="loading"><span class="sp"></span>Loading pipeline...</div></div>
+</div>
+
+<!-- REVENUE LOG -->
+<div id="revenue" class="page">
+  <div class="pg-header">
+    <div class="pg-title">Revenue log</div>
+    <button class="btn btn-p" onclick="openModal('revenue-modal')">+ Log payment</button>
+  </div>
+  <div class="two-col" style="margin-bottom:20px">
+    <div class="metric"><div class="metric-label">Total earned</div><div class="metric-value green" id="rev-total">$0</div><div class="metric-sub">of $10,000 goal</div></div>
+    <div class="metric"><div class="metric-label">Payments logged</div><div class="metric-value" id="rev-count">0</div><div class="metric-sub">total clients paid</div></div>
+  </div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="sl">Monthly breakdown</div>
+    <table class="data-table"><thead><tr><th>Month</th><th>Phase</th><th>Target</th><th>Actual</th><th>Gap</th></tr></thead><tbody id="rev-monthly"></tbody></table>
+  </div>
+  <div class="card">
+    <div class="sl">All payments</div>
+    <table class="data-table">
+      <thead><tr><th>Client</th><th>Service</th><th>Amount</th><th>Date</th><th>Phase</th><th>Location</th><th>Invoice sent?</th></tr></thead>
+      <tbody id="rev-payments"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No payments yet. Click "+ Log payment" to add your first client.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- WEEKLY LOG -->
+<div id="weeklylog" class="page">
+  <div class="pg-header">
+    <div class="pg-title">Weekly log</div>
+    <button class="btn btn-p" onclick="openModal('wl-modal')">+ Log this week</button>
+  </div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Week</th><th>Blocker</th><th>Calls booked</th><th>Clients closed</th><th>Content posted</th><th>DMs sent</th><th>Key win</th></tr></thead>
+      <tbody id="wl-body"><tr><td>Week 1 · Jun 11–15</td><td style="color:var(--text-tertiary)">—</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="color:var(--text-tertiary)">Starting from scratch</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONTENT PLANNER -->
+<div id="content" class="page">
+  <div class="pg-header">
+    <div class="pg-title">Content planner</div>
+    <button class="btn btn-p" onclick="openModal('content-modal')">+ Add content</button>
+  </div>
+  <div class="card">
+    <table class="data-table">
+      <thead><tr><th>Title</th><th>Format</th><th>Platform</th><th>Status</th><th>Scheduled date</th><th>Notes</th></tr></thead>
+      <tbody id="ct-body"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No content planned yet. Add your first idea.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-ov" id="task-modal">
+  <div class="modal">
+    <div class="modal-title">Add new task</div>
+    <label>Task name *</label><input id="tm-name" type="text" placeholder="e.g. Finish portfolio GHL page">
+    <label>Description</label><textarea id="tm-desc" placeholder="What needs to be done?"></textarea>
+    <div class="form-row">
+      <div><label>Status</label><select id="tm-status"><option>To Do</option><option>In Progress</option><option>Done</option><option>Blocked</option></select></div>
+      <div><label>Priority</label><select id="tm-priority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>Day</label><select id="tm-day"><option value="">—</option><option>Mon</option><option>Tue</option><option>Wed</option><option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option></select></div>
+      <div><label>Category</label><select id="tm-cat"><option value="">—</option><option>Asset building</option><option>Outreach</option><option>Admin</option><option>Content</option><option>Client work</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>Time estimate</label><input id="tm-time" type="text" placeholder="e.g. 45 min"></div>
+      <div><label>Due date</label><input id="tm-due" type="date"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('task-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTask()">Save task</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="prospect-modal">
+  <div class="modal">
+    <div class="modal-title">Add prospect</div>
+    <label>Name *</label><input id="pm-name" type="text" placeholder="Prospect name">
+    <div class="form-row">
+      <div><label>Platform</label><select id="pm-platform"><option>Facebook</option><option>LinkedIn</option><option>Instagram</option><option>Email</option><option>Twitter</option><option>Referral</option></select></div>
+      <div><label>Status</label><select id="pm-status"><option>Not Contacted</option><option>DM Sent</option><option>Replied</option><option>Call Booked</option><option>Proposal Sent</option><option>Closed</option><option>No Response</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>Niche</label><input id="pm-niche" type="text" placeholder="e.g. Coaching"></div>
+      <div><label>Location</label><select id="pm-location"><option>International</option><option>India</option><option>US</option><option>UK</option><option>Canada</option><option>Australia</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>DM sent date</label><input id="pm-dmdate" type="date"></div>
+      <div><label>Follow-up date</label><input id="pm-followup" type="date"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Deal value ($)</label><input id="pm-deal" type="number" placeholder="e.g. 700"></div>
+      <div><label>Email (optional)</label><input id="pm-email" type="email"></div>
+    </div>
+    <label>Notes</label><textarea id="pm-notes" placeholder="Notes about this prospect..."></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('prospect-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveProspect()">Save prospect</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="revenue-modal">
+  <div class="modal">
+    <div class="modal-title">Log payment</div>
+    <label>Client name *</label><input id="rm-client" type="text" placeholder="Client name">
+    <div class="form-row">
+      <div><label>Amount (USD) *</label><input id="rm-amount" type="number" placeholder="e.g. 700"></div>
+      <div><label>Payment date</label><input id="rm-date" type="date"></div>
+    </div>
+    <label>Service</label>
+    <select id="rm-service"><option>Funnel Design & Automation</option><option>GHL Setup</option><option>Email Automation</option><option>Full Funnel System</option><option>AI Clone Setup (HeyGen)</option><option>Retainer</option><option>Other</option></select>
+    <div class="form-row">
+      <div><label>Phase</label><select id="rm-phase"><option>Phase 1</option><option>Phase 2</option><option>Phase 3</option></select></div>
+      <div><label>Location</label><select id="rm-location"><option>International</option><option>India</option><option>US</option><option>UK</option><option>Canada</option><option>Australia</option></select></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:14px;cursor:pointer">
+      <input type="checkbox" id="rm-invoice" style="width:14px;height:14px;accent-color:var(--green)"> Invoice sent to client
+    </label>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('revenue-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="savePayment()">Log payment</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="wl-modal">
+  <div class="modal">
+    <div class="modal-title">Log this week</div>
+    <label>Week label *</label><input id="wlm-week" type="text" placeholder="e.g. Week 2 · Jun 16–22">
+    <div class="form-row">
+      <div><label>Calls booked</label><input id="wlm-calls" type="number" placeholder="0" min="0"></div>
+      <div><label>Clients closed</label><input id="wlm-closed" type="number" placeholder="0" min="0"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Content posted</label><input id="wlm-content" type="number" placeholder="0" min="0"></div>
+      <div><label>DMs sent</label><input id="wlm-dms" type="number" placeholder="0" min="0"></div>
+    </div>
+    <label>Blocker</label><input id="wlm-blocker" type="text" placeholder="What blocked you this week?">
+    <label>Key win</label><input id="wlm-win" type="text" placeholder="What was your biggest win?">
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('wl-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveWeeklyLog()">Save log</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="content-modal">
+  <div class="modal">
+    <div class="modal-title">Add content idea</div>
+    <label>Title *</label><input id="cm-title" type="text" placeholder="e.g. 5 funnel mistakes coaches make">
+    <div class="form-row">
+      <div><label>Format</label><select id="cm-format"><option>Reel</option><option>Carousel</option><option>Text post</option><option>Educational video</option><option>Funnel breakdown</option><option>Behind the scenes</option><option>AI clone video</option></select></div>
+      <div><label>Platform</label><select id="cm-platform"><option>LinkedIn</option><option>Instagram</option><option>Facebook</option><option>YouTube</option><option>Twitter</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>Status</label><select id="cm-status"><option>Idea</option><option>In progress</option><option>Ready</option><option>Published</option></select></div>
+      <div><label>Scheduled date</label><input id="cm-date" type="date"></div>
+    </div>
+    <label>Notes / hook</label><textarea id="cm-notes" placeholder="Hook, key points, CTA..."></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('content-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveContent()">Save idea</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="task-detail-modal">
+  <div class="modal">
+    <div class="modal-title" id="tdm-title">Task detail</div>
+    <label>Description</label>
+    <div id="tdm-desc" style="font-size:13px;color:var(--text-secondary);padding:8px 0;min-height:32px;line-height:1.5"></div>
+    <div class="form-row" style="margin-top:12px">
+      <div><label>Status</label><div id="tdm-status" style="font-size:13px;padding:6px 0"></div></div>
+      <div><label>Priority</label><div id="tdm-priority" style="font-size:13px;padding:6px 0"></div></div>
+    </div>
+    <div class="form-row">
+      <div><label>Day</label><div id="tdm-day" style="font-size:13px;padding:6px 0"></div></div>
+      <div><label>Category</label><div id="tdm-cat" style="font-size:13px;padding:6px 0"></div></div>
+    </div>
+    <div class="form-row">
+      <div><label>Time estimate</label><div id="tdm-time" style="font-size:13px;padding:6px 0"></div></div>
+      <div><label>Due date</label><div id="tdm-due" style="font-size:13px;padding:6px 0"></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('task-detail-modal')">Close</button>
+      <button class="btn btn-p" id="tdm-cycle-btn">Mark In Progress</button>
+    </div>
+  </div>
+</div>
+
+<!-- AIRTABLE SETUP MODAL -->
+<div class="modal-ov" id="setup-modal" style="display:flex">
+  <div class="modal" style="max-width:480px">
+    <div style="font-size:22px;margin-bottom:6px">🔐</div>
+    <div class="modal-title">Connect your Airtable</div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">Your token is stored only in your browser — it never leaves your device and is not in the code.</p>
+    <label>Airtable Personal Access Token *</label>
+    <input id="setup-token" type="password" placeholder="patXXXXXXXXXXXXXX.XXXXXXX" autocomplete="off">
+    <p style="font-size:11px;color:var(--text-tertiary);margin-top:6px">Get it from <strong>airtable.com → Account → Developer Hub → Personal access tokens</strong></p>
+    <div id="setup-err" style="font-size:12px;color:var(--red-dark);margin-top:8px;display:none"></div>
+    <div class="modal-footer" style="margin-top:20px">
+      <button class="btn btn-p" style="width:100%" onclick="setupConnect()">Connect & Sync</button>
+    </div>
+    <div id="setup-existing" style="display:none;margin-top:12px;text-align:center">
+      <button class="btn btn-s" style="font-size:11px" onclick="setupSkip()">Continue with saved token</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let TOKEN=localStorage.getItem('cfs_token')||'';
+const BASE='appkFzg1YLcC6omNh';
+const TBL={tasks:'tbl2uYEqVnhnGz1RP',pipeline:'tblsJLpLTHpsZ76gB',revenue:'tblW6X9RIdPP7OK1P',weeklylog:'tblrXwAlYxLZwf3Qn',content:'tbl1FE4IyDw9JBJN5'};
+const F={
+  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf'},
+  pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3'},
+  revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD'},
+  weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA'},
+  content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i'}
+};
+const TODAY=new Date('2026-06-15');
+const DEADLINE=new Date('2026-12-31');
+const DAYS_LEFT=Math.ceil((DEADLINE-TODAY)/86400000);
+const WEEKS_LEFT=Math.ceil(DAYS_LEFT/7);
+const MONTHLY=[
+  {m:'Jun–Jul',ph:'Phase 1',t:0,bc:'bp1'},
+  {m:'August',ph:'Phase 2',t:1000,bc:'bp2'},
+  {m:'September',ph:'Phase 2',t:1500,bc:'bp2'},
+  {m:'October',ph:'Phase 3',t:2500,bc:'bp3'},
+  {m:'November',ph:'Phase 3',t:2500,bc:'bp3'},
+  {m:'December',ph:'Phase 3',t:2500,bc:'bp3'}
+];
+let S={tasks:[],pipeline:[],revenue:[],weeklylog:[],content:[],outreach:{today:0,todayDate:'',week:0,month:0},taskView:'board',pipeView:'table'};
+
+function ls(k,v){if(v!==undefined)localStorage.setItem('cfs_'+k,JSON.stringify(v));else{try{return JSON.parse(localStorage.getItem('cfs_'+k))||null}catch(e){return null}}}
+function loadState(){['tasks','pipeline','revenue','weeklylog','content','outreach'].forEach(k=>{const d=ls(k);if(d)S[k]=d});recomputeOutreach();}
+function saveState(){['tasks','pipeline','revenue','weeklylog','content','outreach'].forEach(k=>ls(k,S[k]));}
+
+async function atList(tbl){
+  let recs=[],offset='';
+  do{
+    const url=`https://api.airtable.com/v0/${BASE}/${tbl}?pageSize=100&returnFieldsByFieldId=true${offset?'&offset='+offset:''}`;
+    const r=await fetch(url,{headers:{Authorization:'Bearer '+TOKEN}});
+    const d=await r.json();
+    recs=recs.concat(d.records||[]);
+    offset=d.offset||'';
+  }while(offset);
+  return recs;
+}
+async function atCreate(tbl,fields){
+  const r=await fetch(`https://api.airtable.com/v0/${BASE}/${tbl}?returnFieldsByFieldId=true`,{method:'POST',headers:{Authorization:'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({records:[{fields}]})});
+  return r.json();
+}
+async function atPatch(tbl,id,fields){
+  const r=await fetch(`https://api.airtable.com/v0/${BASE}/${tbl}/${id}?returnFieldsByFieldId=true`,{method:'PATCH',headers:{Authorization:'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({fields})});
+  return r.json();
+}
+
+// Day/Category/Time may be in Airtable under an unknown field ID, so we scan
+// field values as a fallback for records returned with returnFieldsByFieldId=true.
+const DAY_VALS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const CAT_VALS=['Asset building','Outreach','Admin','Content','Client work'];
+function getTaskField(r,knownId,fallbackVals){
+  if(r.fields[knownId]!==undefined)return r.fields[knownId];
+  // Local records store by plain name key
+  if(r.fields['Day']!==undefined&&DAY_VALS.includes(r.fields['Day']))return r.fields['Day'];
+  if(!fallbackVals)return '';
+  for(const v of Object.values(r.fields||{})){if(fallbackVals.includes(v))return v;}
+  return '';
+}
+function getDay(r){
+  if(r.fields['Day']!==undefined)return r.fields['Day'];
+  for(const v of Object.values(r.fields||{})){if(DAY_VALS.includes(v))return v;}
+  return '';
+}
+function getCat(r){
+  if(r.fields['Category']!==undefined)return r.fields['Category'];
+  for(const v of Object.values(r.fields||{})){if(CAT_VALS.includes(v))return v;}
+  return '';
+}
+function getTime(r){return r.fields['Time']||r.fields[F.tasks.time]||'';}
+
+async function syncAll(){
+  toast('Syncing with Airtable...');
+  try{
+    const [t,p,r,w,c]=await Promise.all([atList(TBL.tasks),atList(TBL.pipeline),atList(TBL.revenue),atList(TBL.weeklylog),atList(TBL.content)]);
+    S.tasks=t;S.pipeline=p;S.revenue=r;S.weeklylog=w;S.content=c;
+    // Recompute DM totals from Airtable records after sync
+    recomputeOutreach();
+    saveState();renderAll();toast('Synced ✓');
+  }catch(e){toast('Sync failed — check connection');}
+}
+window.syncAll=syncAll;
+
+function renderAll(){renderOverview();renderTasks();renderPipeline();renderRevenue();renderWeeklyLog();renderContent();}
+
+function renderOverview(){
+  document.getElementById('m-days').textContent=DAYS_LEFT;
+  document.getElementById('m-weeks').textContent=WEEKS_LEFT;
+  document.getElementById('m-months').textContent=Math.round(DAYS_LEFT/30)+' months';
+  const earned=S.revenue.filter(r=>r.fields['Amount']).reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
+  const rem=Math.max(0,10000-earned);
+  const pct=Math.min((earned/10000)*100,100);
+  const wkN=WEEKS_LEFT>0?Math.ceil(rem/WEEKS_LEFT):0;
+  document.getElementById('m-earned').textContent='$'+earned.toLocaleString();
+  document.getElementById('m-remaining').textContent='$'+rem.toLocaleString();
+  document.getElementById('m-pace').textContent='$'+wkN.toLocaleString()+'/week needed';
+  document.getElementById('ov-bar').style.width=pct+'%';
+  document.getElementById('ov-pct').textContent=pct.toFixed(1)+'%';
+  const closed=S.pipeline.filter(r=>(r.fields[F.pipeline.status]||'').toLowerCase()==='closed').length;
+  document.getElementById('m-prospects').textContent=S.pipeline.length;
+  document.getElementById('m-closed').textContent=closed+' closed';
+  const tbody=document.getElementById('ov-monthly');
+  tbody.innerHTML='';
+  let tt=0;
+  MONTHLY.forEach(m=>{tt+=m.t;const g=0-m.t;tbody.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td>$0</td><td class="${g<0?'gap-neg':'gap-pos'}">${g<0?'-$'+Math.abs(g).toLocaleString():'+$'+g}</td></tr>`;});
+  tbody.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td>$0</td><td class="gap-neg">-$${tt.toLocaleString()}</td></tr>`;
+  const od=S.outreach;
+  ['today','week','month'].forEach((k,i)=>{const goals=[5,30,130];const v=od[k]||0;document.getElementById('ob-'+k).style.width=Math.min((v/goals[i])*100,100)+'%';document.getElementById('ov-'+k).textContent=v;});
+  const done=S.tasks.filter(r=>(r.fields[F.tasks.status]||'').toLowerCase()==='done').length;
+  const total=S.tasks.length||8;
+  const tp=Math.round((done/total)*100);
+  document.getElementById('tp-title').textContent=done+' of '+total+' tasks complete';
+  document.getElementById('tp-pct').textContent=tp+'%';
+  document.getElementById('tp-bar').style.width=tp+'%';
+}
+
+// ── DM LOGGING — Airtable backed ────────────────────────────────────────────
+// Each day's DM count is stored as a record in the Weekly Log table.
+// Record name field = "DM-LOG::YYYY-MM-DD", DMs sent field = count
+// On syncAll(), we pull these records back and recompute totals.
+
+const DM_PREFIX='DM-LOG::';
+
+function getTodayKey(){return TODAY.toISOString().split('T')[0];}
+
+function recomputeOutreach(){
+  const ts=getTodayKey();
+  const todayMonth=ts.slice(0,7);
+  const d=new Date(TODAY);
+  const day=d.getDay()||7;
+  d.setDate(d.getDate()-day+1);
+  const weekStart=d.toISOString().split('T')[0];
+  let todayCount=0,weekCount=0,monthCount=0;
+  S.weeklylog.forEach(r=>{
+    const name=r.fields[F.weeklylog.name]||'';
+    if(!name.startsWith(DM_PREFIX))return;
+    const date=name.replace(DM_PREFIX,'');
+    const count=parseInt(r.fields['DMs sent'])||0;
+    if(date===ts)todayCount+=count;
+    if(date>=weekStart&&date<=ts)weekCount+=count;
+    if(date.startsWith(todayMonth))monthCount+=count;
+  });
+  S.outreach={today:todayCount,week:weekCount,month:monthCount,todayDate:ts};
+  saveState();
+}
+
+async function logDM(){
+  const ts=getTodayKey();
+  const existing=S.weeklylog.find(r=>(r.fields[F.weeklylog.name]||'')===(DM_PREFIX+ts));
+  if(existing){
+    const newCount=(parseInt(existing.fields['DMs sent'])||0)+1;
+    existing.fields['DMs sent']=newCount;
+    recomputeOutreach();renderOverview();toast('DM logged ✓');
+    if(!existing.id.startsWith('l')){
+      try{await atPatch(TBL.weeklylog,existing.id,{'DMs sent':newCount});toast('DM saved to Airtable ✓');}
+      catch(e){toast('DM logged locally — syncs next time');}
+    }
+  } else {
+    const fields={[F.weeklylog.name]:DM_PREFIX+ts,'DMs sent':1};
+    const tempId='l'+Date.now();
+    const newRec={id:tempId,fields};
+    S.weeklylog.push(newRec);
+    recomputeOutreach();renderOverview();toast('Logging DM...');
+    try{
+      const res=await atCreate(TBL.weeklylog,fields);
+      if(res.records&&res.records[0]){
+        const idx=S.weeklylog.findIndex(r=>r.id===tempId);
+        if(idx>-1)S.weeklylog[idx]=res.records[0];
+        saveState();toast('DM saved to Airtable ✓');
+      }
+    }catch(e){toast('DM logged locally — syncs next time');}
+  }
+}
+
+async function resetToday(){
+  const ts=getTodayKey();
+  const existing=S.weeklylog.find(r=>(r.fields[F.weeklylog.name]||'')===(DM_PREFIX+ts));
+  if(existing){
+    existing.fields['DMs sent']=0;
+    recomputeOutreach();renderOverview();toast('Today reset');
+    if(!existing.id.startsWith('l')){
+      atPatch(TBL.weeklylog,existing.id,{'DMs sent':0}).catch(()=>{});
+    }
+  } else {toast('Nothing to reset today');}
+}
+window.logDM=logDM;window.resetToday=resetToday;
+
+function catCls(c){if(!c)return '';if(c==='Outreach')return 'tag-out';if(c==='Admin')return 'tag-admin';return 'tag-asset';}
+function statusCls(s){const m={'to do':'col-todo','in progress':'col-inp','done':'col-done','blocked':'col-block'};return m[(s||'').toLowerCase()]||'col-todo';}
+function badgeCls(s){const m={'to do':'btodo','in progress':'binp','done':'bdone','blocked':'bblock','not contacted':'bnot','dm sent':'bnot','replied':'bp2','call booked':'bp3','proposal sent':'bprop','closed':'bclosed','no response':'bnot'};return m[(s||'').toLowerCase()]||'bnot';}
+
+function renderTasks(){
+  const v=S.taskView;
+  const el=document.getElementById('tasks-board');
+  if(v==='list'){
+    el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due</th></tr></thead><tbody>${S.tasks.map(r=>`<tr><td style="font-weight:500">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(r.fields[F.tasks.status])}">${r.fields[F.tasks.status]||'To Do'}</span></td><td>${r.fields[F.tasks.priority]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+    return;
+  }
+  const cols=v==='board'
+    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Done',cls:'col-done',l:'Done'},{k:'Blocked',cls:'col-block',l:'Blocked'}]
+    :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
+  const gfn=v==='board'?r=>r.fields[F.tasks.status]||'To Do':r=>getDay(r);
+  el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`;
+  el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`+cols.map(col=>{
+    const items=S.tasks.filter(r=>gfn(r)===col.k);
+    return `<div class="kanban-col ${col.cls}"><div class="kc-bar"></div><div class="kc-header"><div class="kc-title">${col.l}</div><div class="kc-count">${items.length}</div></div>${items.map(r=>taskCard(r)).join('')}</div>`;
+  }).join('')+'</div>';
+}
+
+function taskCard(r){
+  const s=r.fields[F.tasks.status]||'To Do';
+  const done=s.toLowerCase()==='done';
+  const cat=getCat(r);
+  const day=getDay(r);
+  const time=getTime(r);
+  const pri=r.fields[F.tasks.priority]||'';
+  const name=r.fields[F.tasks.name]||'';
+  if(!name)return ''; // skip blank records
+  return `<div class="task-card" onclick="openTaskDetail('${r.id}')">
+    <div class="tc-title" style="${done?'text-decoration:line-through;color:var(--text-tertiary)':''}">${name}</div>
+    <div class="tc-meta">
+      ${day?`<span class="tag tag-day">${day}</span>`:''}
+      ${cat?`<span class="tag ${catCls(cat)}">${cat}</span>`:''}
+      ${time?`<span class="tag tag-time">${time}</span>`:''}
+      ${pri?`<span class="tag" style="background:${pri==='High'?'var(--red-light)':'var(--amber-light)'};color:${pri==='High'?'var(--red-dark)':'var(--amber-dark)'}">${pri}</span>`:''}
+    </div>
+    <div class="tc-done" onclick="event.stopPropagation();cycleStatus('${r.id}','${s}')"><div class="chk ${done?'on':''}">${done?'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5 3.5-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>':''}</div><span class="chk-lbl">Done?</span></div>
+  </div>`;
+}
+
+async function cycleStatus(id,cur){
+  const map={'To Do':'In Progress','In Progress':'Done','Done':'To Do','Blocked':'To Do'};
+  const next=map[cur]||'To Do';
+  const r=S.tasks.find(t=>t.id===id);
+  if(!r)return;
+  // Update local state immediately so UI feels instant
+  r.fields[F.tasks.status]=next;
+  r.fields['Status']=next; // also set by name in case field ID differs
+  saveState();renderTasks();renderOverview();
+  // Skip Airtable sync for locally-created records (id starts with 'l')
+  if(id.startsWith('l')){toast('Status updated locally ✓');return;}
+  try{
+    // Patch using both the field ID and the plain field name for reliability
+    const patch={[F.tasks.status]:next,'Status':next};
+    const res=await atPatch(TBL.tasks,id,patch);
+    if(res.error){
+      // If field ID fails, retry with name only
+      await atPatch(TBL.tasks,id,{'Status':next});
+    }
+    toast('Task status saved to Airtable ✓');
+  }catch(e){
+    toast('Status saved locally — will sync next time');
+  }
+}
+window.cycleStatus=cycleStatus;
+
+function openTaskDetail(id){
+  const r=S.tasks.find(t=>t.id===id);
+  if(!r)return;
+  const s=r.fields[F.tasks.status]||'To Do';
+  const map={'To Do':'In Progress','In Progress':'Done','Done':'To Do','Blocked':'To Do'};
+  const next=map[s]||'To Do';
+  document.getElementById('tdm-title').textContent=r.fields[F.tasks.name]||'Task';
+  document.getElementById('tdm-desc').textContent=r.fields[F.tasks.desc]||'—';
+  document.getElementById('tdm-status').innerHTML=`<span class="badge ${badgeCls(s)}">${s}</span>`;
+  document.getElementById('tdm-priority').textContent=r.fields[F.tasks.priority]||'—';
+  document.getElementById('tdm-day').textContent=getDay(r)||'—';
+  document.getElementById('tdm-cat').textContent=getCat(r)||'—';
+  document.getElementById('tdm-time').textContent=getTime(r)||'—';
+  document.getElementById('tdm-due').textContent=r.fields[F.tasks.due]||'—';
+  const btn=document.getElementById('tdm-cycle-btn');
+  btn.textContent='Mark '+next;
+  btn.onclick=()=>{closeModal('task-detail-modal');cycleStatus(id,s);};
+  openModal('task-detail-modal');
+}
+window.openTaskDetail=openTaskDetail;
+
+function setTaskView(v){
+  S.taskView=v;
+  ['board','day','list'].forEach(k=>document.getElementById('tv-'+k).classList.toggle('active',k===v));
+  renderTasks();
+}
+window.setTaskView=setTaskView;
+
+function renderPipeline(){
+  const stages=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed'];
+  const counts={};stages.forEach(s=>counts[s]=0);
+  S.pipeline.forEach(r=>{const s=r.fields[F.pipeline.status]||'Not Contacted';if(counts[s]!==undefined)counts[s]++;});
+  document.getElementById('pipe-stages').innerHTML=stages.map(s=>`<div class="ps ${counts[s]>0?'on':''}"><div class="ps-count">${counts[s]}</div><div class="ps-name">${s}</div></div>`).join('');
+  const pv=document.getElementById('pipe-view');
+  if(S.pipeView==='table'){
+    pv.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>DM sent date</th><th>Deal value</th><th>Follow-up date</th><th>Location</th><th>Niche</th><th>Notes</th><th>Platform</th><th>Status</th></tr></thead><tbody>${S.pipeline.map(r=>{
+      const s=r.fields[F.pipeline.status]||'Not Contacted';
+      const loc=r.fields[F.pipeline.company]||'—';
+      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields['DM sent date']||'—'}</td><td>${r.fields['Deal value']?'$'+r.fields['Deal value']:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields['Niche']||'—'}</td><td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${r.fields['Platform']||'—'}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  } else {
+    const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed','No Response'];
+    pv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">${sts.map(s=>{
+      const items=S.pipeline.filter(r=>(r.fields[F.pipeline.status]||'Not Contacted')===s);
+      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.company]||''}</div></div>`).join('')}</div>`;
+    }).join('')}</div>`;
+  }
+}
+
+function setPipeView(v){
+  S.pipeView=v;
+  ['table','board'].forEach(k=>document.getElementById('pv-'+k).classList.toggle('active',k===v));
+  renderPipeline();
+}
+window.setPipeView=setPipeView;
+
+function renderRevenue(){
+  const payments=S.revenue.filter(r=>r.fields['Amount']);
+  const total=payments.reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
+  document.getElementById('rev-total').textContent='$'+total.toLocaleString();
+  document.getElementById('rev-count').textContent=payments.length;
+  const mb=document.getElementById('rev-monthly');mb.innerHTML='';
+  let tt=0;
+  MONTHLY.forEach(m=>{tt+=m.t;const g=0-m.t;mb.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td>$0</td><td class="${g<0?'gap-neg':'gap-pos'}">${g<0?'-$'+Math.abs(g).toLocaleString():'+$'+g}</td></tr>`;});
+  mb.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td>$0</td><td class="gap-neg">-$${tt.toLocaleString()}</td></tr>`;
+  const pb=document.getElementById('rev-payments');
+  pb.innerHTML=payments.length===0?'<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No payments yet. Click "+ Log payment" to add your first client.</td></tr>':payments.map(r=>`<tr><td style="font-weight:500">${r.fields['Client']||r.fields[F.revenue.client]||'—'}</td><td>${r.fields['Service']||'—'}</td><td style="font-weight:600;color:var(--green-dark)">$${r.fields['Amount']||0}</td><td style="color:var(--text-secondary)">${r.fields['Date']||'—'}</td><td><span class="badge ${r.fields['Phase']==='Phase 1'?'bp1':r.fields['Phase']==='Phase 2'?'bp2':'bp3'}">${r.fields['Phase']||'—'}</span></td><td>${r.fields['Location']||'—'}</td><td>${r.fields['Invoice sent']?'✓ Yes':'—'}</td></tr>`).join('');
+}
+
+function renderWeeklyLog(){
+  const b=document.getElementById('wl-body');
+  if(S.weeklylog.length>0){
+    b.innerHTML=S.weeklylog.map(r=>`<tr><td style="font-weight:500">${r.fields[F.weeklylog.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.weeklylog.challenges]||'—'}</td><td>${r.fields['Calls booked']||0}</td><td>${r.fields['Clients closed']||0}</td><td>${r.fields['Content posted']||0}</td><td>${r.fields['DMs sent']||0}</td><td style="color:var(--text-secondary)">${r.fields[F.weeklylog.accomplishments]||'—'}</td></tr>`).join('');
+  }
+}
+
+function renderContent(){
+  const b=document.getElementById('ct-body');
+  if(S.content.length===0){b.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No content planned yet. Add your first idea.</td></tr>';return;}
+  const sc=s=>s==='Published'?'bdone':s==='Ready'?'binp':s==='In progress'?'binp':'bnot';
+  b.innerHTML=S.content.map(r=>`<tr><td style="font-weight:500">${r.fields[F.content.name]||'—'}</td><td>${r.fields['Format']||'—'}</td><td>${r.fields['Platform']||'—'}</td><td><span class="badge ${sc(r.fields[F.content.status]||'Idea')}">${r.fields[F.content.status]||'Idea'}</span></td><td style="color:var(--text-secondary)">${r.fields['Scheduled date']||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.content.notes]||'—'}</td></tr>`).join('');
+}
+
+function switchTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['overview','tasks','pipeline','revenue','weeklylog','content'][i]===n));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(n).classList.add('active');
+}
+window.switchTab=switchTab;
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+window.openModal=openModal;window.closeModal=closeModal;
+document.querySelectorAll('.modal-ov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+async function saveTask(){
+  const name=document.getElementById('tm-name').value.trim();
+  if(!name){toast('Task name required');return;}
+  const fields={[F.tasks.name]:name,[F.tasks.desc]:document.getElementById('tm-desc').value,[F.tasks.status]:document.getElementById('tm-status').value,[F.tasks.priority]:document.getElementById('tm-priority').value};
+  const due=document.getElementById('tm-due').value;if(due)fields[F.tasks.due]=due;
+  const day=document.getElementById('tm-day').value;if(day)fields['Day']=day;
+  const cat=document.getElementById('tm-cat').value;if(cat)fields['Category']=cat;
+  const time=document.getElementById('tm-time').value;if(time)fields['Time']=time;
+  closeModal('task-modal');toast('Saving...');
+  try{const res=await atCreate(TBL.tasks,fields);if(res.records){S.tasks.push(res.records[0]);saveState();renderTasks();renderOverview();toast('Task saved to Airtable ✓');}}
+  catch(e){S.tasks.push({id:'l'+Date.now(),fields});saveState();renderTasks();renderOverview();toast('Saved locally');}
+  ['tm-name','tm-desc','tm-time'].forEach(id=>document.getElementById(id).value='');
+}
+window.saveTask=saveTask;
+
+async function saveProspect(){
+  const name=document.getElementById('pm-name').value.trim();
+  if(!name){toast('Name required');return;}
+  const fields={[F.pipeline.name]:name,[F.pipeline.company]:document.getElementById('pm-location').value,[F.pipeline.status]:document.getElementById('pm-status').value,[F.pipeline.notes]:document.getElementById('pm-notes').value,'Platform':document.getElementById('pm-platform').value,'Niche':document.getElementById('pm-niche').value};
+  const deal=document.getElementById('pm-deal').value;if(deal)fields['Deal value']=parseFloat(deal);
+  const dm=document.getElementById('pm-dmdate').value;if(dm)fields['DM sent date']=dm;
+  const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  const em=document.getElementById('pm-email').value;if(em)fields[F.pipeline.email]=em;
+  closeModal('prospect-modal');toast('Saving...');
+  try{const res=await atCreate(TBL.pipeline,fields);if(res.records){S.pipeline.push(res.records[0]);saveState();renderPipeline();renderOverview();toast('Prospect saved to Airtable ✓');}}
+  catch(e){S.pipeline.push({id:'l'+Date.now(),fields});saveState();renderPipeline();renderOverview();toast('Saved locally');}
+  ['pm-name','pm-niche','pm-deal','pm-email','pm-dmdate','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
+}
+window.saveProspect=saveProspect;
+
+async function savePayment(){
+  const client=document.getElementById('rm-client').value.trim();
+  const amount=parseFloat(document.getElementById('rm-amount').value);
+  if(!client||!amount){toast('Client and amount required');return;}
+  const fields={'Client':client,'Amount':amount,'Service':document.getElementById('rm-service').value,'Date':document.getElementById('rm-date').value,'Phase':document.getElementById('rm-phase').value,'Location':document.getElementById('rm-location').value,'Invoice sent':document.getElementById('rm-invoice').checked};
+  closeModal('revenue-modal');toast('Logging payment...');
+  try{const res=await atCreate(TBL.revenue,fields);if(res.records){S.revenue.push(res.records[0]);saveState();renderRevenue();renderOverview();toast('Payment logged to Airtable ✓');}}
+  catch(e){S.revenue.push({id:'l'+Date.now(),fields});saveState();renderRevenue();renderOverview();toast('Saved locally');}
+  ['rm-client','rm-amount','rm-date'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rm-invoice').checked=false;
+}
+window.savePayment=savePayment;
+
+async function saveWeeklyLog(){
+  const week=document.getElementById('wlm-week').value.trim();
+  if(!week){toast('Week label required');return;}
+  const fields={[F.weeklylog.name]:week,'Calls booked':parseInt(document.getElementById('wlm-calls').value)||0,'Clients closed':parseInt(document.getElementById('wlm-closed').value)||0,'Content posted':parseInt(document.getElementById('wlm-content').value)||0,'DMs sent':parseInt(document.getElementById('wlm-dms').value)||0,[F.weeklylog.challenges]:document.getElementById('wlm-blocker').value,[F.weeklylog.accomplishments]:document.getElementById('wlm-win').value};
+  closeModal('wl-modal');toast('Saving...');
+  try{const res=await atCreate(TBL.weeklylog,fields);if(res.records){S.weeklylog.push(res.records[0]);saveState();renderWeeklyLog();toast('Weekly log saved to Airtable ✓');}}
+  catch(e){S.weeklylog.push({id:'l'+Date.now(),fields});saveState();renderWeeklyLog();toast('Saved locally');}
+  ['wlm-week','wlm-calls','wlm-closed','wlm-content','wlm-dms','wlm-blocker','wlm-win'].forEach(id=>document.getElementById(id).value='');
+}
+window.saveWeeklyLog=saveWeeklyLog;
+
+async function saveContent(){
+  const title=document.getElementById('cm-title').value.trim();
+  if(!title){toast('Title required');return;}
+  const fields={[F.content.name]:title,'Format':document.getElementById('cm-format').value,'Platform':document.getElementById('cm-platform').value,[F.content.status]:document.getElementById('cm-status').value,'Scheduled date':document.getElementById('cm-date').value,[F.content.notes]:document.getElementById('cm-notes').value};
+  closeModal('content-modal');toast('Saving...');
+  try{const res=await atCreate(TBL.content,fields);if(res.records){S.content.push(res.records[0]);saveState();renderContent();toast('Content idea saved to Airtable ✓');}}
+  catch(e){S.content.push({id:'l'+Date.now(),fields});saveState();renderContent();toast('Saved locally');}
+  ['cm-title','cm-date','cm-notes'].forEach(id=>document.getElementById(id).value='');
+}
+window.saveContent=saveContent;
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ── SETUP / TOKEN FLOW ───────────────────────────────────────────────────────
+async function setupConnect(){
+  const val=document.getElementById('setup-token').value.trim();
+  if(!val){showSetupErr('Please paste your Personal Access Token.');return;}
+  const btn=document.querySelector('#setup-modal .btn-p');
+  btn.textContent='Connecting…';btn.disabled=true;
+  try{
+    const r=await fetch(`https://api.airtable.com/v0/${BASE}/${TBL.tasks}?pageSize=1&returnFieldsByFieldId=true`,{headers:{Authorization:'Bearer '+val}});
+    const d=await r.json();
+    if(d.error){showSetupErr('Token rejected by Airtable: '+d.error.message);btn.textContent='Connect & Sync';btn.disabled=false;return;}
+    TOKEN=val;
+    localStorage.setItem('cfs_token',TOKEN);
+    document.getElementById('setup-modal').style.display='none';
+    loadState();renderAll();syncAll();
+  }catch(e){showSetupErr('Could not reach Airtable — check your connection.');btn.textContent='Connect & Sync';btn.disabled=false;}
+}
+function setupSkip(){
+  document.getElementById('setup-modal').style.display='none';
+  loadState();renderAll();syncAll();
+}
+function showSetupErr(msg){const el=document.getElementById('setup-err');el.textContent=msg;el.style.display='block';}
+function openSettings(){
+  document.getElementById('setup-token').value=TOKEN;
+  document.getElementById('setup-err').style.display='none';
+  document.getElementById('setup-modal').style.display='flex';
+}
+window.setupConnect=setupConnect;window.setupSkip=setupSkip;window.openSettings=openSettings;
+
+// ── STARTUP ──────────────────────────────────────────────────────────────────
+document.getElementById('date-txt').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+if(TOKEN){
+  // Token already saved — show "continue" option, auto-proceed after 1s
+  document.getElementById('setup-token').value=TOKEN;
+  document.getElementById('setup-existing').style.display='block';
+  document.querySelector('#setup-modal .modal-title').textContent='Airtable connected ✓';
+  document.querySelector('#setup-modal p').textContent='Your token is saved. Click below to go to the dashboard, or paste a new token above to reconnect.';
+  // Auto-skip after a moment so returning users aren't blocked
+  setTimeout(()=>{if(TOKEN){setupSkip();}},800);
+} // else: setup modal stays open (display:flex set inline)
+</script>
+</body>
+</html>
