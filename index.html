@@ -40,8 +40,18 @@ html.dark{
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;-webkit-font-smoothing:antialiased}
 
 /* ── BACKGROUND GLOW (dark only) ── */
-html.dark body::before{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse at center,rgba(74,222,128,.07) 0%,transparent 70%);pointer-events:none;z-index:0}
-html.dark body::after{content:'';position:fixed;bottom:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(ellipse at center,rgba(96,165,250,.05) 0%,transparent 70%);pointer-events:none;z-index:0}
+html.dark body::before{
+  content:'';position:fixed;top:-120px;left:30%;
+  width:900px;height:600px;
+  background:radial-gradient(ellipse at center,rgba(74,222,128,.18) 0%,rgba(74,222,128,.06) 35%,transparent 70%);
+  pointer-events:none;z-index:0;filter:blur(40px)
+}
+html.dark body::after{
+  content:'';position:fixed;bottom:-80px;right:5%;
+  width:600px;height:500px;
+  background:radial-gradient(ellipse at center,rgba(96,165,250,.14) 0%,rgba(96,165,250,.04) 40%,transparent 70%);
+  pointer-events:none;z-index:0;filter:blur(50px)
+}
 .header,.tab-bar,.page{position:relative;z-index:1}
 
 /* ── HEADER ── */
@@ -66,15 +76,15 @@ html.dark .tab-bar{background:rgba(19,19,22,.92)}
 .page.active{display:block}
 
 /* ── CARDS ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transition:box-shadow .2s}
-html.dark .card{box-shadow:var(--glow-card,none);border-color:#26262E}
-html.dark .card:hover{box-shadow:0 0 0 1px rgba(74,222,128,.2),0 8px 32px rgba(0,0,0,.6),0 0 40px rgba(74,222,128,.06)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transition:all .25s}
+html.dark .card{border-color:#2A2A34;box-shadow:0 2px 16px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)}
+html.dark .card:hover{border-color:rgba(74,222,128,.35);box-shadow:0 0 0 1px rgba(74,222,128,.25),0 8px 40px rgba(0,0,0,.7),0 0 60px rgba(74,222,128,.12);transform:translateY(-2px)}
 
 /* ── METRIC CARDS ── */
 .metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
 .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:all .2s}
-html.dark .metric{box-shadow:var(--glow-card,none)}
-html.dark .metric:hover{box-shadow:0 0 0 1px rgba(74,222,128,.25),0 8px 32px rgba(0,0,0,.6),0 0 50px rgba(74,222,128,.08);transform:translateY(-2px)}
+html.dark .metric{border-color:#2A2A34;box-shadow:0 2px 16px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)}
+html.dark .metric:hover{border-color:rgba(74,222,128,.4);box-shadow:0 0 0 1px rgba(74,222,128,.3),0 8px 40px rgba(0,0,0,.7),0 0 60px rgba(74,222,128,.15);transform:translateY(-3px)}
 .metric-label{font-size:11px;color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
 .metric-value{font-size:34px;font-weight:800;color:var(--text-primary);line-height:1;letter-spacing:-.03em}
 .metric-value.green{color:var(--green-dark)}
@@ -118,9 +128,9 @@ html.dark .kanban-col{background:#0D0D10;border-color:#1E1E25;box-shadow:inset 0
 
 /* ── TASK CARDS ── */
 .task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0;margin-bottom:10px;cursor:pointer;overflow:hidden;transition:all .2s}
-html.dark .task-card{box-shadow:0 2px 8px rgba(0,0,0,.4);border-color:#26262E}
+html.dark .task-card{box-shadow:0 4px 16px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);border-color:#2A2A34}
 .task-card:hover{border-color:var(--green);box-shadow:var(--shadow-md);transform:translateY(-2px)}
-html.dark .task-card:hover{box-shadow:0 0 0 1px var(--green),0 8px 30px rgba(0,0,0,.6),0 0 30px rgba(74,222,128,.1);transform:translateY(-2px)}
+html.dark .task-card:hover{border-color:rgba(74,222,128,.5);box-shadow:0 0 0 1px rgba(74,222,128,.35),0 8px 32px rgba(0,0,0,.7),0 0 40px rgba(74,222,128,.14);transform:translateY(-3px)}
 .tc-stripe{height:3px;width:100%}
 .tc-stripe.todo{background:var(--red)}.tc-stripe.inp{background:var(--amber)}.tc-stripe.done{background:var(--green)}.tc-stripe.block{background:var(--purple)}
 .tc-body{padding:12px 13px 10px}
