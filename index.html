@@ -806,6 +806,8 @@ function taskCard(r){
   const name=r.fields[F.tasks.name]||'';
   if(!name)return '';
   const priCls=pri==='High'?'tag-hi':pri==='Low'?'tag-lo':'tag-med';
+  const due=r.fields[F.tasks.due]||'';
+  const dueFmt=due?new Date(due+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
   const sc=stripeClass(s);
   return `<div class="task-card" onclick="openTaskDetail('${r.id}')">
     <div class="tc-stripe ${sc}"></div>
@@ -813,6 +815,7 @@ function taskCard(r){
       <div class="tc-title${done?' done-txt':''}">${name}</div>
       <div class="tc-meta">
         ${day?`<span class="tag tag-day">📅 ${day}</span>`:''}
+        ${dueFmt?`<span class="tag" style="background:rgba(168,85,247,.15);color:#C084FC;font-weight:700">📆 ${dueFmt}</span>`:''}
         ${cat?`<span class="tag ${catCls2(cat)}">${cat}</span>`:''}
         ${time?`<span class="tag tag-time">⏱ ${time}</span>`:''}
         ${pri?`<span class="tag ${priCls}">${pri}</span>`:''}
