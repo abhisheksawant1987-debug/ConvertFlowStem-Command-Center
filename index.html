@@ -330,10 +330,19 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <div><div class="pg-title">Weekly tasks</div><div class="pg-sub">Phase 1 · Jun 15–21, 2026</div></div>
     <button class="btn btn-p" onclick="openModal('task-modal')">+ Add task</button>
   </div>
-  <div class="sub-tabs">
-    <button class="sub-tab active" id="tv-board" onclick="setTaskView('board')">Board by status</button>
-    <button class="sub-tab" id="tv-day" onclick="setTaskView('day')">Board by day</button>
-    <button class="sub-tab" id="tv-list" onclick="setTaskView('list')">All tasks</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+    <div class="sub-tabs" style="margin-bottom:0">
+      <button class="sub-tab active" id="tv-board" onclick="setTaskView('board')">Board by status</button>
+      <button class="sub-tab" id="tv-day" onclick="setTaskView('day')">Board by day</button>
+      <button class="sub-tab" id="tv-list" onclick="setTaskView('list')">All tasks</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.07em">Sort</span>
+      <button class="sub-tab active" id="ts-default" onclick="setTaskSort('default')">Default</button>
+      <button class="sub-tab" id="ts-date-asc" onclick="setTaskSort('date-asc')">📅 Date ↑</button>
+      <button class="sub-tab" id="ts-date-desc" onclick="setTaskSort('date-desc')">📅 Date ↓</button>
+      <button class="sub-tab" id="ts-priority" onclick="setTaskSort('priority')">🔥 Priority</button>
+    </div>
   </div>
   <div id="tasks-board"><div class="loading"><span class="sp"></span>Loading tasks...</div></div>
 </div>
@@ -604,7 +613,7 @@ const MONTHLY=[
   {m:'November',ph:'Phase 3',t:2500,bc:'bp3'},
   {m:'December',ph:'Phase 3',t:2500,bc:'bp3'}
 ];
-let S={tasks:[],pipeline:[],revenue:[],weeklylog:[],content:[],outreach:{today:0,todayDate:'',week:0,month:0},taskView:'board',pipeView:'table'};
+let S={tasks:[],pipeline:[],revenue:[],weeklylog:[],content:[],outreach:{today:0,todayDate:'',week:0,month:0},taskView:'board',taskSort:'default',pipeView:'table'};
 
 function ls(k,v){if(v!==undefined)localStorage.setItem('cfs_'+k,JSON.stringify(v));else{try{return JSON.parse(localStorage.getItem('cfs_'+k))||null}catch(e){return null}}}
 function loadState(){['tasks','pipeline','revenue','weeklylog','content','outreach'].forEach(k=>{const d=ls(k);if(d)S[k]=d});recomputeOutreach();}
@@ -774,23 +783,43 @@ function catCls(c){if(!c)return '';if(c==='Outreach')return 'tag-out';if(c==='Ad
 function statusCls(s){const m={'to do':'col-todo','in progress':'col-inp','done':'col-done','blocked':'col-block'};return m[(s||'').toLowerCase()]||'col-todo';}
 function badgeCls(s){const m={'to do':'btodo','in progress':'binp','done':'bdone','blocked':'bblock','not contacted':'bnot','dm sent':'bnot','replied':'bp2','call booked':'bp3','proposal sent':'bprop','closed':'bclosed','no response':'bnot'};return m[(s||'').toLowerCase()]||'bnot';}
 
+const PRI_ORDER={'High':0,'Medium':1,'Low':2,'':3};
+function sortedTasks(arr){
+  const a=[...arr];
+  const s=S.taskSort||'default';
+  if(s==='date-asc') return a.sort((x,y)=>{const dx=x.fields[F.tasks.due]||'9999',dy=y.fields[F.tasks.due]||'9999';return dx<dy?-1:dx>dy?1:0;});
+  if(s==='date-desc') return a.sort((x,y)=>{const dx=x.fields[F.tasks.due]||'',dy=y.fields[F.tasks.due]||'';return dx>dy?-1:dx<dy?1:0;});
+  if(s==='priority') return a.sort((x,y)=>(PRI_ORDER[x.fields[F.tasks.priority]||'']||3)-(PRI_ORDER[y.fields[F.tasks.priority]||'']||3));
+  return a;
+}
+
 function renderTasks(){
   const v=S.taskView;
   const el=document.getElementById('tasks-board');
+  const sorted=sortedTasks(S.tasks);
   if(v==='list'){
-    el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due</th></tr></thead><tbody>${S.tasks.map(r=>`<tr><td style="font-weight:500">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(r.fields[F.tasks.status])}">${r.fields[F.tasks.status]||'To Do'}</span></td><td>${r.fields[F.tasks.priority]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+    el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due date</th></tr></thead><tbody>${sorted.filter(r=>r.fields[F.tasks.name]).map(r=>`<tr onclick="openTaskDetail('${r.id}')" style="cursor:pointer"><td style="font-weight:600">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(r.fields[F.tasks.status])}">${r.fields[F.tasks.status]||'To Do'}</span></td><td><span class="badge ${r.fields[F.tasks.priority]==='High'?'btodo':r.fields[F.tasks.priority]==='Low'?'bdone':'binp'}">${r.fields[F.tasks.priority]||'—'}</span></td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
     return;
   }
   const cols=v==='board'
     ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Done',cls:'col-done',l:'Done'},{k:'Blocked',cls:'col-block',l:'Blocked'}]
     :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
   const gfn=v==='board'?r=>r.fields[F.tasks.status]||'To Do':r=>getDay(r);
-  el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`;
   el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`+cols.map(col=>{
-    const items=S.tasks.filter(r=>gfn(r)===col.k);
+    const items=sorted.filter(r=>gfn(r)===col.k);
     return `<div class="kanban-col ${col.cls}"><div class="kc-bar"></div><div class="kc-header"><div class="kc-title">${col.l}</div><div class="kc-count">${items.length}</div></div>${items.map(r=>taskCard(r)).join('')}</div>`;
   }).join('')+'</div>';
 }
+
+function setTaskSort(s){
+  S.taskSort=s;
+  ['default','date-asc','date-desc','priority'].forEach(k=>{
+    const el=document.getElementById('ts-'+k);
+    if(el)el.classList.toggle('active',k===s);
+  });
+  renderTasks();
+}
+window.setTaskSort=setTaskSort;
 
 function stripeClass(s){const m={'to do':'todo','in progress':'inp','done':'done','blocked':'block'};return m[(s||'').toLowerCase()]||'todo';}
 function dotClass(s){return 'dot-'+stripeClass(s);}
