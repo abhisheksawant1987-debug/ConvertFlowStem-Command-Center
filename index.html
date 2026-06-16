@@ -442,20 +442,15 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <div class="modal-title">Add prospect</div>
     <label>Name *</label><input id="pm-name" type="text" placeholder="Prospect name">
     <div class="form-row">
-      <div><label>Platform</label><select id="pm-platform"><option>Facebook</option><option>LinkedIn</option><option>Instagram</option><option>Email</option><option>Twitter</option><option>Referral</option></select></div>
-      <div><label>Status</label><select id="pm-status"><option>Not Contacted</option><option>DM Sent</option><option>Replied</option><option>Call Booked</option><option>Proposal Sent</option><option>Closed</option><option>No Response</option></select></div>
+      <div><label>Company</label><input id="pm-company" type="text" placeholder="Company name"></div>
+      <div><label>Status</label><select id="pm-status"><option>Not Contacted</option><option>DM Sent</option><option>Replied</option><option>Call Booked</option><option>Proposal Sent</option><option>Closed - Won</option><option>No Response</option></select></div>
     </div>
     <div class="form-row">
-      <div><label>Niche</label><input id="pm-niche" type="text" placeholder="e.g. Coaching"></div>
-      <div><label>Location</label><select id="pm-location"><option>International</option><option>India</option><option>US</option><option>UK</option><option>Canada</option><option>Australia</option></select></div>
+      <div><label>Email</label><input id="pm-email" type="email" placeholder="contact@email.com"></div>
+      <div><label>Phone</label><input id="pm-phone" type="tel" placeholder="+1 234 567 8900"></div>
     </div>
     <div class="form-row">
-      <div><label>DM sent date</label><input id="pm-dmdate" type="date"></div>
       <div><label>Follow-up date</label><input id="pm-followup" type="date"></div>
-    </div>
-    <div class="form-row">
-      <div><label>Deal value ($)</label><input id="pm-deal" type="number" placeholder="e.g. 700"></div>
-      <div><label>Email (optional)</label><input id="pm-email" type="email"></div>
     </div>
     <label>Notes</label><textarea id="pm-notes" placeholder="Notes about this prospect..."></textarea>
     <div class="modal-footer">
@@ -975,22 +970,21 @@ function setTaskView(v){
 window.setTaskView=setTaskView;
 
 function renderPipeline(){
-  const stages=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed'];
+  const stages=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won'];
   const counts={};stages.forEach(s=>counts[s]=0);
-  S.pipeline.forEach(r=>{const s=r.fields[F.pipeline.status]||'Not Contacted';if(counts[s]!==undefined)counts[s]++;});
+  S.pipeline.forEach(r=>{const s=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';if(counts[s]!==undefined)counts[s]++;});
   document.getElementById('pipe-stages').innerHTML=stages.map(s=>`<div class="ps ${counts[s]>0?'on':''}"><div class="ps-count">${counts[s]}</div><div class="ps-name">${s}</div></div>`).join('');
   const pv=document.getElementById('pipe-view');
   if(S.pipeView==='table'){
-    pv.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>DM sent date</th><th>Deal value</th><th>Follow-up date</th><th>Location</th><th>Niche</th><th>Notes</th><th>Platform</th><th>Status</th></tr></thead><tbody>${S.pipeline.map(r=>{
-      const s=r.fields[F.pipeline.status]||'Not Contacted';
-      const loc=r.fields[F.pipeline.company]||'—';
-      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields['DM sent date']||'—'}</td><td>${r.fields['Deal value']?'$'+r.fields['Deal value']:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields['Niche']||'—'}</td><td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${r.fields['Platform']||'—'}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td></tr>`;
+    pv.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Follow-up date</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>${S.pipeline.map(r=>{
+      const s=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';
+      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.company]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.email]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td style="color:var(--text-secondary);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td><td><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px" title="Delete">🗑</button></td></tr>`;
     }).join('')}</tbody></table></div>`;
   } else {
-    const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed','No Response'];
+    const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won','No Response'];
     pv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">${sts.map(s=>{
-      const items=S.pipeline.filter(r=>(r.fields[F.pipeline.status]||'Not Contacted')===s);
-      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.company]||''}</div></div>`).join('')}</div>`;
+      const items=S.pipeline.filter(r=>{const st=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';return st===s;});
+      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500;position:relative">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.company]||''}</div><button onclick="deleteProspect('${r.id}')" style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:0;line-height:1" title="Delete">✕</button></div>`).join('')}</div>`;
     }).join('')}</div>`;
   }
 }
@@ -1059,17 +1053,35 @@ window.saveTask=saveTask;
 async function saveProspect(){
   const name=document.getElementById('pm-name').value.trim();
   if(!name){toast('Name required');return;}
-  const fields={[F.pipeline.name]:name,[F.pipeline.company]:document.getElementById('pm-location').value,[F.pipeline.status]:document.getElementById('pm-status').value,[F.pipeline.notes]:document.getElementById('pm-notes').value,'Platform':document.getElementById('pm-platform').value,'Niche':document.getElementById('pm-niche').value};
-  const deal=document.getElementById('pm-deal').value;if(deal)fields['Deal value']=parseFloat(deal);
-  const dm=document.getElementById('pm-dmdate').value;if(dm)fields['DM sent date']=dm;
+  const fields={[F.pipeline.name]:name};
+  const co=document.getElementById('pm-company').value.trim();if(co)fields[F.pipeline.company]=co;
+  fields[F.pipeline.status]=document.getElementById('pm-status').value;
+  const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
+  const ph=document.getElementById('pm-phone').value.trim();if(ph)fields['fldJ3digRjieeyhdq']=ph;
   const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
-  const em=document.getElementById('pm-email').value;if(em)fields[F.pipeline.email]=em;
+  const no=document.getElementById('pm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
   closeModal('prospect-modal');toast('Saving...');
-  try{const res=await atCreate(TBL.pipeline,fields);if(res.records){S.pipeline.push(res.records[0]);saveState();renderPipeline();renderOverview();toast('Prospect saved to Airtable ✓');}}
-  catch(e){S.pipeline.push({id:'l'+Date.now(),fields});saveState();renderPipeline();renderOverview();toast('Saved locally');}
-  ['pm-name','pm-niche','pm-deal','pm-email','pm-dmdate','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
+  try{
+    const res=await atCreate(TBL.pipeline,fields);
+    if(res.id){S.pipeline.push(res);saveState();renderPipeline();renderOverview();toast('Prospect saved to Airtable ✓');}
+    else{toast('Error: '+(res.error||'Unknown error'));}
+  }catch(e){S.pipeline.push({id:'l'+Date.now(),fields});saveState();renderPipeline();renderOverview();toast('Saved locally');}
+  ['pm-name','pm-company','pm-email','pm-phone','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pm-status').value='Not Contacted';
 }
 window.saveProspect=saveProspect;
+
+async function deleteProspect(id){
+  if(!confirm('Delete this prospect? This cannot be undone.'))return;
+  S.pipeline=S.pipeline.filter(r=>r.id!==id);
+  saveState();renderPipeline();renderOverview();
+  if(id.startsWith('l')){toast('Prospect deleted ✓');return;}
+  try{
+    await fetch(`https://api.airtable.com/v0/${BASE}/${TBL.pipeline}/${id}`,{method:'DELETE',headers:{Authorization:'Bearer '+TOKEN}});
+    toast('Prospect deleted from Airtable ✓');
+  }catch(e){toast('Deleted locally — syncs next time');}
+}
+window.deleteProspect=deleteProspect;
 
 async function savePayment(){
   const client=document.getElementById('rm-client').value.trim();
