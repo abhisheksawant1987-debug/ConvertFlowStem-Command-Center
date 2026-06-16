@@ -442,15 +442,20 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <div class="modal-title">Add prospect</div>
     <label>Name *</label><input id="pm-name" type="text" placeholder="Prospect name">
     <div class="form-row">
-      <div><label>Company</label><input id="pm-company" type="text" placeholder="Company name"></div>
+      <div><label>Platform</label><select id="pm-platform"><option>Facebook</option><option>LinkedIn</option><option>Instagram</option><option>Email</option><option>Twitter</option><option>Referral</option></select></div>
       <div><label>Status</label><select id="pm-status"><option>Not Contacted</option><option>DM Sent</option><option>Replied</option><option>Call Booked</option><option>Proposal Sent</option><option>Closed - Won</option><option>No Response</option></select></div>
     </div>
     <div class="form-row">
-      <div><label>Email</label><input id="pm-email" type="email" placeholder="contact@email.com"></div>
-      <div><label>Phone</label><input id="pm-phone" type="tel" placeholder="+1 234 567 8900"></div>
+      <div><label>Niche</label><input id="pm-niche" type="text" placeholder="e.g. Coaching"></div>
+      <div><label>Location</label><select id="pm-location"><option>International</option><option>India</option><option>US</option><option>UK</option><option>Canada</option><option>Australia</option></select></div>
     </div>
     <div class="form-row">
+      <div><label>DM sent date</label><input id="pm-dmdate" type="date"></div>
       <div><label>Follow-up date</label><input id="pm-followup" type="date"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Deal value ($)</label><input id="pm-deal" type="number" placeholder="e.g. 700"></div>
+      <div><label>Email (optional)</label><input id="pm-email" type="email"></div>
     </div>
     <label>Notes</label><textarea id="pm-notes" placeholder="Notes about this prospect..."></textarea>
     <div class="modal-footer">
@@ -591,7 +596,7 @@ const BASE='appkFzg1YLcC6omNh';
 const TBL={tasks:'tbl2uYEqVnhnGz1RP',pipeline:'tblsJLpLTHpsZ76gB',revenue:'tblW6X9RIdPP7OK1P',weeklylog:'tblrXwAlYxLZwf3Qn',content:'tbl1FE4IyDw9JBJN5'};
 const F={
   tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf'},
-  pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3'},
+  pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3',platform:'fld9QMK5M2cy4ue84',niche:'fldcuWl3YXgWXQSU0',location:'fldUx10mSXbFrPoRW',dealValue:'fldosRkhRxznrtYKP',dmDate:'fldX1JdLbE3pxlDch'},
   revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD'},
   weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA'},
   content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i'}
@@ -976,9 +981,12 @@ function renderPipeline(){
   document.getElementById('pipe-stages').innerHTML=stages.map(s=>`<div class="ps ${counts[s]>0?'on':''}"><div class="ps-count">${counts[s]}</div><div class="ps-name">${s}</div></div>`).join('');
   const pv=document.getElementById('pipe-view');
   if(S.pipeView==='table'){
-    pv.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Follow-up date</th><th>Notes</th><th>Status</th><th></th></tr></thead><tbody>${S.pipeline.map(r=>{
+    pv.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>DM sent date</th><th>Deal value</th><th>Follow-up date</th><th>Location</th><th>Niche</th><th>Notes</th><th>Platform</th><th>Status</th><th></th></tr></thead><tbody>${S.pipeline.map(r=>{
       const s=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';
-      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.company]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.email]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td style="color:var(--text-secondary);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td><td><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px" title="Delete">🗑</button></td></tr>`;
+      const loc=(r.fields[F.pipeline.location]&&r.fields[F.pipeline.location].name)||r.fields[F.pipeline.location]||'—';
+      const plat=(r.fields[F.pipeline.platform]&&r.fields[F.pipeline.platform].name)||r.fields[F.pipeline.platform]||'—';
+      const dv=r.fields[F.pipeline.dealValue];
+      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.dmDate]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${plat}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td><td><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px" title="Delete">🗑</button></td></tr>`;
     }).join('')}</tbody></table></div>`;
   } else {
     const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won','No Response'];
@@ -1053,12 +1061,12 @@ window.saveTask=saveTask;
 async function saveProspect(){
   const name=document.getElementById('pm-name').value.trim();
   if(!name){toast('Name required');return;}
-  const fields={[F.pipeline.name]:name};
-  const co=document.getElementById('pm-company').value.trim();if(co)fields[F.pipeline.company]=co;
-  fields[F.pipeline.status]=document.getElementById('pm-status').value;
-  const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
-  const ph=document.getElementById('pm-phone').value.trim();if(ph)fields['fldJ3digRjieeyhdq']=ph;
+  const fields={[F.pipeline.name]:name,[F.pipeline.status]:document.getElementById('pm-status').value,[F.pipeline.platform]:document.getElementById('pm-platform').value,[F.pipeline.location]:document.getElementById('pm-location').value};
+  const ni=document.getElementById('pm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
+  const dm=document.getElementById('pm-dmdate').value;if(dm)fields[F.pipeline.dmDate]=dm;
   const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  const dv=document.getElementById('pm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
+  const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
   const no=document.getElementById('pm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
   closeModal('prospect-modal');toast('Saving...');
   try{
@@ -1066,8 +1074,10 @@ async function saveProspect(){
     if(res.id){S.pipeline.push(res);saveState();renderPipeline();renderOverview();toast('Prospect saved to Airtable ✓');}
     else{toast('Error: '+(res.error||'Unknown error'));}
   }catch(e){S.pipeline.push({id:'l'+Date.now(),fields});saveState();renderPipeline();renderOverview();toast('Saved locally');}
-  ['pm-name','pm-company','pm-email','pm-phone','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
+  ['pm-name','pm-niche','pm-deal','pm-email','pm-dmdate','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pm-status').value='Not Contacted';
+  document.getElementById('pm-platform').value='Facebook';
+  document.getElementById('pm-location').value='International';
 }
 window.saveProspect=saveProspect;
 
