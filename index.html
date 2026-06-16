@@ -602,8 +602,8 @@ const F={
   content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i'}
 };
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
-const DEADLINE=new Date('2026-12-31');
-const DAYS_LEFT=Math.ceil((DEADLINE-TODAY)/86400000);
+const DEADLINE=new Date(2026,11,31);DEADLINE.setHours(0,0,0,0);
+const DAYS_LEFT=Math.round((DEADLINE-TODAY)/86400000);
 const WEEKS_LEFT=Math.ceil(DAYS_LEFT/7);
 const MONTHLY=[
   {m:'Jun–Jul',ph:'Phase 1',t:0,bc:'bp1'},
