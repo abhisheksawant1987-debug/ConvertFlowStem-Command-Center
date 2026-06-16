@@ -1071,8 +1071,8 @@ async function saveProspect(){
   closeModal('prospect-modal');toast('Saving...');
   try{
     const res=await atCreate(TBL.pipeline,fields);
-    if(res.id){S.pipeline.push(res);saveState();renderPipeline();renderOverview();toast('Prospect saved to Airtable ✓');}
-    else{toast('Error: '+(res.error||'Unknown error'));}
+    if(res.records&&res.records[0]){S.pipeline.push(res.records[0]);saveState();renderPipeline();renderOverview();toast('Prospect saved to Airtable ✓');}
+    else{toast('Error: '+(res.error||JSON.stringify(res)));}
   }catch(e){S.pipeline.push({id:'l'+Date.now(),fields});saveState();renderPipeline();renderOverview();toast('Saved locally');}
   ['pm-name','pm-niche','pm-deal','pm-email','pm-dmdate','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pm-status').value='Not Contacted';
