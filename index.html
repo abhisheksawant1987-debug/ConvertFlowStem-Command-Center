@@ -873,14 +873,9 @@ async function cycleStatus(id,cur){
   // Skip Airtable sync for locally-created records (id starts with 'l')
   if(id.startsWith('l')){toast('Status updated locally ✓');return;}
   try{
-    // Patch using both the field ID and the plain field name for reliability
-    const patch={[F.tasks.status]:next,'Status':next};
-    const res=await atPatch(TBL.tasks,id,patch);
-    if(res.error){
-      // If field ID fails, retry with name only
-      await atPatch(TBL.tasks,id,{'Status':next});
-    }
-    toast('Task status saved to Airtable ✓');
+    const res=await atPatch(TBL.tasks,id,{[F.tasks.status]:next});
+    if(res.error){toast('Airtable error: '+res.error.message);}
+    else{toast('Task status saved to Airtable ✓');}
   }catch(e){
     toast('Status saved locally — will sync next time');
   }
