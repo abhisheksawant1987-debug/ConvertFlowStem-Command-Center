@@ -419,7 +419,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <label>Task name *</label><input id="tm-name" type="text" placeholder="e.g. Finish portfolio GHL page">
     <label>Description</label><textarea id="tm-desc" placeholder="What needs to be done?"></textarea>
     <div class="form-row">
-      <div><label>Status</label><select id="tm-status"><option>To Do</option><option>In Progress</option><option>Done</option><option>Blocked</option></select></div>
+      <div><label>Status</label><select id="tm-status"><option>To Do</option><option>Not Started</option><option>In Progress</option><option>Completed</option></select></div>
       <div><label>Priority</label><select id="tm-priority"><option>High</option><option>Medium</option><option>Low</option></select></div>
     </div>
     <div class="form-row">
@@ -701,7 +701,7 @@ function renderOverview(){
   tbody.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td>$0</td><td class="gap-neg">-$${tt.toLocaleString()}</td></tr>`;
   const od=S.outreach;
   ['today','week','month'].forEach((k,i)=>{const goals=[5,30,130];const v=od[k]||0;document.getElementById('ob-'+k).style.width=Math.min((v/goals[i])*100,100)+'%';document.getElementById('ov-'+k).textContent=v;});
-  const done=S.tasks.filter(r=>(r.fields[F.tasks.status]||'').toLowerCase()==='done').length;
+  const done=S.tasks.filter(r=>(r.fields[F.tasks.status]||'').toLowerCase()==='completed').length;
   const total=S.tasks.length||8;
   const tp=Math.round((done/total)*100);
   document.getElementById('tp-title').textContent=done+' of '+total+' tasks complete';
@@ -803,7 +803,7 @@ function renderTasks(){
     return;
   }
   const cols=v==='board'
-    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Done',cls:'col-done',l:'Done'},{k:'Blocked',cls:'col-block',l:'Blocked'}]
+    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'}]
     :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
   const gfn=v==='board'?r=>r.fields[F.tasks.status]||'To Do':r=>getDay(r);
   el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`+cols.map(col=>{
@@ -828,7 +828,7 @@ function catCls2(c){if(!c)return 'tag-asset';const m={'Outreach':'tag-out','Admi
 
 function taskCard(r){
   const s=r.fields[F.tasks.status]||'To Do';
-  const done=s.toLowerCase()==='done';
+  const done=s.toLowerCase()==='completed';
   const cat=getCat(r);
   const day=getDay(r);
   const time=getTime(r);
@@ -862,7 +862,7 @@ function taskCard(r){
 }
 
 async function cycleStatus(id,cur){
-  const map={'To Do':'In Progress','In Progress':'Done','Done':'To Do','Blocked':'To Do'};
+  const map={'To Do':'In Progress','Not Started':'In Progress','In Progress':'Completed','Completed':'To Do'};
   const next=map[cur]||'To Do';
   const r=S.tasks.find(t=>t.id===id);
   if(!r)return;
@@ -882,7 +882,7 @@ async function cycleStatus(id,cur){
 }
 window.cycleStatus=cycleStatus;
 
-const STATUS_LIST=['To Do','In Progress','Done','Blocked'];
+const STATUS_LIST=['To Do','Not Started','In Progress','Completed'];
 const STATUS_COLORS={'To Do':'btodo','In Progress':'binp','Done':'bdone','Blocked':'bblock'};
 
 function openTaskDetail(id){
