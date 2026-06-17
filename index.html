@@ -351,7 +351,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <div id="pipeline" class="page">
   <div class="pg-header">
     <div class="pg-title">Outreach pipeline</div>
-    <button class="btn btn-p" onclick="openModal('prospect-modal')">+ Add prospect</button>
+    <button class="btn btn-p" onclick="openAddProspect()">+ Add prospect</button>
   </div>
   <div class="sub-tabs">
     <button class="sub-tab active" id="pv-table" onclick="setPipeView('table')">All prospects</button>
@@ -439,7 +439,8 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 
 <div class="modal-ov" id="prospect-modal">
   <div class="modal">
-    <div class="modal-title">Add prospect</div>
+    <input type="hidden" id="pm-id" value="">
+    <div class="modal-title" id="pm-title">Add prospect</div>
     <label>Name *</label><input id="pm-name" type="text" placeholder="Prospect name">
     <div class="form-row">
       <div><label>Platform</label><select id="pm-platform"><option>Facebook</option><option>LinkedIn</option><option>Instagram</option><option>Email</option><option>Twitter</option><option>Referral</option></select></div>
@@ -460,7 +461,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <label>Notes</label><textarea id="pm-notes" placeholder="Notes about this prospect..."></textarea>
     <div class="modal-footer">
       <button class="btn btn-s" onclick="closeModal('prospect-modal')">Cancel</button>
-      <button class="btn btn-p" onclick="saveProspect()">Save prospect</button>
+      <button class="btn btn-p" id="pm-save-btn" onclick="saveProspect()">Save prospect</button>
     </div>
   </div>
 </div>
@@ -986,13 +987,13 @@ function renderPipeline(){
       const loc=(r.fields[F.pipeline.location]&&r.fields[F.pipeline.location].name)||r.fields[F.pipeline.location]||'—';
       const plat=(r.fields[F.pipeline.platform]&&r.fields[F.pipeline.platform].name)||r.fields[F.pipeline.platform]||'—';
       const dv=r.fields[F.pipeline.dealValue];
-      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.dmDate]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${plat}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td><td><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px" title="Delete">🗑</button></td></tr>`;
+      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.dmDate]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${plat}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td><td style="white-space:nowrap"><button onclick="openEditProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Edit">✏️</button><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Delete">🗑</button></td></tr>`;
     }).join('')}</tbody></table></div>`;
   } else {
     const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won','No Response'];
     pv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">${sts.map(s=>{
       const items=S.pipeline.filter(r=>{const st=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';return st===s;});
-      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500;position:relative">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.company]||''}</div><button onclick="deleteProspect('${r.id}')" style="position:absolute;top:6px;right:6px;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:0;line-height:1" title="Delete">✕</button></div>`).join('')}</div>`;
+      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500;position:relative;padding-right:44px">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.niche]||r.fields[F.pipeline.company]||''}</div><div style="position:absolute;top:4px;right:4px;display:flex;gap:2px"><button onclick="openEditProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1" title="Edit">✏️</button><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1" title="Delete">✕</button></div></div>`).join('')}</div>`;
     }).join('')}</div>`;
   }
 }
@@ -1080,6 +1081,66 @@ async function saveProspect(){
   document.getElementById('pm-location').value='International';
 }
 window.saveProspect=saveProspect;
+
+function openAddProspect(){
+  document.getElementById('pm-id').value='';
+  document.getElementById('pm-title').textContent='Add prospect';
+  document.getElementById('pm-save-btn').textContent='Save prospect';
+  document.getElementById('pm-save-btn').onclick=saveProspect;
+  ['pm-name','pm-niche','pm-deal','pm-email','pm-dmdate','pm-followup','pm-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pm-status').value='Not Contacted';
+  document.getElementById('pm-platform').value='Facebook';
+  document.getElementById('pm-location').value='International';
+  openModal('prospect-modal');
+}
+window.openAddProspect=openAddProspect;
+
+function openEditProspect(id){
+  const r=S.pipeline.find(p=>p.id===id);
+  if(!r)return;
+  const f=r.fields;
+  document.getElementById('pm-id').value=id;
+  document.getElementById('pm-title').textContent='Edit prospect';
+  document.getElementById('pm-save-btn').textContent='Update prospect';
+  document.getElementById('pm-save-btn').onclick=()=>updateProspect(id);
+  document.getElementById('pm-name').value=f[F.pipeline.name]||'';
+  document.getElementById('pm-niche').value=f[F.pipeline.niche]||'';
+  document.getElementById('pm-deal').value=f[F.pipeline.dealValue]||'';
+  document.getElementById('pm-email').value=f[F.pipeline.email]||'';
+  document.getElementById('pm-dmdate').value=f[F.pipeline.dmDate]||'';
+  document.getElementById('pm-followup').value=f[F.pipeline.nextAction]||'';
+  document.getElementById('pm-notes').value=f[F.pipeline.notes]||'';
+  const status=(f[F.pipeline.status]&&f[F.pipeline.status].name)||f[F.pipeline.status]||'Not Contacted';
+  const platform=(f[F.pipeline.platform]&&f[F.pipeline.platform].name)||f[F.pipeline.platform]||'Facebook';
+  const location=(f[F.pipeline.location]&&f[F.pipeline.location].name)||f[F.pipeline.location]||'International';
+  document.getElementById('pm-status').value=status;
+  document.getElementById('pm-platform').value=platform;
+  document.getElementById('pm-location').value=location;
+  openModal('prospect-modal');
+}
+window.openEditProspect=openEditProspect;
+
+async function updateProspect(id){
+  const name=document.getElementById('pm-name').value.trim();
+  if(!name){toast('Name required');return;}
+  const fields={[F.pipeline.name]:name,[F.pipeline.status]:document.getElementById('pm-status').value,[F.pipeline.platform]:document.getElementById('pm-platform').value,[F.pipeline.location]:document.getElementById('pm-location').value};
+  const ni=document.getElementById('pm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
+  const dm=document.getElementById('pm-dmdate').value;if(dm)fields[F.pipeline.dmDate]=dm;
+  const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  const dv=document.getElementById('pm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
+  const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
+  const no=document.getElementById('pm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
+  closeModal('prospect-modal');toast('Updating...');
+  const idx=S.pipeline.findIndex(p=>p.id===id);
+  if(idx>-1)S.pipeline[idx]={...S.pipeline[idx],fields:{...S.pipeline[idx].fields,...fields}};
+  saveState();renderPipeline();renderOverview();
+  if(id.startsWith('l')){toast('Prospect updated ✓');return;}
+  try{
+    await atPatch(TBL.pipeline,id,fields);
+    toast('Prospect updated in Airtable ✓');
+  }catch(e){toast('Updated locally — syncs next time');}
+}
+window.updateProspect=updateProspect;
 
 async function deleteProspect(id){
   if(!confirm('Delete this prospect? This cannot be undone.'))return;
