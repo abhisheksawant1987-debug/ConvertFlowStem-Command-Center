@@ -663,6 +663,7 @@ function getCat(r){
   return '';
 }
 function getTime(r){return r.fields['Time']||r.fields[F.tasks.time]||'';}
+function getStatus(r){const v=r.fields[F.tasks.status];return (v&&typeof v==='object'?v.name:v)||'To Do';}
 
 async function syncAll(){
   toast('Syncing with Airtable...');
@@ -701,7 +702,7 @@ function renderOverview(){
   tbody.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td>$0</td><td class="gap-neg">-$${tt.toLocaleString()}</td></tr>`;
   const od=S.outreach;
   ['today','week','month'].forEach((k,i)=>{const goals=[5,30,130];const v=od[k]||0;document.getElementById('ob-'+k).style.width=Math.min((v/goals[i])*100,100)+'%';document.getElementById('ov-'+k).textContent=v;});
-  const done=S.tasks.filter(r=>(r.fields[F.tasks.status]||'').toLowerCase()==='completed').length;
+  const done=S.tasks.filter(r=>getStatus(r).toLowerCase()==='completed').length;
   const total=S.tasks.length||8;
   const tp=Math.round((done/total)*100);
   document.getElementById('tp-title').textContent=done+' of '+total+' tasks complete';
@@ -799,13 +800,13 @@ function renderTasks(){
   const el=document.getElementById('tasks-board');
   const sorted=sortedTasks(S.tasks);
   if(v==='list'){
-    el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due date</th></tr></thead><tbody>${sorted.filter(r=>r.fields[F.tasks.name]).map(r=>`<tr onclick="openTaskDetail('${r.id}')" style="cursor:pointer"><td style="font-weight:600">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(r.fields[F.tasks.status])}">${r.fields[F.tasks.status]||'To Do'}</span></td><td><span class="badge ${r.fields[F.tasks.priority]==='High'?'btodo':r.fields[F.tasks.priority]==='Low'?'bdone':'binp'}">${r.fields[F.tasks.priority]||'—'}</span></td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+    el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due date</th></tr></thead><tbody>${sorted.filter(r=>r.fields[F.tasks.name]).map(r=>`<tr onclick="openTaskDetail('${r.id}')" style="cursor:pointer"><td style="font-weight:600">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(getStatus(r))}">${getStatus(r)}</span></td><td><span class="badge ${r.fields[F.tasks.priority]==='High'?'btodo':r.fields[F.tasks.priority]==='Low'?'bdone':'binp'}">${r.fields[F.tasks.priority]||'—'}</span></td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
     return;
   }
   const cols=v==='board'
     ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'}]
     :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
-  const gfn=v==='board'?r=>r.fields[F.tasks.status]||'To Do':r=>getDay(r);
+  const gfn=v==='board'?r=>getStatus(r):r=>getDay(r);
   el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`+cols.map(col=>{
     const items=sorted.filter(r=>gfn(r)===col.k);
     return `<div class="kanban-col ${col.cls}"><div class="kc-bar"></div><div class="kc-header"><div class="kc-title">${col.l}</div><div class="kc-count">${items.length}</div></div>${items.map(r=>taskCard(r)).join('')}</div>`;
@@ -827,7 +828,7 @@ function dotClass(s){return 'dot-'+stripeClass(s);}
 function catCls2(c){if(!c)return 'tag-asset';const m={'Outreach':'tag-out','Admin':'tag-admin','Content':'tag-content','Client work':'tag-client'};return m[c]||'tag-asset';}
 
 function taskCard(r){
-  const s=r.fields[F.tasks.status]||'To Do';
+  const s=getStatus(r);
   const done=s.toLowerCase()==='completed';
   const cat=getCat(r);
   const day=getDay(r);
@@ -888,7 +889,7 @@ const STATUS_COLORS={'To Do':'btodo','In Progress':'binp','Done':'bdone','Blocke
 function openTaskDetail(id){
   const r=S.tasks.find(t=>t.id===id);
   if(!r)return;
-  const s=r.fields[F.tasks.status]||'To Do';
+  const s=getStatus(r);
   const pri=r.fields[F.tasks.priority]||'';
   const priCls=pri==='High'?'tag-hi':pri==='Low'?'tag-lo':'tag-med';
 
