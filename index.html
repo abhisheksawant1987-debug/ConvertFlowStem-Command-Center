@@ -350,12 +350,17 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <!-- PIPELINE -->
 <div id="pipeline" class="page">
   <div class="pg-header">
-    <div class="pg-title">Outreach pipeline</div>
-    <button class="btn btn-p" onclick="openAddProspect()">+ Add prospect</button>
+    <div class="pg-title" id="pipe-pg-title">Outreach pipeline</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p" id="pipe-add-btn" onclick="openAddProspect()">+ Add prospect</button>
+    </div>
   </div>
-  <div class="sub-tabs">
-    <button class="sub-tab active" id="pv-table" onclick="setPipeView('table')">All prospects</button>
-    <button class="sub-tab" id="pv-board" onclick="setPipeView('board')">Pipeline board</button>
+  <div class="sub-tabs" style="margin-bottom:0">
+    <button class="sub-tab active" id="pl-outreach" onclick="setPipeSection('outreach')">📤 Outreach</button>
+    <button class="sub-tab" id="pl-leads" onclick="setPipeSection('leads')">📥 Incoming Leads</button>
+    <div style="flex:1"></div>
+    <button class="sub-tab" id="pv-table" onclick="setPipeView('table')">Table</button>
+    <button class="sub-tab" id="pv-board" onclick="setPipeView('board')">Board</button>
   </div>
   <div class="pipe-stages" id="pipe-stages"></div>
   <div id="pipe-view"><div class="loading"><span class="sp"></span>Loading pipeline...</div></div>
@@ -466,6 +471,34 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
   </div>
 </div>
 
+<div class="modal-ov" id="lead-modal">
+  <div class="modal">
+    <input type="hidden" id="lm-id" value="">
+    <div class="modal-title" id="lm-title">Add incoming lead</div>
+    <label>Name *</label><input id="lm-name" type="text" placeholder="Lead name">
+    <div class="form-row">
+      <div><label>Lead Source</label><select id="lm-source"><option>Website</option><option>Referral</option><option>Social Media</option><option>Cold Email</option><option>Event</option><option>Other</option></select></div>
+      <div><label>Status</label><select id="lm-status"><option>Not Contacted</option><option>Replied</option><option>Call Booked</option><option>Proposal Sent</option><option>Closed - Won</option><option>No Response</option></select></div>
+    </div>
+    <div class="form-row">
+      <div><label>Company</label><input id="lm-company" type="text" placeholder="Company name"></div>
+      <div><label>Niche</label><input id="lm-niche" type="text" placeholder="e.g. Coaching"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Email</label><input id="lm-email" type="email" placeholder="contact@email.com"></div>
+      <div><label>Deal value ($)</label><input id="lm-deal" type="number" placeholder="e.g. 700"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Follow-up date</label><input id="lm-followup" type="date"></div>
+    </div>
+    <label>Notes</label><textarea id="lm-notes" placeholder="What did they enquire about?"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('lead-modal')">Cancel</button>
+      <button class="btn btn-p" id="lm-save-btn" onclick="saveLead()">Save lead</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="revenue-modal">
   <div class="modal">
     <div class="modal-title">Log payment</div>
@@ -563,7 +596,16 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
       </div>
     </div>
 
-    <div class="modal-footer" style="margin-top:20px;justify-content:space-between">
+    <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px">
+      <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-tertiary)">Comments</label>
+      <div id="tdm-comments" style="margin-top:8px;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input id="tdm-comment-input" type="text" placeholder="Add a comment…" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')addComment()">
+        <button class="btn btn-p" onclick="addComment()" style="padding:8px 16px;font-size:13px">Post</button>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="margin-top:16px;justify-content:space-between">
       <button class="btn" style="background:var(--red-light);color:var(--red-dark);border:1px solid var(--red-light)" id="tdm-delete-btn">🗑 Delete task</button>
       <button class="btn btn-s" onclick="closeModal('task-detail-modal')">Close</button>
     </div>
@@ -596,8 +638,8 @@ let TOKEN=localStorage.getItem('cfs_token')||'';
 const BASE='appkFzg1YLcC6omNh';
 const TBL={tasks:'tbl2uYEqVnhnGz1RP',pipeline:'tblsJLpLTHpsZ76gB',revenue:'tblW6X9RIdPP7OK1P',weeklylog:'tblrXwAlYxLZwf3Qn',content:'tbl1FE4IyDw9JBJN5'};
 const F={
-  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf'},
-  pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3',platform:'fld9QMK5M2cy4ue84',niche:'fldcuWl3YXgWXQSU0',location:'fldUx10mSXbFrPoRW',dealValue:'fldosRkhRxznrtYKP',dmDate:'fldX1JdLbE3pxlDch'},
+  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf',notes:'fldHl6IpnnIGa2wvi'},
+  pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3',platform:'fld9QMK5M2cy4ue84',niche:'fldcuWl3YXgWXQSU0',location:'fldUx10mSXbFrPoRW',dealValue:'fldosRkhRxznrtYKP',dmDate:'fldX1JdLbE3pxlDch',leadType:'fldliJPlCpCPbn6K5',leadSource:'fldj7PFQTddIKquOY'},
   revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD'},
   weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA'},
   content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i'}
@@ -614,7 +656,7 @@ const MONTHLY=[
   {m:'November',ph:'Phase 3',t:2500,bc:'bp3'},
   {m:'December',ph:'Phase 3',t:2500,bc:'bp3'}
 ];
-let S={tasks:[],pipeline:[],revenue:[],weeklylog:[],content:[],outreach:{today:0,todayDate:'',week:0,month:0},taskView:'board',taskSort:'default',pipeView:'table'};
+let S={tasks:[],pipeline:[],revenue:[],weeklylog:[],content:[],outreach:{today:0,todayDate:'',week:0,month:0},taskView:'board',taskSort:'default',pipeView:'table',pipeSection:'outreach'};
 
 function ls(k,v){if(v!==undefined)localStorage.setItem('cfs_'+k,JSON.stringify(v));else{try{return JSON.parse(localStorage.getItem('cfs_'+k))||null}catch(e){return null}}}
 function loadState(){['tasks','pipeline','revenue','weeklylog','content','outreach'].forEach(k=>{const d=ls(k);if(d)S[k]=d});recomputeOutreach();}
@@ -916,6 +958,11 @@ function openTaskDetail(id){
 
   // Delete button
   document.getElementById('tdm-delete-btn').onclick=()=>deleteTask(id);
+
+  // Render comments from Notes field
+  document.getElementById('tdm-comment-input').dataset.taskId=id;
+  renderComments(id);
+
   openModal('task-detail-modal');
 }
 window.openTaskDetail=openTaskDetail;
@@ -952,6 +999,57 @@ async function deleteTask(id){
 }
 window.deleteTask=deleteTask;
 
+const COMMENT_SEP='---comment---';
+
+function parseComments(notes){
+  if(!notes)return[];
+  return notes.split(COMMENT_SEP).map(s=>s.trim()).filter(Boolean).map(block=>{
+    const match=block.match(/^\[([^\]]+)\]\s*([\s\S]*)$/);
+    return match?{ts:match[1],text:match[2].trim()}:{ts:'',text:block};
+  });
+}
+
+function renderComments(id){
+  const r=S.tasks.find(t=>t.id===id);
+  if(!r)return;
+  const notes=r.fields[F.tasks.notes]||'';
+  const comments=parseComments(notes);
+  const el=document.getElementById('tdm-comments');
+  if(comments.length===0){
+    el.innerHTML='<div style="font-size:12px;color:var(--text-tertiary);font-style:italic">No comments yet</div>';
+  }else{
+    el.innerHTML=comments.map(c=>`
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+        <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:3px">${c.ts}</div>
+        <div style="font-size:13px;color:var(--text-primary);line-height:1.5">${c.text}</div>
+      </div>`).join('');
+    el.scrollTop=el.scrollHeight;
+  }
+}
+window.renderComments=renderComments;
+
+async function addComment(){
+  const input=document.getElementById('tdm-comment-input');
+  const text=input.value.trim();
+  if(!text)return;
+  const id=input.dataset.taskId;
+  const r=S.tasks.find(t=>t.id===id);
+  if(!r)return;
+  const now=new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const newEntry=`[${now}] ${text}`;
+  const existing=r.fields[F.tasks.notes]||'';
+  const updated=existing?existing+'\n'+COMMENT_SEP+'\n'+newEntry:newEntry;
+  r.fields[F.tasks.notes]=updated;
+  input.value='';
+  saveState();renderComments(id);
+  if(id.startsWith('l')){toast('Comment added ✓');return;}
+  try{
+    await atPatch(TBL.tasks,id,{[F.tasks.notes]:updated});
+    toast('Comment saved ✓');
+  }catch(e){toast('Saved locally — syncs next time');}
+}
+window.addComment=addComment;
+
 function toggleTheme(){
   const dark=document.documentElement.classList.toggle('dark');
   localStorage.setItem('cfs_theme',dark?'dark':'light');
@@ -971,28 +1069,59 @@ function setTaskView(v){
 }
 window.setTaskView=setTaskView;
 
+function getPipeStatus(r){return (r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';}
+function getPipeLeadType(r){return (r.fields[F.pipeline.leadType]&&r.fields[F.pipeline.leadType].name)||r.fields[F.pipeline.leadType]||'Outreach';}
+
 function renderPipeline(){
+  const sec=S.pipeSection||'outreach';
+  const isLeads=sec==='leads';
+  const filtered=S.pipeline.filter(r=>isLeads?getPipeLeadType(r)==='Incoming Lead':getPipeLeadType(r)!=='Incoming Lead');
+
   const stages=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won'];
   const counts={};stages.forEach(s=>counts[s]=0);
-  S.pipeline.forEach(r=>{const s=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';if(counts[s]!==undefined)counts[s]++;});
+  filtered.forEach(r=>{const s=getPipeStatus(r);if(counts[s]!==undefined)counts[s]++;});
   document.getElementById('pipe-stages').innerHTML=stages.map(s=>`<div class="ps ${counts[s]>0?'on':''}"><div class="ps-count">${counts[s]}</div><div class="ps-name">${s}</div></div>`).join('');
+
   const pv=document.getElementById('pipe-view');
   if(S.pipeView==='table'){
-    pv.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Name</th><th>DM sent date</th><th>Deal value</th><th>Follow-up date</th><th>Location</th><th>Niche</th><th>Notes</th><th>Platform</th><th>Status</th><th></th></tr></thead><tbody>${S.pipeline.map(r=>{
-      const s=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';
+    const headers=isLeads
+      ?`<tr><th>Name</th><th>Source</th><th>Company</th><th>Niche</th><th>Email</th><th>Deal value</th><th>Follow-up</th><th>Notes</th><th>Status</th><th></th></tr>`
+      :`<tr><th>Name</th><th>DM sent date</th><th>Deal value</th><th>Follow-up date</th><th>Location</th><th>Niche</th><th>Notes</th><th>Platform</th><th>Status</th><th></th></tr>`;
+    const rows=filtered.map(r=>{
+      const s=getPipeStatus(r);
+      const dv=r.fields[F.pipeline.dealValue];
+      const src=(r.fields[F.pipeline.leadSource]&&r.fields[F.pipeline.leadSource].name)||r.fields[F.pipeline.leadSource]||'—';
       const loc=(r.fields[F.pipeline.location]&&r.fields[F.pipeline.location].name)||r.fields[F.pipeline.location]||'—';
       const plat=(r.fields[F.pipeline.platform]&&r.fields[F.pipeline.platform].name)||r.fields[F.pipeline.platform]||'—';
-      const dv=r.fields[F.pipeline.dealValue];
-      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.dmDate]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${plat}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td><td style="white-space:nowrap"><button onclick="openEditProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Edit">✏️</button><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Delete">🗑</button></td></tr>`;
-    }).join('')}</tbody></table></div>`;
+      const editFn=isLeads?`openEditLead('${r.id}')`:`openEditProspect('${r.id}')`;
+      const delFn=`deleteProspect('${r.id}')`;
+      const actions=`<td style="white-space:nowrap"><button onclick="${editFn}" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px" title="Edit">✏️</button><button onclick="${delFn}" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px" title="Delete">🗑</button></td>`;
+      if(isLeads){
+        return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td><span class="badge bind">${src}</span></td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.company]||'—'}</td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.email]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td style="color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td>${actions}</tr>`;
+      }
+      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.dmDate]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${plat}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td>${actions}</tr>`;
+    }).join('');
+    pv.innerHTML=`<div class="card"><table class="data-table"><thead>${headers}</thead><tbody>${rows||'<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No records yet. Click "+ Add" to create one.</td></tr>'}</tbody></table></div>`;
   } else {
     const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won','No Response'];
     pv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">${sts.map(s=>{
-      const items=S.pipeline.filter(r=>{const st=(r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';return st===s;});
-      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500;position:relative;padding-right:44px">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.niche]||r.fields[F.pipeline.company]||''}</div><div style="position:absolute;top:4px;right:4px;display:flex;gap:2px"><button onclick="openEditProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1" title="Edit">✏️</button><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1" title="Delete">✕</button></div></div>`).join('')}</div>`;
+      const items=filtered.filter(r=>getPipeStatus(r)===s);
+      const editFn=isLeads?`openEditLead`:`openEditProspect`;
+      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500;position:relative;padding-right:44px">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.niche]||r.fields[F.pipeline.company]||''}</div><div style="position:absolute;top:4px;right:4px;display:flex;gap:2px"><button onclick="${editFn}('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1">✏️</button><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1">✕</button></div></div>`).join('')}</div>`;
     }).join('')}</div>`;
   }
 }
+
+function setPipeSection(sec){
+  S.pipeSection=sec;
+  ['outreach','leads'].forEach(k=>document.getElementById('pl-'+k).classList.toggle('active',k===sec));
+  const isLeads=sec==='leads';
+  document.getElementById('pipe-pg-title').textContent=isLeads?'Incoming leads':'Outreach pipeline';
+  document.getElementById('pipe-add-btn').textContent=isLeads?'+ Add lead':'+ Add prospect';
+  document.getElementById('pipe-add-btn').onclick=isLeads?openAddLead:openAddProspect;
+  renderPipeline();
+}
+window.setPipeSection=setPipeSection;
 
 function setPipeView(v){
   S.pipeView=v;
@@ -1000,6 +1129,80 @@ function setPipeView(v){
   renderPipeline();
 }
 window.setPipeView=setPipeView;
+
+function openAddLead(){
+  document.getElementById('lm-id').value='';
+  document.getElementById('lm-title').textContent='Add incoming lead';
+  document.getElementById('lm-save-btn').textContent='Save lead';
+  document.getElementById('lm-save-btn').onclick=saveLead;
+  ['lm-name','lm-company','lm-niche','lm-email','lm-deal','lm-followup','lm-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lm-status').value='Not Contacted';
+  document.getElementById('lm-source').value='Website';
+  openModal('lead-modal');
+}
+window.openAddLead=openAddLead;
+
+async function saveLead(){
+  const name=document.getElementById('lm-name').value.trim();
+  if(!name){toast('Name required');return;}
+  const fields={[F.pipeline.name]:name,[F.pipeline.status]:document.getElementById('lm-status').value,[F.pipeline.leadType]:'Incoming Lead',[F.pipeline.leadSource]:document.getElementById('lm-source').value};
+  const co=document.getElementById('lm-company').value.trim();if(co)fields[F.pipeline.company]=co;
+  const ni=document.getElementById('lm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
+  const em=document.getElementById('lm-email').value.trim();if(em)fields[F.pipeline.email]=em;
+  const dv=document.getElementById('lm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
+  const fu=document.getElementById('lm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  const no=document.getElementById('lm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
+  closeModal('lead-modal');toast('Saving...');
+  try{
+    const res=await atCreate(TBL.pipeline,fields);
+    if(res.records&&res.records[0]){S.pipeline.push(res.records[0]);saveState();renderPipeline();renderOverview();toast('Lead saved to Airtable ✓');}
+    else{toast('Error: '+(res.error||JSON.stringify(res)));}
+  }catch(e){S.pipeline.push({id:'l'+Date.now(),fields});saveState();renderPipeline();renderOverview();toast('Saved locally');}
+}
+window.saveLead=saveLead;
+
+function openEditLead(id){
+  const r=S.pipeline.find(p=>p.id===id);
+  if(!r)return;
+  const f=r.fields;
+  document.getElementById('lm-id').value=id;
+  document.getElementById('lm-title').textContent='Edit lead';
+  document.getElementById('lm-save-btn').textContent='Update lead';
+  document.getElementById('lm-save-btn').onclick=()=>updateLead(id);
+  document.getElementById('lm-name').value=f[F.pipeline.name]||'';
+  document.getElementById('lm-company').value=f[F.pipeline.company]||'';
+  document.getElementById('lm-niche').value=f[F.pipeline.niche]||'';
+  document.getElementById('lm-email').value=f[F.pipeline.email]||'';
+  document.getElementById('lm-deal').value=f[F.pipeline.dealValue]||'';
+  document.getElementById('lm-followup').value=f[F.pipeline.nextAction]||'';
+  document.getElementById('lm-notes').value=f[F.pipeline.notes]||'';
+  const status=(f[F.pipeline.status]&&f[F.pipeline.status].name)||f[F.pipeline.status]||'Not Contacted';
+  const src=(f[F.pipeline.leadSource]&&f[F.pipeline.leadSource].name)||f[F.pipeline.leadSource]||'Website';
+  document.getElementById('lm-status').value=status;
+  document.getElementById('lm-source').value=src;
+  openModal('lead-modal');
+}
+window.openEditLead=openEditLead;
+
+async function updateLead(id){
+  const name=document.getElementById('lm-name').value.trim();
+  if(!name){toast('Name required');return;}
+  const fields={[F.pipeline.name]:name,[F.pipeline.status]:document.getElementById('lm-status').value,[F.pipeline.leadType]:'Incoming Lead',[F.pipeline.leadSource]:document.getElementById('lm-source').value};
+  const co=document.getElementById('lm-company').value.trim();if(co)fields[F.pipeline.company]=co;
+  const ni=document.getElementById('lm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
+  const em=document.getElementById('lm-email').value.trim();if(em)fields[F.pipeline.email]=em;
+  const dv=document.getElementById('lm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
+  const fu=document.getElementById('lm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  const no=document.getElementById('lm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
+  closeModal('lead-modal');toast('Updating...');
+  const idx=S.pipeline.findIndex(p=>p.id===id);
+  if(idx>-1)S.pipeline[idx]={...S.pipeline[idx],fields:{...S.pipeline[idx].fields,...fields}};
+  saveState();renderPipeline();
+  if(id.startsWith('l')){toast('Lead updated ✓');return;}
+  try{await atPatch(TBL.pipeline,id,fields);toast('Lead updated in Airtable ✓');}
+  catch(e){toast('Updated locally — syncs next time');}
+}
+window.updateLead=updateLead;
 
 function renderRevenue(){
   const payments=S.revenue.filter(r=>r.fields['Amount']);
