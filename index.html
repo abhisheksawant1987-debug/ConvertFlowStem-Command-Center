@@ -125,6 +125,8 @@ html.dark .kanban-col{background:#0D0D10;border-color:#1E1E25;box-shadow:inset 0
 .col-inp .kc-count{background:var(--amber-light);color:var(--amber-dark)}
 .col-done .kc-count{background:var(--green-light);color:var(--green-dark)}
 .col-block .kc-count{background:var(--purple-light);color:var(--purple-dark)}
+.col-month .kc-bar{background:#5D34FF}
+.col-month .kc-count{background:rgba(93,52,255,.15);color:#5D34FF}
 
 /* ── TASK CARDS ── */
 .task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0;margin-bottom:10px;cursor:pointer;overflow:hidden;transition:all .2s}
@@ -328,7 +330,10 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <div id="tasks" class="page">
   <div class="pg-header">
     <div><div class="pg-title">Weekly tasks</div><div class="pg-sub">Phase 1 · Jun 15–21, 2026</div></div>
-    <button class="btn btn-p" onclick="openModal('task-modal')">+ Add task</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-s" id="archive-btn" onclick="archiveCompleted()" title="Move all Completed tasks into this month's column"></button>
+      <button class="btn btn-p" onclick="openModal('task-modal')">+ Add task</button>
+    </div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
     <div class="sub-tabs" style="margin-bottom:0">
@@ -572,6 +577,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     </div>
     <div id="tdm-desc" style="font-size:13px;color:var(--text-secondary);padding:6px 0 14px;line-height:1.7;min-height:20px;border-bottom:1px solid var(--border)"></div>
 
+    <div id="tdm-completed-at" style="display:none;font-size:11px;font-weight:600;color:var(--green);background:var(--green-light);padding:4px 10px;border-radius:6px;margin-top:8px"></div>
     <label style="margin-top:14px">Move to status</label>
     <div id="tdm-status-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
 
@@ -638,7 +644,7 @@ let TOKEN=localStorage.getItem('cfs_token')||'';
 const BASE='appkFzg1YLcC6omNh';
 const TBL={tasks:'tbl2uYEqVnhnGz1RP',pipeline:'tblsJLpLTHpsZ76gB',revenue:'tblW6X9RIdPP7OK1P',weeklylog:'tblrXwAlYxLZwf3Qn',content:'tbl1FE4IyDw9JBJN5'};
 const F={
-  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf',notes:'fldHl6IpnnIGa2wvi'},
+  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf',notes:'fldHl6IpnnIGa2wvi',archiveMonth:'fldNcZ02DtOAX8O7z',completedAt:'fldV6ewGW4CxVXX3G'},
   pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3',platform:'fld9QMK5M2cy4ue84',niche:'fldcuWl3YXgWXQSU0',location:'fldUx10mSXbFrPoRW',dealValue:'fldosRkhRxznrtYKP',dmDate:'fldX1JdLbE3pxlDch',leadType:'fldliJPlCpCPbn6K5',leadSource:'fldj7PFQTddIKquOY'},
   revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD'},
   weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA'},
@@ -706,6 +712,30 @@ function getCat(r){
 }
 function getTime(r){return r.fields['Time']||r.fields[F.tasks.time]||'';}
 function getStatus(r){const v=r.fields[F.tasks.status];return (v&&typeof v==='object'?v.name:v)||'To Do';}
+function getArchiveMonth(r){const v=r.fields[F.tasks.archiveMonth];return (v&&typeof v==='object'?v.name:v)||'';}
+function getCurrentMonthLabel(){const n=new Date();return n.toLocaleString('en-US',{month:'short'})+' '+n.getFullYear();}
+
+async function archiveCompleted(){
+  const month=getCurrentMonthLabel();
+  const toArchive=S.tasks.filter(r=>getStatus(r)==='Completed'&&!getArchiveMonth(r));
+  if(toArchive.length===0){toast('No completed tasks to archive');return;}
+  if(!confirm(`Move ${toArchive.length} completed task(s) to "${month}"?`))return;
+  toast('Archiving...');
+  for(const r of toArchive){
+    r.fields[F.tasks.archiveMonth]=month;
+    if(!r.id.startsWith('l')){
+      try{await atPatch(TBL.tasks,r.id,{[F.tasks.archiveMonth]:month});}catch(e){}
+    }
+  }
+  saveState();renderTasks();toast(`${toArchive.length} tasks archived to ${month} ✓`);
+}
+window.archiveCompleted=archiveCompleted;
+
+function initArchiveBtn(){
+  const btn=document.getElementById('archive-btn');
+  if(btn)btn.textContent='Archive → '+getCurrentMonthLabel();
+}
+
 
 async function syncAll(){
   toast('Syncing with Airtable...');
@@ -845,10 +875,11 @@ function renderTasks(){
     el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due date</th></tr></thead><tbody>${sorted.filter(r=>r.fields[F.tasks.name]).map(r=>`<tr onclick="openTaskDetail('${r.id}')" style="cursor:pointer"><td style="font-weight:600">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(getStatus(r))}">${getStatus(r)}</span></td><td><span class="badge ${r.fields[F.tasks.priority]==='High'?'btodo':r.fields[F.tasks.priority]==='Low'?'bdone':'binp'}">${r.fields[F.tasks.priority]||'—'}</span></td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
     return;
   }
+  const MONTH_LABEL=getCurrentMonthLabel();
   const cols=v==='board'
-    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'}]
+    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'},{k:MONTH_LABEL,cls:'col-month',l:MONTH_LABEL}]
     :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
-  const gfn=v==='board'?r=>getStatus(r):r=>getDay(r);
+  const gfn=v==='board'?r=>{const am=getArchiveMonth(r);return am||getStatus(r);}:r=>getDay(r);
   el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`+cols.map(col=>{
     const items=sorted.filter(r=>gfn(r)===col.k);
     return `<div class="kanban-col ${col.cls}"><div class="kc-bar"></div><div class="kc-header"><div class="kc-title">${col.l}</div><div class="kc-count">${items.length}</div></div>${items.map(r=>taskCard(r)).join('')}</div>`;
@@ -909,19 +940,17 @@ async function cycleStatus(id,cur){
   const next=map[cur]||'To Do';
   const r=S.tasks.find(t=>t.id===id);
   if(!r)return;
-  // Update local state immediately so UI feels instant
   r.fields[F.tasks.status]=next;
-  r.fields['Status']=next; // also set by name in case field ID differs
+  const patch={[F.tasks.status]:next};
+  if(next==='Completed'){const ts=new Date().toISOString();r.fields[F.tasks.completedAt]=ts;patch[F.tasks.completedAt]=ts;}
+  else{r.fields[F.tasks.completedAt]=null;patch[F.tasks.completedAt]=null;}
   saveState();renderTasks();renderOverview();
-  // Skip Airtable sync for locally-created records (id starts with 'l')
-  if(id.startsWith('l')){toast('Status updated locally ✓');return;}
+  if(id.startsWith('l')){toast('Status updated ✓');return;}
   try{
-    const res=await atPatch(TBL.tasks,id,{[F.tasks.status]:next});
+    const res=await atPatch(TBL.tasks,id,patch);
     if(res.error){toast('Airtable error: '+res.error.message);}
     else{toast('Task status saved to Airtable ✓');}
-  }catch(e){
-    toast('Status saved locally — will sync next time');
-  }
+  }catch(e){toast('Status saved locally — will sync next time');}
 }
 window.cycleStatus=cycleStatus;
 
@@ -949,6 +978,12 @@ function openTaskDetail(id){
   document.getElementById('tdm-cat').textContent=getCat(r)||'—';
   document.getElementById('tdm-time').textContent=getTime(r)||'—';
   document.getElementById('tdm-due').textContent=r.fields[F.tasks.due]||'—';
+  const catEl=document.getElementById('tdm-completed-at');
+  if(catEl){
+    const ts=r.fields[F.tasks.completedAt];
+    catEl.textContent=ts?'Completed: '+new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    catEl.style.display=ts?'block':'none';
+  }
 
   // Status picker buttons — highlight current
   document.getElementById('tdm-status-btns').innerHTML=STATUS_LIST.map(st=>{
@@ -971,6 +1006,9 @@ async function setTaskStatus(id,newStatus){
   const r=S.tasks.find(t=>t.id===id);
   if(!r)return;
   r.fields[F.tasks.status]=newStatus;
+  const patch={[F.tasks.status]:newStatus};
+  if(newStatus==='Completed'){const ts=new Date().toISOString();r.fields[F.tasks.completedAt]=ts;patch[F.tasks.completedAt]=ts;}
+  else{r.fields[F.tasks.completedAt]=null;patch[F.tasks.completedAt]=null;}
   saveState();
   // Re-render status buttons in modal immediately
   document.getElementById('tdm-status-btns').innerHTML=STATUS_LIST.map(st=>{
@@ -980,7 +1018,7 @@ async function setTaskStatus(id,newStatus){
   renderTasks();renderOverview();
   if(id.startsWith('l')){toast('Status updated ✓');return;}
   try{
-    await atPatch(TBL.tasks,id,{[F.tasks.status]:newStatus});
+    await atPatch(TBL.tasks,id,patch);
     toast('Status saved to Airtable ✓');
   }catch(e){toast('Saved locally — syncs next time');}
 }
@@ -1403,12 +1441,12 @@ async function setupConnect(){
     TOKEN=val;
     localStorage.setItem('cfs_token',TOKEN);
     document.getElementById('setup-modal').style.display='none';
-    loadState();renderAll();syncAll();
+    loadState();renderAll();syncAll();initArchiveBtn();
   }catch(e){showSetupErr('Could not reach Airtable — check your connection.');btn.textContent='Connect & Sync';btn.disabled=false;}
 }
 function setupSkip(){
   document.getElementById('setup-modal').style.display='none';
-  loadState();renderAll();syncAll();
+  loadState();renderAll();syncAll();initArchiveBtn();
 }
 function showSetupErr(msg){const el=document.getElementById('setup-err');el.textContent=msg;el.style.display='block';}
 function openSettings(){
