@@ -580,6 +580,8 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <div id="tdm-completed-at" style="display:none;font-size:11px;font-weight:600;color:var(--green);background:var(--green-light);padding:4px 10px;border-radius:6px;margin-top:8px"></div>
     <label style="margin-top:14px">Move to status</label>
     <div id="tdm-status-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+    <label style="margin-top:14px">Archive to month</label>
+    <div id="tdm-month-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
 
     <div class="form-row" style="margin-top:14px">
       <div>
@@ -714,6 +716,39 @@ function getTime(r){return r.fields['Time']||r.fields[F.tasks.time]||'';}
 function getStatus(r){const v=r.fields[F.tasks.status];return (v&&typeof v==='object'?v.name:v)||'To Do';}
 function getArchiveMonth(r){const v=r.fields[F.tasks.archiveMonth];return (v&&typeof v==='object'?v.name:v)||'';}
 function getCurrentMonthLabel(){const n=new Date();return n.toLocaleString('en-US',{month:'short'})+' '+n.getFullYear();}
+const ALL_MONTHS=['Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
+function getVisibleMonthCols(){
+  const used=new Set(S.tasks.map(r=>getArchiveMonth(r)).filter(Boolean));
+  used.add(getCurrentMonthLabel());
+  return ALL_MONTHS.filter(m=>used.has(m));
+}
+async function moveToMonth(taskId,month){
+  const r=S.tasks.find(t=>t.id===taskId);
+  if(!r)return;
+  r.fields[F.tasks.archiveMonth]=month||null;
+  saveState();renderTasks();
+  if(taskId.startsWith('l')){toast('Moved to '+month+' ✓');return;}
+  try{
+    await atPatch(TBL.tasks,taskId,{[F.tasks.archiveMonth]:month||null});
+    toast('Moved to '+(month||'Completed')+' ✓');
+  }catch(e){toast('Updated locally — syncs next time');}
+}
+window.moveToMonth=moveToMonth;
+
+async function moveToMonthFromDetail(taskId,month){
+  await moveToMonth(taskId,month);
+  // Refresh the month buttons in the open modal
+  const r=S.tasks.find(t=>t.id===taskId);
+  if(!r)return;
+  const curMonth=getArchiveMonth(r);
+  document.getElementById('tdm-month-btns').innerHTML=
+    `<button onclick="moveToMonth('${taskId}','')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid ${!curMonth?'var(--green)':'var(--border)'};background:${!curMonth?'var(--green)':'var(--surface)'};color:${!curMonth?'#fff':'var(--text-secondary)'}">Completed</button>`+
+    ALL_MONTHS.map(m=>{
+      const active=curMonth===m;
+      return `<button onclick="moveToMonthFromDetail('${taskId}','${m}')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid ${active?'#5D34FF':'var(--border)'};background:${active?'#5D34FF':'var(--surface)'};color:${active?'#fff':'var(--text-secondary)'}">${m}</button>`;
+    }).join('');
+}
+window.moveToMonthFromDetail=moveToMonthFromDetail;
 
 async function archiveCompleted(){
   const month=getCurrentMonthLabel();
@@ -875,12 +910,13 @@ function renderTasks(){
     el.innerHTML=`<div class="card"><table class="data-table"><thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due date</th></tr></thead><tbody>${sorted.filter(r=>r.fields[F.tasks.name]).map(r=>`<tr onclick="openTaskDetail('${r.id}')" style="cursor:pointer"><td style="font-weight:600">${r.fields[F.tasks.name]||''}</td><td><span class="badge ${badgeCls(getStatus(r))}">${getStatus(r)}</span></td><td><span class="badge ${r.fields[F.tasks.priority]==='High'?'btodo':r.fields[F.tasks.priority]==='Low'?'bdone':'binp'}">${r.fields[F.tasks.priority]||'—'}</span></td><td style="color:var(--text-secondary)">${r.fields[F.tasks.due]||'—'}</td></tr>`).join('')}</tbody></table></div>`;
     return;
   }
-  const MONTH_LABEL=getCurrentMonthLabel();
+  const monthCols=getVisibleMonthCols().map(m=>({k:m,cls:'col-month',l:m}));
   const cols=v==='board'
-    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'},{k:MONTH_LABEL,cls:'col-month',l:MONTH_LABEL}]
+    ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'},...monthCols]
     :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
   const gfn=v==='board'?r=>{const am=getArchiveMonth(r);return am||getStatus(r);}:r=>getDay(r);
-  const kanbanStyle=v==='day'?'--kanban-cols:6':v==='board'?'--kanban-cols:5':'';
+  const totalCols=v==='board'?4+monthCols.length:6;
+  const kanbanStyle=v==='day'?'--kanban-cols:6':`--kanban-cols:${totalCols}`;
   el.innerHTML=`<div class="kanban" style="${kanbanStyle}">`+cols.map(col=>{
     const items=sorted.filter(r=>gfn(r)===col.k);
     return `<div class="kanban-col ${col.cls}"><div class="kc-bar"></div><div class="kc-header"><div class="kc-title">${col.l}</div><div class="kc-count">${items.length}</div></div>${items.map(r=>taskCard(r)).join('')}</div>`;
@@ -903,7 +939,9 @@ function catCls2(c){if(!c)return 'tag-asset';const m={'Outreach':'tag-out','Admi
 
 function taskCard(r){
   const s=getStatus(r);
+  const archiveMonth=getArchiveMonth(r);
   const done=s.toLowerCase()==='completed';
+  const isArchived=!!archiveMonth;
   const cat=getCat(r);
   const day=getDay(r);
   const time=getTime(r);
@@ -913,11 +951,20 @@ function taskCard(r){
   const priCls=pri==='High'?'tag-hi':pri==='Low'?'tag-lo':'tag-med';
   const due=r.fields[F.tasks.due]||'';
   const dueFmt=due?new Date(due+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
-  const sc=stripeClass(s);
+  const sc=isArchived?'done':stripeClass(s);
+  const monthOpts=ALL_MONTHS.map(m=>`<option value="${m}"${archiveMonth===m?' selected':''}>${m}</option>`).join('');
+  const monthPicker=(done||isArchived)?`
+    <div onclick="event.stopPropagation()" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
+      <select onchange="moveToMonth('${r.id}',this.value)" style="width:100%;font-size:11px;padding:3px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);cursor:pointer">
+        <option value="">→ Move to month…</option>
+        ${monthOpts}
+      </select>
+      ${isArchived?`<button onclick="event.stopPropagation();moveToMonth('${r.id}','')" style="margin-top:4px;width:100%;font-size:10px;padding:2px 6px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text-tertiary);cursor:pointer">↩ Back to Completed</button>`:''}
+    </div>`:'';
   return `<div class="task-card" onclick="openTaskDetail('${r.id}')">
     <div class="tc-stripe ${sc}"></div>
     <div class="tc-body">
-      <div class="tc-title${done?' done-txt':''}">${name}</div>
+      <div class="tc-title${(done||isArchived)?' done-txt':''}">${name}</div>
       <div class="tc-meta">
         ${day?`<span class="tag tag-day">📅 ${day}</span>`:''}
         ${dueFmt?`<span class="tag" style="background:rgba(168,85,247,.15);color:#C084FC;font-weight:700">📆 ${dueFmt}</span>`:''}
@@ -927,12 +974,13 @@ function taskCard(r){
       </div>
     </div>
     <div class="tc-footer">
-      <div class="chk-row" onclick="event.stopPropagation();cycleStatus('${r.id}','${s}')">
-        <div class="chk ${done?'on':''}">${done?'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5 3.5-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>':''}</div>
-        <span class="chk-lbl">${done?'Completed':'Mark done'}</span>
+      <div class="chk-row" onclick="event.stopPropagation();${isArchived?`moveToMonth('${r.id}','')`:`cycleStatus('${r.id}','${s}')`}">
+        <div class="chk ${(done||isArchived)?'on':''}">${(done||isArchived)?'<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5 3.5-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>':''}</div>
+        <span class="chk-lbl">${isArchived?archiveMonth:done?'Completed':'Mark done'}</span>
       </div>
       <div class="tc-status-dot ${dotClass(s)}" title="${s}"></div>
     </div>
+    ${monthPicker}
   </div>`;
 }
 
@@ -991,6 +1039,15 @@ function openTaskDetail(id){
     const active=st===s;
     return `<button onclick="setTaskStatus('${id}','${st}')" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid ${active?'var(--green)':'var(--border)'};background:${active?'var(--green)':'var(--surface)'};color:${active?'#fff':'var(--text-secondary)'};transition:all .15s">${st}</button>`;
   }).join('');
+
+  // Month archive buttons
+  const curMonth=getArchiveMonth(r);
+  document.getElementById('tdm-month-btns').innerHTML=
+    `<button onclick="moveToMonth('${id}','')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid ${!curMonth?'var(--green)':'var(--border)'};background:${!curMonth?'var(--green)':'var(--surface)'};color:${!curMonth?'#fff':'var(--text-secondary)'}">Completed</button>`+
+    ALL_MONTHS.map(m=>{
+      const active=curMonth===m;
+      return `<button onclick="moveToMonthFromDetail('${id}','${m}')" style="padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid ${active?'#5D34FF':'var(--border)'};background:${active?'#5D34FF':'var(--surface)'};color:${active?'#fff':'var(--text-secondary)'}">${m}</button>`;
+    }).join('');
 
   // Delete button
   document.getElementById('tdm-delete-btn').onclick=()=>deleteTask(id);
