@@ -110,7 +110,7 @@ html.dark .bar-bg{background:var(--border)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
 
 /* ── KANBAN ── */
-.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kanban{display:grid;grid-template-columns:repeat(var(--kanban-cols,4),1fr);gap:16px}
 .kanban-col{background:var(--border-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:16px;min-height:340px}
 html.dark .kanban-col{background:#0D0D10;border-color:#1E1E25;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .kc-bar{height:3px;border-radius:99px;margin-bottom:12px}
@@ -880,7 +880,8 @@ function renderTasks(){
     ?[{k:'To Do',cls:'col-todo',l:'To Do'},{k:'Not Started',cls:'col-block',l:'Not Started'},{k:'In Progress',cls:'col-inp',l:'In Progress'},{k:'Completed',cls:'col-done',l:'Completed'},{k:MONTH_LABEL,cls:'col-month',l:MONTH_LABEL}]
     :['Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>({k:d,cls:'col-todo',l:d}));
   const gfn=v==='board'?r=>{const am=getArchiveMonth(r);return am||getStatus(r);}:r=>getDay(r);
-  el.innerHTML=`<div class="kanban" style="${v==='day'?'grid-template-columns:repeat(6,1fr)':''}">`+cols.map(col=>{
+  const kanbanStyle=v==='day'?'--kanban-cols:6':v==='board'?'--kanban-cols:5':'';
+  el.innerHTML=`<div class="kanban" style="${kanbanStyle}">`+cols.map(col=>{
     const items=sorted.filter(r=>gfn(r)===col.k);
     return `<div class="kanban-col ${col.cls}"><div class="kc-bar"></div><div class="kc-header"><div class="kc-title">${col.l}</div><div class="kc-count">${items.length}</div></div>${items.map(r=>taskCard(r)).join('')}</div>`;
   }).join('')+'</div>';
