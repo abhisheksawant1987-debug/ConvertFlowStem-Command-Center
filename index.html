@@ -81,7 +81,7 @@ html.dark .card{border-color:#2A2A34;box-shadow:0 2px 16px rgba(0,0,0,.6),0 0 0 
 html.dark .card:hover{border-color:rgba(74,222,128,.35);box-shadow:0 0 0 1px rgba(74,222,128,.25),0 8px 40px rgba(0,0,0,.7),0 0 60px rgba(74,222,128,.12);transform:translateY(-2px)}
 
 /* ── METRIC CARDS ── */
-.metrics-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.metrics-row{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:24px}
 .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:all .2s}
 html.dark .metric{border-color:#2A2A34;box-shadow:0 2px 16px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)}
 html.dark .metric:hover{border-color:rgba(74,222,128,.4);box-shadow:0 0 0 1px rgba(74,222,128,.3),0 8px 40px rgba(0,0,0,.7),0 0 60px rgba(74,222,128,.15);transform:translateY(-3px)}
@@ -247,13 +247,14 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <div class="header">
   <div style="display:flex;align-items:center">
     <div class="logo">ConvertFlow<span>Systems</span></div>
-    <div class="phase-badge">Phase 1 — Foundation</div>
+    <div class="phase-badge" id="phase-badge"></div>
   </div>
   <div style="display:flex;align-items:center;gap:16px">
     <div class="date-txt" id="date-txt"></div>
     <button class="sync-btn" onclick="syncAll()">⟳ Sync Airtable</button>
     <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
-    <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" onclick="openSettings()">⚙ Token</button>
+    <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" onclick="openGoalSettings()">⚙ Settings</button>
+    <button class="sync-btn" style="background:var(--gray-light);color:var(--text-secondary)" onclick="openSettings()">🔑 Token</button>
   </div>
 </div>
 
@@ -269,20 +270,21 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <!-- OVERVIEW -->
 <div id="overview" class="page active">
   <div class="metrics-row">
-    <div class="metric"><div class="metric-label">Days remaining</div><div class="metric-value green" id="m-days">200</div><div class="metric-sub">Until Dec 31, 2026</div></div>
+    <div class="metric"><div class="metric-label">Days remaining</div><div class="metric-value green" id="m-days">0</div><div class="metric-sub" id="m-days-sub"></div></div>
     <div class="metric"><div class="metric-label">Weeks remaining</div><div class="metric-value" id="m-weeks">29</div><div class="metric-sub" id="m-months">7 months</div></div>
-    <div class="metric"><div class="metric-label">Revenue earned</div><div class="metric-value green" id="m-earned">$0</div><div class="metric-sub">of $10,000 target</div></div>
-    <div class="metric"><div class="metric-label">Remaining</div><div class="metric-value amber" id="m-remaining">$10,000</div><div class="metric-sub" id="m-pace">—/week needed</div></div>
-    <div class="metric"><div class="metric-label">Prospects</div><div class="metric-value" id="m-prospects">0</div><div class="metric-sub" id="m-closed">0 closed</div></div>
+    <div class="metric"><div class="metric-label">Revenue earned</div><div class="metric-value green" id="m-earned">$0</div><div class="metric-sub" id="m-earned-sub"></div></div>
+    <div class="metric"><div class="metric-label">Remaining</div><div class="metric-value amber" id="m-remaining">$0</div><div class="metric-sub" id="m-pace">—/week needed</div></div>
+    <div class="metric"><div class="metric-label">DMs Sent</div><div class="metric-value" id="m-dmsent">0</div><div class="metric-sub" id="m-prospects-sub">0 prospects total</div></div>
+    <div class="metric"><div class="metric-label">Inbound Leads</div><div class="metric-value" id="m-inbound">0</div><div class="metric-sub" id="m-inbound-sub">0 replied</div></div>
   </div>
 
   <div class="card progress-wrap">
     <div class="prog-header">
-      <div class="prog-title">Progress to $10,000 — Start: Jun 15, 2026 · Deadline: Dec 31, 2026</div>
+      <div class="prog-title" id="ov-prog-title"></div>
       <div class="prog-pct" id="ov-pct">0%</div>
     </div>
     <div class="bar-bg"><div class="bar-fill" id="ov-bar" style="width:0%"></div></div>
-    <div class="bar-labels"><span>Jun 15, 2026</span><span>Dec 31, 2026</span></div>
+    <div class="bar-labels"><span id="ov-bar-start"></span><span id="ov-bar-end"></span></div>
   </div>
 
   <div class="two-col">
@@ -296,9 +298,9 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="card">
         <div class="sl">Outreach tracker</div>
-        <div class="out-row"><div class="out-lbl">Today</div><div class="out-bg"><div class="out-fill" id="ob-today" style="width:0%"></div></div><div class="out-val" id="ov-today">0</div><div class="out-goal">/ 5</div></div>
-        <div class="out-row"><div class="out-lbl">This week</div><div class="out-bg"><div class="out-fill" id="ob-week" style="width:0%"></div></div><div class="out-val" id="ov-week">0</div><div class="out-goal">/ 30</div></div>
-        <div class="out-row"><div class="out-lbl">This month</div><div class="out-bg"><div class="out-fill" id="ob-month" style="width:0%"></div></div><div class="out-val" id="ov-month">0</div><div class="out-goal">/ 130</div></div>
+        <div class="out-row"><div class="out-lbl">Today</div><div class="out-bg"><div class="out-fill" id="ob-today" style="width:0%"></div></div><div class="out-val" id="ov-today">0</div><div class="out-goal" id="og-today"></div></div>
+        <div class="out-row"><div class="out-lbl">This week</div><div class="out-bg"><div class="out-fill" id="ob-week" style="width:0%"></div></div><div class="out-val" id="ov-week">0</div><div class="out-goal" id="og-week"></div></div>
+        <div class="out-row"><div class="out-lbl">This month</div><div class="out-bg"><div class="out-fill" id="ob-month" style="width:0%"></div></div><div class="out-val" id="ov-month">0</div><div class="out-goal" id="og-month"></div></div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn btn-p" onclick="logDM()">+ Log DM</button>
           <button class="btn btn-s" onclick="resetToday()">Reset today</button>
@@ -317,7 +319,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
   </div>
 
   <div class="card">
-    <div class="sl">Phase 1 task progress</div>
+    <div class="sl">Task progress</div>
     <div class="prog-header" style="margin-bottom:8px">
       <div class="prog-title" id="tp-title">0 of 0 tasks complete</div>
       <div class="prog-pct" id="tp-pct">0%</div>
@@ -329,7 +331,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <!-- WEEKLY TASKS -->
 <div id="tasks" class="page">
   <div class="pg-header">
-    <div><div class="pg-title">Weekly tasks</div><div class="pg-sub">Phase 1 · Jun 15–21, 2026</div></div>
+    <div><div class="pg-title">Weekly tasks</div><div class="pg-sub" id="tasks-sub"></div></div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-s" id="archive-btn" onclick="archiveCompleted()" title="Move all Completed tasks into this month's column"></button>
       <button class="btn btn-p" onclick="openModal('task-modal')">+ Add task</button>
@@ -378,7 +380,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
     <button class="btn btn-p" onclick="openModal('revenue-modal')">+ Log payment</button>
   </div>
   <div class="two-col" style="margin-bottom:20px">
-    <div class="metric"><div class="metric-label">Total earned</div><div class="metric-value green" id="rev-total">$0</div><div class="metric-sub">of $10,000 goal</div></div>
+    <div class="metric"><div class="metric-label">Total earned</div><div class="metric-value green" id="rev-total">$0</div><div class="metric-sub" id="rev-total-sub"></div></div>
     <div class="metric"><div class="metric-label">Payments logged</div><div class="metric-value" id="rev-count">0</div><div class="metric-sub">total clients paid</div></div>
   </div>
   <div class="card" style="margin-bottom:20px">
@@ -403,7 +405,7 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
   <div class="card">
     <table class="data-table">
       <thead><tr><th>Week</th><th>Blocker</th><th>Calls booked</th><th>Clients closed</th><th>Content posted</th><th>DMs sent</th><th>Key win</th></tr></thead>
-      <tbody id="wl-body"><tr><td>Week 1 · Jun 11–15</td><td style="color:var(--text-tertiary)">—</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="color:var(--text-tertiary)">Starting from scratch</td></tr></tbody>
+      <tbody id="wl-body"></tbody>
     </table>
   </div>
 </div>
@@ -620,6 +622,37 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
   </div>
 </div>
 
+<!-- GOAL & TIMELINE SETTINGS -->
+<div class="modal-ov" id="goal-settings-modal">
+  <div class="modal" style="width:620px">
+    <div class="modal-title">Goal &amp; timeline settings</div>
+    <p style="font-size:12.5px;color:var(--text-secondary);line-height:1.6">Saved to Airtable, so your laptop and phone show the same targets.</p>
+    <div class="form-row">
+      <div><label for="gs-goal">Revenue goal ($)</label><input id="gs-goal" type="number" min="0" step="100"></div>
+      <div><label for="gs-clients">Client target</label><input id="gs-clients" type="text" placeholder="e.g. 5-7"></div>
+    </div>
+    <div class="form-row">
+      <div><label for="gs-start">Start date</label><input id="gs-start" type="date" onchange="renderGoalTargets()"></div>
+      <div><label for="gs-deadline">Deadline</label><input id="gs-deadline" type="date" onchange="renderGoalTargets()"></div>
+    </div>
+    <label>DM targets</label>
+    <div class="form-row" style="grid-template-columns:1fr 1fr 1fr">
+      <div><input id="gs-dm-day" type="number" min="0" aria-label="DMs per day"><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px">per day</div></div>
+      <div><input id="gs-dm-week" type="number" min="0" aria-label="DMs per week"><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px">per week</div></div>
+      <div><input id="gs-dm-month" type="number" min="0" aria-label="DMs per month"><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px">per month</div></div>
+    </div>
+    <label>Phases</label>
+    <div id="gs-phases" style="display:flex;flex-direction:column;gap:8px"></div>
+    <button class="btn btn-s" style="margin-top:8px;font-size:12px;padding:6px 12px" onclick="addGoalPhase()">+ Add phase</button>
+    <label>Monthly revenue targets ($)</label>
+    <div id="gs-targets" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"></div>
+    <div class="modal-footer">
+      <button class="btn btn-s" onclick="closeModal('goal-settings-modal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveGoalSettings()">Save settings</button>
+    </div>
+  </div>
+</div>
+
 <!-- AIRTABLE SETUP MODAL -->
 <div class="modal-ov" id="setup-modal" style="display:flex">
   <div class="modal" style="max-width:480px">
@@ -644,51 +677,124 @@ html.dark .toast{background:#1E1E24;border-color:var(--border)}
 <script>
 let TOKEN=localStorage.getItem('cfs_token')||'';
 const BASE='appkFzg1YLcC6omNh';
-const TBL={tasks:'tbl2uYEqVnhnGz1RP',pipeline:'tblsJLpLTHpsZ76gB',revenue:'tblW6X9RIdPP7OK1P',weeklylog:'tblrXwAlYxLZwf3Qn',content:'tbl1FE4IyDw9JBJN5'};
+const TBL={tasks:'tbl2uYEqVnhnGz1RP',pipeline:'tblsJLpLTHpsZ76gB',revenue:'tblW6X9RIdPP7OK1P',weeklylog:'tblrXwAlYxLZwf3Qn',content:'tbl1FE4IyDw9JBJN5',settings:'tblRij0NikumDi4xi'};
 const F={
-  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf',notes:'fldHl6IpnnIGa2wvi',archiveMonth:'fldNcZ02DtOAX8O7z',completedAt:'fldV6ewGW4CxVXX3G'},
+  tasks:{name:'fld4SPs0NLKaRth3W',desc:'fld4AOw23HuwIBCj7',status:'fldcagXLmselZu8NY',priority:'fldzzmidcBJENsPbK',due:'fldbCi8Q73lZEaQZf',notes:'fldHl6IpnnIGa2wvi',archiveMonth:'fldNcZ02DtOAX8O7z',completedAt:'fldV6ewGW4CxVXX3G',day:'fldLzO9FbtxRFGyy5',category:'fldWJKnFuSllNUzHB',time:'fld45YWaW141eygnz'},
+  settings:{key:'fldbyzAtXAFS48JPu',value:'fldPpK2Iimx0wG4QG'},
   pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3',platform:'fld9QMK5M2cy4ue84',niche:'fldcuWl3YXgWXQSU0',location:'fldUx10mSXbFrPoRW',dealValue:'fldosRkhRxznrtYKP',dmDate:'fldX1JdLbE3pxlDch',leadType:'fldliJPlCpCPbn6K5',leadSource:'fldj7PFQTddIKquOY'},
-  revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD'},
-  weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA'},
-  content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i'}
+  revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD',amount:'fldu7Q6IjNYUzBYYH',service:'fld2Cxmig0V1OfbAV',date:'fld9sJm4nE9dtKkOL',location:'fld3ZAil2DoV5vPB4',invoiceSent:'fldr0EpLnyzfkH3j8'},
+  weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA',dmsSent:'fldKqPlG1bsaQng65',calls:'fldibhFm3qNkauw1l',closed:'fldGFTglU2YgIUu6o',contentPosted:'fldCqyzTOb9S3SKWB'},
+  content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i',format:'fldW7hF0VMQi4BKD9',platform:'fldtQ14n8nE8x2uVD',scheduled:'fldafnntbJtXcelTO'}
 };
+// Airtable returns single-select values as {id,name,color}; local records hold plain strings.
+function sv(v){return v&&typeof v==='object'&&!Array.isArray(v)&&'name' in v?v.name:v;}
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
-const DEADLINE=new Date(2026,11,31);DEADLINE.setHours(0,0,0,0);
-const DAYS_LEFT=Math.round((DEADLINE-TODAY)/86400000);
-const WEEKS_LEFT=Math.ceil(DAYS_LEFT/7);
-const MONTHLY=[
-  {m:'Jun–Jul',ph:'Phase 1',t:0,bc:'bp1'},
-  {m:'August',ph:'Phase 2',t:1000,bc:'bp2'},
-  {m:'September',ph:'Phase 2',t:1500,bc:'bp2'},
-  {m:'October',ph:'Phase 3',t:2500,bc:'bp3'},
-  {m:'November',ph:'Phase 3',t:2500,bc:'bp3'},
-  {m:'December',ph:'Phase 3',t:2500,bc:'bp3'}
-];
+
+// ── SETTINGS (goal, timeline, targets) ───────────────────────────────────────
+// Stored in the "Dashboard Settings" Airtable table so every device shares them.
+const DEFAULT_SETTINGS={
+  goal:10000,start:'2026-06-15',deadline:'2026-12-31',clientTarget:'5-7',
+  dmTargets:{day:5,week:30,month:130},
+  phases:[
+    {name:'Phase 1 · Foundation',from:'2026-06',to:'2026-07'},
+    {name:'Phase 2',from:'2026-08',to:'2026-09'},
+    {name:'Phase 3',from:'2026-10',to:'2026-12'}
+  ],
+  targets:{'2026-06':0,'2026-07':0,'2026-08':1000,'2026-09':1500,'2026-10':2500,'2026-11':2500,'2026-12':2500}
+};
+let SETTINGS=JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+let SETTINGS_REC_ID='';
+let DEADLINE,DAYS_LEFT,WEEKS_LEFT,MONTHLY=[],ALL_MONTHS=[];
+function parseDay(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d||1);}
+function monthKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function monthLabel(key){const [y,m]=key.split('-').map(Number);return new Date(y,m-1,1).toLocaleString('en-US',{month:'short'})+' '+y;}
+function fmtDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function money(n){return '$'+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2});}
+function monthsBetween(fromKey,toKey){
+  const out=[];let [y,m]=fromKey.split('-').map(Number);const [ty,tm]=toKey.split('-').map(Number);
+  while(y<ty||(y===ty&&m<=tm)){out.push(y+'-'+String(m).padStart(2,'0'));m++;if(m>12){m=1;y++;}if(out.length>60)break;}
+  return out;
+}
+function phaseFor(key){
+  const i=SETTINGS.phases.findIndex(p=>key>=p.from&&key<=p.to);
+  return i>-1?{name:SETTINGS.phases[i].name,idx:i}:null;
+}
+const PHASE_BADGES=['bp1','bp2','bp3'];
+function applySettings(){
+  DEADLINE=parseDay(SETTINGS.deadline);DEADLINE.setHours(0,0,0,0);
+  DAYS_LEFT=Math.max(0,Math.round((DEADLINE-TODAY)/86400000));
+  WEEKS_LEFT=Math.ceil(DAYS_LEFT/7);
+  const startKey=SETTINGS.start.slice(0,7),endKey=SETTINGS.deadline.slice(0,7);
+  MONTHLY=monthsBetween(startKey,endKey).map(k=>{const ph=phaseFor(k);return {key:k,m:monthLabel(k),ph:ph?ph.name:'—',bc:ph?PHASE_BADGES[ph.idx%3]:'bnot',t:Number(SETTINGS.targets[k]||0)};});
+  // Task archive months: from goal start through whichever is later, deadline or this month
+  const lastKey=[endKey,monthKey(TODAY)].sort().pop();
+  ALL_MONTHS=monthsBetween(startKey,lastKey).map(monthLabel);
+  const goal=money(SETTINGS.goal),start=parseDay(SETTINGS.start);
+  const set=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
+  const cur=phaseFor(monthKey(TODAY));
+  set('phase-badge',TODAY>DEADLINE?'Goal period ended':(cur?cur.name:'Between phases'));
+  set('m-days-sub','Until '+fmtDate(DEADLINE));
+  set('m-earned-sub','of '+goal+' target');
+  set('ov-prog-title',`Progress to ${goal} · Start: ${fmtDate(start)} · Deadline: ${fmtDate(DEADLINE)}`);
+  set('ov-bar-start',fmtDate(start));set('ov-bar-end',fmtDate(DEADLINE));
+  set('rev-total-sub','of '+goal+' goal');
+  set('og-today','/ '+SETTINGS.dmTargets.day);set('og-week','/ '+SETTINGS.dmTargets.week);set('og-month','/ '+SETTINGS.dmTargets.month);
+  const mon=new Date(TODAY);mon.setDate(mon.getDate()-((mon.getDay()+6)%7));const sun=new Date(mon);sun.setDate(sun.getDate()+6);
+  set('tasks-sub',`${cur?cur.name+' · ':''}Week of ${mon.toLocaleDateString('en-US',{month:'short',day:'numeric'})} to ${sun.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`);
+}
+applySettings();
+
 let S={tasks:[],pipeline:[],revenue:[],weeklylog:[],content:[],outreach:{today:0,todayDate:'',week:0,month:0},taskView:'board',taskSort:'default',pipeView:'table',pipeSection:'outreach'};
+const DATA_KEYS=['tasks','pipeline','revenue','weeklylog','content'];
 
-function ls(k,v){if(v!==undefined)localStorage.setItem('cfs_'+k,JSON.stringify(v));else{try{return JSON.parse(localStorage.getItem('cfs_'+k))||null}catch(e){return null}}}
-function loadState(){['tasks','pipeline','revenue','weeklylog','content','outreach'].forEach(k=>{const d=ls(k);if(d)S[k]=d});recomputeOutreach();}
-function saveState(){['tasks','pipeline','revenue','weeklylog','content','outreach'].forEach(k=>ls(k,S[k]));}
+function ls(k,v){if(v!==undefined){try{localStorage.setItem('cfs_'+k,JSON.stringify(v));}catch(e){}}else{try{return JSON.parse(localStorage.getItem('cfs_'+k))||null}catch(e){return null}}}
+function loadState(){
+  [...DATA_KEYS,'outreach'].forEach(k=>{const d=ls(k);if(d)S[k]=d});
+  const st=ls('settings');if(st){SETTINGS={...DEFAULT_SETTINGS,...st};applySettings();}
+  recomputeOutreach();
+}
+function saveState(){[...DATA_KEYS,'outreach'].forEach(k=>ls(k,S[k]));}
 
+// ── AIRTABLE API ─────────────────────────────────────────────────────────────
+// Errors throw (never return an empty list), so a bad token can't wipe the dashboard.
+// typecast lets Airtable add a missing select option (e.g. "Call Booked") instead of rejecting the save.
+function atError(d,status){return new Error((d&&d.error&&(d.error.message||d.error.type||d.error))||('HTTP '+status));}
 async function atList(tbl){
   let recs=[],offset='';
   do{
     const url=`https://api.airtable.com/v0/${BASE}/${tbl}?pageSize=100&returnFieldsByFieldId=true${offset?'&offset='+offset:''}`;
     const r=await fetch(url,{headers:{Authorization:'Bearer '+TOKEN}});
     const d=await r.json();
+    if(!r.ok||d.error)throw atError(d,r.status);
     recs=recs.concat(d.records||[]);
     offset=d.offset||'';
   }while(offset);
   return recs;
 }
 async function atCreate(tbl,fields){
-  const r=await fetch(`https://api.airtable.com/v0/${BASE}/${tbl}?returnFieldsByFieldId=true`,{method:'POST',headers:{Authorization:'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({records:[{fields}]})});
-  return r.json();
+  const r=await fetch(`https://api.airtable.com/v0/${BASE}/${tbl}?returnFieldsByFieldId=true`,{method:'POST',headers:{Authorization:'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({records:[{fields}],typecast:true})});
+  const d=await r.json();
+  if(!r.ok||d.error){const e=atError(d,r.status);toastLater('Airtable said: '+e.message);throw e;}
+  return d;
 }
 async function atPatch(tbl,id,fields){
-  const r=await fetch(`https://api.airtable.com/v0/${BASE}/${tbl}/${id}?returnFieldsByFieldId=true`,{method:'PATCH',headers:{Authorization:'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({fields})});
-  return r.json();
+  try{
+    const r=await fetch(`https://api.airtable.com/v0/${BASE}/${tbl}/${id}?returnFieldsByFieldId=true`,{method:'PATCH',headers:{Authorization:'Bearer '+TOKEN,'Content-Type':'application/json'},body:JSON.stringify({fields,typecast:true})});
+    const d=await r.json();
+    if(!r.ok||d.error)throw atError(d,r.status);
+    return d;
+  }catch(e){queuePatch(tbl,id,fields);toastLater('Airtable said: '+e.message);throw e;}
 }
+// Remember a failed edit on the record so the next sync retries it.
+function queuePatch(tbl,id,fields){
+  const key=Object.keys(TBL).find(k=>TBL[k]===tbl);
+  const rec=key&&S[key]&&S[key].find(r=>r.id===id);
+  if(rec){rec._pendingPatch={...(rec._pendingPatch||{}),...fields};saveState();}
+}
+// Show the real Airtable error after the caller's own "saved locally" toast.
+let _laterTimer=null;
+function toastLater(msg){clearTimeout(_laterTimer);_laterTimer=setTimeout(()=>toast(msg),3100);}
+function stripLocal(fields){const o={};Object.keys(fields||{}).forEach(k=>{if(!k.startsWith('_'))o[k]=fields[k];});return o;}
 
 // Day/Category/Time may be in Airtable under an unknown field ID, so we scan
 // field values as a fallback for records returned with returnFieldsByFieldId=true.
@@ -702,21 +808,12 @@ function getTaskField(r,knownId,fallbackVals){
   for(const v of Object.values(r.fields||{})){if(fallbackVals.includes(v))return v;}
   return '';
 }
-function getDay(r){
-  if(r.fields['Day']!==undefined)return r.fields['Day'];
-  for(const v of Object.values(r.fields||{})){if(DAY_VALS.includes(v))return v;}
-  return '';
-}
-function getCat(r){
-  if(r.fields['Category']!==undefined)return r.fields['Category'];
-  for(const v of Object.values(r.fields||{})){if(CAT_VALS.includes(v))return v;}
-  return '';
-}
-function getTime(r){return r.fields['Time']||r.fields[F.tasks.time]||'';}
-function getStatus(r){const v=r.fields[F.tasks.status];return (v&&typeof v==='object'?v.name:v)||'To Do';}
-function getArchiveMonth(r){const v=r.fields[F.tasks.archiveMonth];return (v&&typeof v==='object'?v.name:v)||'';}
+function getDay(r){return sv(r.fields[F.tasks.day])||r.fields['Day']||'';}
+function getCat(r){return sv(r.fields[F.tasks.category])||r.fields['Category']||'';}
+function getTime(r){return r.fields[F.tasks.time]||r.fields['Time']||'';}
+function getStatus(r){return sv(r.fields[F.tasks.status])||'To Do';}
+function getArchiveMonth(r){return sv(r.fields[F.tasks.archiveMonth])||'';}
 function getCurrentMonthLabel(){const n=new Date();return n.toLocaleString('en-US',{month:'short'})+' '+n.getFullYear();}
-const ALL_MONTHS=['Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
 function getVisibleMonthCols(){
   const used=new Set(S.tasks.map(r=>getArchiveMonth(r)).filter(Boolean));
   used.add(getCurrentMonthLabel());
@@ -772,17 +869,59 @@ function initArchiveBtn(){
 }
 
 
+// Sync = push anything waiting on this device, then pull Airtable and keep whatever still couldn't be sent.
+let _syncing=false;
 async function syncAll(){
+  if(_syncing)return;_syncing=true;
   toast('Syncing with Airtable...');
+  const failures=[];
   try{
-    const [t,p,r,w,c]=await Promise.all([atList(TBL.tasks),atList(TBL.pipeline),atList(TBL.revenue),atList(TBL.weeklylog),atList(TBL.content)]);
-    S.tasks=t;S.pipeline=p;S.revenue=r;S.weeklylog=w;S.content=c;
-    // Recompute DM totals from Airtable records after sync
+    for(const k of DATA_KEYS){
+      for(const rec of [...S[k]]){
+        if(rec.id.startsWith('l')){
+          try{
+            const res=await atCreate(TBL[k],stripLocal(rec.fields));
+            const i=S[k].findIndex(x=>x.id===rec.id);
+            if(i>-1&&res.records&&res.records[0])S[k][i]=res.records[0];
+          }catch(e){failures.push(e.message);}
+        }else if(rec._pendingPatch){
+          const patch=rec._pendingPatch;delete rec._pendingPatch;
+          try{await atPatch(TBL[k],rec.id,patch);}catch(e){failures.push(e.message);}
+        }
+      }
+    }
+    saveState();
+    const lists=await Promise.all(DATA_KEYS.map(k=>atList(TBL[k])));
+    DATA_KEYS.forEach((k,i)=>{
+      const remote=lists[i];
+      const waiting=S[k].filter(r=>r.id.startsWith('l'));
+      const pending={};S[k].forEach(r=>{if(r._pendingPatch)pending[r.id]=r._pendingPatch;});
+      remote.forEach(r=>{if(pending[r.id]){r.fields={...r.fields,...pending[r.id]};r._pendingPatch=pending[r.id];}});
+      S[k]=[...remote,...waiting];
+    });
+    await loadRemoteSettings();
     recomputeOutreach();
-    saveState();renderAll();toast('Synced ✓');
-  }catch(e){toast('Sync failed — check connection');}
+    saveState();renderAll();
+    if(failures.length)toast(`Synced, but ${failures.length} item(s) are still waiting: ${failures[0]}`);
+    else toast('Synced ✓');
+  }catch(e){
+    toast('Sync failed, nothing was changed: '+e.message);
+  }finally{_syncing=false;}
 }
 window.syncAll=syncAll;
+
+async function loadRemoteSettings(){
+  try{
+    const recs=await atList(TBL.settings);
+    const rec=recs.find(r=>r.fields[F.settings.key]==='config');
+    if(rec){
+      SETTINGS_REC_ID=rec.id;
+      const parsed=JSON.parse(rec.fields[F.settings.value]||'{}');
+      SETTINGS={...DEFAULT_SETTINGS,...parsed};
+      ls('settings',SETTINGS);applySettings();
+    }
+  }catch(e){/* keep current settings */}
+}
 
 function renderAll(){renderOverview();renderTasks();renderPipeline();renderRevenue();renderWeeklyLog();renderContent();}
 
@@ -790,25 +929,40 @@ function renderOverview(){
   document.getElementById('m-days').textContent=DAYS_LEFT;
   document.getElementById('m-weeks').textContent=WEEKS_LEFT;
   document.getElementById('m-months').textContent=Math.round(DAYS_LEFT/30)+' months';
-  const earned=S.revenue.filter(r=>r.fields['Amount']).reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
-  const rem=Math.max(0,10000-earned);
-  const pct=Math.min((earned/10000)*100,100);
+  const getRev=r=>r.fields[F.revenue.amount]||r.fields['Amount']||0;
+  const earned=S.revenue.filter(r=>getRev(r)).reduce((s,r)=>s+(parseFloat(getRev(r))||0),0);
+  const goal=Number(SETTINGS.goal)||0;
+  const rem=Math.max(0,goal-earned);
+  const pct=goal?Math.min((earned/goal)*100,100):0;
   const wkN=WEEKS_LEFT>0?Math.ceil(rem/WEEKS_LEFT):0;
-  document.getElementById('m-earned').textContent='$'+earned.toLocaleString();
-  document.getElementById('m-remaining').textContent='$'+rem.toLocaleString();
+  document.getElementById('m-earned').textContent=money(earned);
+  document.getElementById('m-remaining').textContent=money(rem);
   document.getElementById('m-pace').textContent='$'+wkN.toLocaleString()+'/week needed';
   document.getElementById('ov-bar').style.width=pct+'%';
   document.getElementById('ov-pct').textContent=pct.toFixed(1)+'%';
-  const closed=S.pipeline.filter(r=>(r.fields[F.pipeline.status]||'').toLowerCase()==='closed').length;
-  document.getElementById('m-prospects').textContent=S.pipeline.length;
-  document.getElementById('m-closed').textContent=closed+' closed';
+  const DM_STATUSES=['DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won'];
+  const outreachRecs=S.pipeline.filter(r=>getPipeLeadType(r)==='Outreach');
+  const dmSentCount=outreachRecs.filter(r=>DM_STATUSES.includes(getPipeStatus(r))).length;
+  const inboundRecs=S.pipeline.filter(r=>getPipeLeadType(r)==='Incoming Lead');
+  const inboundReplied=inboundRecs.filter(r=>['Replied','Call Booked','Proposal Sent','Closed - Won'].includes(getPipeStatus(r))).length;
+  document.getElementById('m-dmsent').textContent=dmSentCount;
+  document.getElementById('m-prospects-sub').textContent=outreachRecs.length+' prospects total';
+  document.getElementById('m-inbound').textContent=inboundRecs.length;
+  document.getElementById('m-inbound-sub').textContent=inboundReplied+' replied';
   const tbody=document.getElementById('ov-monthly');
   tbody.innerHTML='';
   let tt=0;
-  MONTHLY.forEach(m=>{tt+=m.t;const g=0-m.t;tbody.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td>$0</td><td class="${g<0?'gap-neg':'gap-pos'}">${g<0?'-$'+Math.abs(g).toLocaleString():'+$'+g}</td></tr>`;});
-  tbody.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td>$0</td><td class="gap-neg">-$${tt.toLocaleString()}</td></tr>`;
+  const ovActuals={};
+  S.revenue.filter(r=>parseFloat(r.fields[F.revenue.amount]||r.fields['Amount']||0)>0).forEach(r=>{
+    const dt=r.fields[F.revenue.date]||r.fields['Date']||'';
+    const grp=paymentMonthGroup(dt);
+    if(grp)ovActuals[grp]=(ovActuals[grp]||0)+(parseFloat(r.fields[F.revenue.amount]||r.fields['Amount'])||0);
+  });
+  let ovTa=0;
+  MONTHLY.forEach(m=>{tt+=m.t;const act=ovActuals[m.key]||0;ovTa+=act;const g=act-m.t;tbody.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td style="font-weight:600;color:var(--green-dark)">${act>0?'$'+act.toFixed(2):'$0'}</td><td class="${g>=0?'gap-pos':'gap-neg'}">${g>=0?'+$'+g.toFixed(2):'-$'+Math.abs(g).toFixed(2)}</td></tr>`;});
+  tbody.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td style="font-weight:700;color:var(--green-dark)">$${ovTa.toFixed(2)}</td><td class="${ovTa>=tt?'gap-pos':'gap-neg'}">${ovTa>=tt?'+$'+(ovTa-tt).toFixed(2):'-$'+(tt-ovTa).toFixed(2)}</td></tr>`;
   const od=S.outreach;
-  ['today','week','month'].forEach((k,i)=>{const goals=[5,30,130];const v=od[k]||0;document.getElementById('ob-'+k).style.width=Math.min((v/goals[i])*100,100)+'%';document.getElementById('ov-'+k).textContent=v;});
+  ['today','week','month'].forEach((k,i)=>{const t=SETTINGS.dmTargets||{};const goals=[t.day||1,t.week||1,t.month||1];const v=od[k]||0;document.getElementById('ob-'+k).style.width=Math.min((v/goals[i])*100,100)+'%';document.getElementById('ov-'+k).textContent=v;});
   const done=S.tasks.filter(r=>getStatus(r).toLowerCase()==='completed').length;
   const total=S.tasks.length||8;
   const tp=Math.round((done/total)*100);
@@ -824,7 +978,9 @@ function renderOverview(){
 
 const DM_PREFIX='DM-LOG::';
 
-function getTodayKey(){return TODAY.toISOString().split('T')[0];}
+// Local calendar date (toISOString would shift to the UTC day, e.g. yesterday in India before 5:30 AM)
+function localKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function getTodayKey(){return localKey(TODAY);}
 
 function recomputeOutreach(){
   const ts=getTodayKey();
@@ -832,16 +988,26 @@ function recomputeOutreach(){
   const d=new Date(TODAY);
   const day=d.getDay()||7;
   d.setDate(d.getDate()-day+1);
-  const weekStart=d.toISOString().split('T')[0];
+  const weekStart=localKey(d);
   let todayCount=0,weekCount=0,monthCount=0;
+  // Count manual DM log entries from weeklylog
   S.weeklylog.forEach(r=>{
     const name=r.fields[F.weeklylog.name]||'';
     if(!name.startsWith(DM_PREFIX))return;
     const date=name.replace(DM_PREFIX,'');
-    const count=parseInt(r.fields['DMs sent'])||0;
+    const count=parseInt(r.fields[F.weeklylog.dmsSent]||r.fields['DMs sent'])||0;
     if(date===ts)todayCount+=count;
     if(date>=weekStart&&date<=ts)weekCount+=count;
     if(date.startsWith(todayMonth))monthCount+=count;
+  });
+  // Also count pipeline prospects by their DM sent date
+  S.pipeline.forEach(r=>{
+    const dm=r.fields[F.pipeline.dmDate];
+    if(!dm)return;
+    const date=dm.slice(0,10);
+    if(date===ts)todayCount++;
+    if(date>=weekStart&&date<=ts)weekCount++;
+    if(date.startsWith(todayMonth))monthCount++;
   });
   S.outreach={today:todayCount,week:weekCount,month:monthCount,todayDate:ts};
   saveState();
@@ -851,15 +1017,15 @@ async function logDM(){
   const ts=getTodayKey();
   const existing=S.weeklylog.find(r=>(r.fields[F.weeklylog.name]||'')===(DM_PREFIX+ts));
   if(existing){
-    const newCount=(parseInt(existing.fields['DMs sent'])||0)+1;
-    existing.fields['DMs sent']=newCount;
+    const newCount=(parseInt(existing.fields[F.weeklylog.dmsSent])||0)+1;
+    existing.fields[F.weeklylog.dmsSent]=newCount;
     recomputeOutreach();renderOverview();toast('DM logged ✓');
     if(!existing.id.startsWith('l')){
-      try{await atPatch(TBL.weeklylog,existing.id,{'DMs sent':newCount});toast('DM saved to Airtable ✓');}
+      try{await atPatch(TBL.weeklylog,existing.id,{[F.weeklylog.dmsSent]:newCount});toast('DM saved to Airtable ✓');}
       catch(e){toast('DM logged locally — syncs next time');}
     }
   } else {
-    const fields={[F.weeklylog.name]:DM_PREFIX+ts,'DMs sent':1};
+    const fields={[F.weeklylog.name]:DM_PREFIX+ts,[F.weeklylog.dmsSent]:1};
     const tempId='l'+Date.now();
     const newRec={id:tempId,fields};
     S.weeklylog.push(newRec);
@@ -879,10 +1045,10 @@ async function resetToday(){
   const ts=getTodayKey();
   const existing=S.weeklylog.find(r=>(r.fields[F.weeklylog.name]||'')===(DM_PREFIX+ts));
   if(existing){
-    existing.fields['DMs sent']=0;
+    existing.fields[F.weeklylog.dmsSent]=0;
     recomputeOutreach();renderOverview();toast('Today reset');
     if(!existing.id.startsWith('l')){
-      atPatch(TBL.weeklylog,existing.id,{'DMs sent':0}).catch(()=>{});
+      atPatch(TBL.weeklylog,existing.id,{[F.weeklylog.dmsSent]:0}).catch(()=>{});
     }
   } else {toast('Nothing to reset today');}
 }
@@ -1300,31 +1466,57 @@ async function updateLead(id){
 }
 window.updateLead=updateLead;
 
-function renderRevenue(){
-  const payments=S.revenue.filter(r=>r.fields['Amount']);
-  const total=payments.reduce((s,r)=>s+(parseFloat(r.fields['Amount'])||0),0);
-  document.getElementById('rev-total').textContent='$'+total.toLocaleString();
-  document.getElementById('rev-count').textContent=payments.length;
-  const mb=document.getElementById('rev-monthly');mb.innerHTML='';
-  let tt=0;
-  MONTHLY.forEach(m=>{tt+=m.t;const g=0-m.t;mb.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td>$0</td><td class="${g<0?'gap-neg':'gap-pos'}">${g<0?'-$'+Math.abs(g).toLocaleString():'+$'+g}</td></tr>`;});
-  mb.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td>$0</td><td class="gap-neg">-$${tt.toLocaleString()}</td></tr>`;
-  const pb=document.getElementById('rev-payments');
-  pb.innerHTML=payments.length===0?'<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No payments yet. Click "+ Log payment" to add your first client.</td></tr>':payments.map(r=>`<tr><td style="font-weight:500">${r.fields['Client']||r.fields[F.revenue.client]||'—'}</td><td>${r.fields['Service']||'—'}</td><td style="font-weight:600;color:var(--green-dark)">$${r.fields['Amount']||0}</td><td style="color:var(--text-secondary)">${r.fields['Date']||'—'}</td><td><span class="badge ${r.fields['Phase']==='Phase 1'?'bp1':r.fields['Phase']==='Phase 2'?'bp2':'bp3'}">${r.fields['Phase']||'—'}</span></td><td>${r.fields['Location']||'—'}</td><td>${r.fields['Invoice sent']?'✓ Yes':'—'}</td></tr>`).join('');
+// Payment date "YYYY-MM-DD" -> month key "YYYY-MM", matching MONTHLY[].key
+function paymentMonthGroup(dateStr){
+  return /^\d{4}-\d{2}/.test(dateStr||'')?dateStr.slice(0,7):null;
 }
+function renderRevenue(){
+  const getRevAmt=r=>r.fields[F.revenue.amount]||r.fields['Amount']||0;
+  const payments=S.revenue.filter(r=>parseFloat(getRevAmt(r))>0);
+  const total=payments.reduce((s,r)=>s+(parseFloat(getRevAmt(r))||0),0);
+  document.getElementById('rev-total').textContent='$'+total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('rev-count').textContent=payments.length;
+  // Build actual amounts per month from real payment dates
+  const actuals={};
+  payments.forEach(r=>{
+    const f=r.fields;
+    const dt=f[F.revenue.date]||f['Date']||'';
+    const grp=paymentMonthGroup(dt);
+    if(grp)actuals[grp]=(actuals[grp]||0)+(parseFloat(getRevAmt(r))||0);
+  });
+  const mb=document.getElementById('rev-monthly');mb.innerHTML='';
+  let tt=0,ta=0;
+  MONTHLY.forEach(m=>{
+    tt+=m.t;
+    const act=actuals[m.key]||0;ta+=act;
+    const g=act-m.t;
+    mb.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td style="font-weight:600;color:var(--green-dark)">${act>0?'$'+act.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'$0'}</td><td class="${g>=0?'gap-pos':'gap-neg'}">${g>=0?'+$'+g.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'-$'+Math.abs(g).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+  });
+  const totalGap=ta-tt;
+  mb.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td style="font-weight:700;color:var(--green-dark)">$${ta.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td class="${totalGap>=0?'gap-pos':'gap-neg'}">${totalGap>=0?'+$'+totalGap.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'-$'+Math.abs(totalGap).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+  const pb=document.getElementById('rev-payments');
+  pb.innerHTML=payments.length===0?'<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No payments yet. Click "+ Log payment" to add your first client.</td></tr>':payments.map(r=>{const f=r.fields;const ph=(f[F.revenue.phase]&&f[F.revenue.phase].name)||f[F.revenue.phase]||f['Phase']||'—';const client=f[F.revenue.client]||f['Client']||'—';const svc=f[F.revenue.service]||f['Service']||'—';const amt=getRevAmt(r);const dt=f[F.revenue.date]||f['Date']||'—';const loc=f[F.revenue.location]||f['Location']||'—';const inv=f[F.revenue.invoiceSent]||f['Invoice sent']||false;return `<tr><td style="font-weight:500">${client}</td><td>${svc}</td><td style="font-weight:600;color:var(--green-dark)">$${amt}</td><td style="color:var(--text-secondary)">${dt}</td><td><span class="badge ${ph==='Phase 1'?'bp1':ph==='Phase 2'?'bp2':'bp3'}">${ph}</span></td><td>${loc}</td><td>${inv?'✓ Yes':'—'}</td></tr>`;}).join('');
+}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+// Read a field by ID, falling back to the plain name used by records saved before the field existed.
+function fv(r,id,name){const v=sv(r.fields[id]);return v!==undefined&&v!==null&&v!==''?v:(name?sv(r.fields[name]):undefined);}
 
 function renderWeeklyLog(){
   const b=document.getElementById('wl-body');
-  if(S.weeklylog.length>0){
-    b.innerHTML=S.weeklylog.map(r=>`<tr><td style="font-weight:500">${r.fields[F.weeklylog.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.weeklylog.challenges]||'—'}</td><td>${r.fields['Calls booked']||0}</td><td>${r.fields['Clients closed']||0}</td><td>${r.fields['Content posted']||0}</td><td>${r.fields['DMs sent']||0}</td><td style="color:var(--text-secondary)">${r.fields[F.weeklylog.accomplishments]||'—'}</td></tr>`).join('');
-  }
+  const rows=S.weeklylog.filter(r=>{const n=r.fields[F.weeklylog.name]||'';return n&&!n.startsWith(DM_PREFIX);});
+  if(rows.length===0){b.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No weeks logged yet. Click "+ Log this week" every Monday.</td></tr>';return;}
+  const W=F.weeklylog;
+  b.innerHTML=rows.map(r=>`<tr><td style="font-weight:500">${esc(r.fields[W.name])}</td><td style="color:var(--text-secondary)">${esc(r.fields[W.challenges]||'—')}</td><td>${fv(r,W.calls,'Calls booked')||0}</td><td>${fv(r,W.closed,'Clients closed')||0}</td><td>${fv(r,W.contentPosted,'Content posted')||0}</td><td>${fv(r,W.dmsSent,'DMs sent')||0}</td><td style="color:var(--text-secondary)">${esc(r.fields[W.accomplishments]||'—')}</td></tr>`).join('');
 }
 
 function renderContent(){
   const b=document.getElementById('ct-body');
-  if(S.content.length===0){b.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No content planned yet. Add your first idea.</td></tr>';return;}
+  const C=F.content;
+  const rows=S.content.filter(r=>r.fields[C.name]);
+  if(rows.length===0){b.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No content planned yet. Add your first idea.</td></tr>';return;}
   const sc=s=>s==='Published'?'bdone':s==='Ready'?'binp':s==='In progress'?'binp':'bnot';
-  b.innerHTML=S.content.map(r=>`<tr><td style="font-weight:500">${r.fields[F.content.name]||'—'}</td><td>${r.fields['Format']||'—'}</td><td>${r.fields['Platform']||'—'}</td><td><span class="badge ${sc(r.fields[F.content.status]||'Idea')}">${r.fields[F.content.status]||'Idea'}</span></td><td style="color:var(--text-secondary)">${r.fields['Scheduled date']||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.content.notes]||'—'}</td></tr>`).join('');
+  b.innerHTML=rows.map(r=>{const st=fv(r,C.status)||'Idea';return `<tr><td style="font-weight:500">${esc(r.fields[C.name])}</td><td>${esc(fv(r,C.format,'Format')||'—')}</td><td>${esc(fv(r,C.platform,'Platform')||'—')}</td><td><span class="badge ${sc(st)}">${esc(st)}</span></td><td style="color:var(--text-secondary)">${esc(fv(r,C.scheduled,'Scheduled date')||'—')}</td><td style="color:var(--text-secondary)">${esc(r.fields[C.notes]||'—')}</td></tr>`;}).join('');
 }
 
 function switchTab(n){
@@ -1344,9 +1536,9 @@ async function saveTask(){
   if(!name){toast('Task name required');return;}
   const fields={[F.tasks.name]:name,[F.tasks.desc]:document.getElementById('tm-desc').value,[F.tasks.status]:document.getElementById('tm-status').value,[F.tasks.priority]:document.getElementById('tm-priority').value};
   const due=document.getElementById('tm-due').value;if(due)fields[F.tasks.due]=due;
-  const day=document.getElementById('tm-day').value;if(day)fields['Day']=day;
-  const cat=document.getElementById('tm-cat').value;if(cat)fields['Category']=cat;
-  const time=document.getElementById('tm-time').value;if(time)fields['Time']=time;
+  const day=document.getElementById('tm-day').value;if(day)fields[F.tasks.day]=day;
+  const cat=document.getElementById('tm-cat').value;if(cat)fields[F.tasks.category]=cat;
+  const time=document.getElementById('tm-time').value;if(time)fields[F.tasks.time]=time;
   closeModal('task-modal');toast('Saving...');
   try{const res=await atCreate(TBL.tasks,fields);if(res.records){S.tasks.push(res.records[0]);saveState();renderTasks();renderOverview();toast('Task saved to Airtable ✓');}}
   catch(e){S.tasks.push({id:'l'+Date.now(),fields});saveState();renderTasks();renderOverview();toast('Saved locally');}
@@ -1357,9 +1549,11 @@ window.saveTask=saveTask;
 async function saveProspect(){
   const name=document.getElementById('pm-name').value.trim();
   if(!name){toast('Name required');return;}
-  const fields={[F.pipeline.name]:name,[F.pipeline.status]:document.getElementById('pm-status').value,[F.pipeline.platform]:document.getElementById('pm-platform').value,[F.pipeline.location]:document.getElementById('pm-location').value};
+  const status=document.getElementById('pm-status').value;
+  const fields={[F.pipeline.name]:name,[F.pipeline.status]:status,[F.pipeline.platform]:document.getElementById('pm-platform').value,[F.pipeline.location]:document.getElementById('pm-location').value};
   const ni=document.getElementById('pm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
-  const dm=document.getElementById('pm-dmdate').value;if(dm)fields[F.pipeline.dmDate]=dm;
+  const dm=document.getElementById('pm-dmdate').value||(status==='DM Sent'?getTodayKey():'');
+  if(dm)fields[F.pipeline.dmDate]=dm;
   const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
   const dv=document.getElementById('pm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
   const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
@@ -1418,9 +1612,13 @@ window.openEditProspect=openEditProspect;
 async function updateProspect(id){
   const name=document.getElementById('pm-name').value.trim();
   if(!name){toast('Name required');return;}
-  const fields={[F.pipeline.name]:name,[F.pipeline.status]:document.getElementById('pm-status').value,[F.pipeline.platform]:document.getElementById('pm-platform').value,[F.pipeline.location]:document.getElementById('pm-location').value};
+  const status=document.getElementById('pm-status').value;
+  const fields={[F.pipeline.name]:name,[F.pipeline.status]:status,[F.pipeline.platform]:document.getElementById('pm-platform').value,[F.pipeline.location]:document.getElementById('pm-location').value};
   const ni=document.getElementById('pm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
-  const dm=document.getElementById('pm-dmdate').value;if(dm)fields[F.pipeline.dmDate]=dm;
+  const existingRec=S.pipeline.find(p=>p.id===id);
+  const existingDmDate=existingRec&&existingRec.fields[F.pipeline.dmDate];
+  const dm=document.getElementById('pm-dmdate').value||(status==='DM Sent'&&!existingDmDate?getTodayKey():'');
+  if(dm)fields[F.pipeline.dmDate]=dm;
   const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
   const dv=document.getElementById('pm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
   const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
@@ -1453,19 +1651,46 @@ async function savePayment(){
   const client=document.getElementById('rm-client').value.trim();
   const amount=parseFloat(document.getElementById('rm-amount').value);
   if(!client||!amount){toast('Client and amount required');return;}
-  const fields={'Client':client,'Amount':amount,'Service':document.getElementById('rm-service').value,'Date':document.getElementById('rm-date').value,'Phase':document.getElementById('rm-phase').value,'Location':document.getElementById('rm-location').value,'Invoice sent':document.getElementById('rm-invoice').checked};
-  closeModal('revenue-modal');toast('Logging payment...');
-  try{const res=await atCreate(TBL.revenue,fields);if(res.records){S.revenue.push(res.records[0]);saveState();renderRevenue();renderOverview();toast('Payment logged to Airtable ✓');}}
-  catch(e){S.revenue.push({id:'l'+Date.now(),fields});saveState();renderRevenue();renderOverview();toast('Saved locally');}
+  const phaseVal=document.getElementById('rm-phase').value;
+  const fields={
+    [F.revenue.client]:client,
+    [F.revenue.amount]:amount,
+    [F.revenue.service]:document.getElementById('rm-service').value,
+    [F.revenue.date]:document.getElementById('rm-date').value||null,
+    [F.revenue.phase]:phaseVal,
+    [F.revenue.location]:document.getElementById('rm-location').value,
+    [F.revenue.invoiceSent]:document.getElementById('rm-invoice').checked
+  };
+  closeModal('revenue-modal');
   ['rm-client','rm-amount','rm-date'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('rm-invoice').checked=false;
+  toast('Logging payment...');
+  const localRec={id:'l'+Date.now(),fields:{...fields}};
+  try{
+    const res=await atCreate(TBL.revenue,fields);
+    if(res.records&&res.records[0]){
+      S.revenue.push(res.records[0]);
+      saveState();renderRevenue();renderOverview();
+      toast('Payment logged to Airtable ✓');
+    } else {
+      const errMsg=res.error?.message||JSON.stringify(res);
+      toast('Airtable error — saved locally: '+errMsg);
+      S.revenue.push(localRec);
+      saveState();renderRevenue();renderOverview();
+    }
+  }catch(e){
+    S.revenue.push(localRec);
+    saveState();renderRevenue();renderOverview();
+    toast('Saved locally — syncs next time');
+  }
 }
 window.savePayment=savePayment;
 
 async function saveWeeklyLog(){
   const week=document.getElementById('wlm-week').value.trim();
   if(!week){toast('Week label required');return;}
-  const fields={[F.weeklylog.name]:week,'Calls booked':parseInt(document.getElementById('wlm-calls').value)||0,'Clients closed':parseInt(document.getElementById('wlm-closed').value)||0,'Content posted':parseInt(document.getElementById('wlm-content').value)||0,'DMs sent':parseInt(document.getElementById('wlm-dms').value)||0,[F.weeklylog.challenges]:document.getElementById('wlm-blocker').value,[F.weeklylog.accomplishments]:document.getElementById('wlm-win').value};
+  const W=F.weeklylog,num=id=>parseInt(document.getElementById(id).value)||0;
+  const fields={[W.name]:week,[W.calls]:num('wlm-calls'),[W.closed]:num('wlm-closed'),[W.contentPosted]:num('wlm-content'),[W.dmsSent]:num('wlm-dms'),[W.challenges]:document.getElementById('wlm-blocker').value,[W.accomplishments]:document.getElementById('wlm-win').value};
   closeModal('wl-modal');toast('Saving...');
   try{const res=await atCreate(TBL.weeklylog,fields);if(res.records){S.weeklylog.push(res.records[0]);saveState();renderWeeklyLog();toast('Weekly log saved to Airtable ✓');}}
   catch(e){S.weeklylog.push({id:'l'+Date.now(),fields});saveState();renderWeeklyLog();toast('Saved locally');}
@@ -1476,13 +1701,72 @@ window.saveWeeklyLog=saveWeeklyLog;
 async function saveContent(){
   const title=document.getElementById('cm-title').value.trim();
   if(!title){toast('Title required');return;}
-  const fields={[F.content.name]:title,'Format':document.getElementById('cm-format').value,'Platform':document.getElementById('cm-platform').value,[F.content.status]:document.getElementById('cm-status').value,'Scheduled date':document.getElementById('cm-date').value,[F.content.notes]:document.getElementById('cm-notes').value};
+  const C=F.content;
+  const fields={[C.name]:title,[C.format]:document.getElementById('cm-format').value,[C.platform]:document.getElementById('cm-platform').value,[C.status]:document.getElementById('cm-status').value,[C.notes]:document.getElementById('cm-notes').value};
+  const when=document.getElementById('cm-date').value;if(when)fields[C.scheduled]=when;
   closeModal('content-modal');toast('Saving...');
   try{const res=await atCreate(TBL.content,fields);if(res.records){S.content.push(res.records[0]);saveState();renderContent();toast('Content idea saved to Airtable ✓');}}
   catch(e){S.content.push({id:'l'+Date.now(),fields});saveState();renderContent();toast('Saved locally');}
   ['cm-title','cm-date','cm-notes'].forEach(id=>document.getElementById(id).value='');
 }
 window.saveContent=saveContent;
+
+// ── GOAL & TIMELINE SETTINGS PANEL ──────────────────────────────────────────
+let _draftPhases=[];
+function openGoalSettings(){
+  const s=SETTINGS,set=(id,v)=>document.getElementById(id).value=v;
+  set('gs-goal',s.goal);set('gs-clients',s.clientTarget||'');set('gs-start',s.start);set('gs-deadline',s.deadline);
+  set('gs-dm-day',s.dmTargets.day);set('gs-dm-week',s.dmTargets.week);set('gs-dm-month',s.dmTargets.month);
+  _draftPhases=s.phases.map(p=>({...p}));
+  document.getElementById('gs-targets').innerHTML='';
+  renderGoalPhases();renderGoalTargets(s.targets);
+  openModal('goal-settings-modal');
+}
+function readDraftPhases(){
+  document.querySelectorAll('#gs-phases .gs-ph').forEach((row,i)=>{
+    _draftPhases[i]={name:row.querySelector('.ph-name').value.trim(),from:row.querySelector('.ph-from').value,to:row.querySelector('.ph-to').value};
+  });
+}
+function renderGoalPhases(){
+  document.getElementById('gs-phases').innerHTML=_draftPhases.map((p,i)=>`
+    <div class="gs-ph" style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) 32px;gap:6px;align-items:center">
+      <input class="ph-name" id="gs-ph-name-${i}" value="${esc(p.name)}" placeholder="Phase name" aria-label="Phase ${i+1} name">
+      <input class="ph-from" id="gs-ph-from-${i}" type="month" value="${p.from}" aria-label="Phase ${i+1} first month">
+      <input class="ph-to" id="gs-ph-to-${i}" type="month" value="${p.to}" aria-label="Phase ${i+1} last month">
+      <button class="btn btn-s" style="padding:6px 0" onclick="removeGoalPhase(${i})" aria-label="Remove phase ${i+1}">✕</button>
+    </div>`).join('');
+}
+function addGoalPhase(){readDraftPhases();const last=_draftPhases[_draftPhases.length-1];_draftPhases.push({name:'Phase '+(_draftPhases.length+1),from:last?last.to:monthKey(TODAY),to:last?last.to:monthKey(TODAY)});renderGoalPhases();}
+function removeGoalPhase(i){readDraftPhases();_draftPhases.splice(i,1);renderGoalPhases();}
+function renderGoalTargets(existing){
+  const cur={...(existing||SETTINGS.targets)};
+  document.querySelectorAll('#gs-targets input').forEach(inp=>{cur[inp.dataset.key]=inp.value;});
+  const start=document.getElementById('gs-start').value,end=document.getElementById('gs-deadline').value;
+  if(!start||!end||end<start){document.getElementById('gs-targets').innerHTML='<div style="font-size:12px;color:var(--text-tertiary)">Set a start date and a later deadline.</div>';return;}
+  document.getElementById('gs-targets').innerHTML=monthsBetween(start.slice(0,7),end.slice(0,7)).map(k=>`
+    <div><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:3px">${monthLabel(k)}</div>
+    <input id="gs-t-${k}" data-key="${k}" type="number" min="0" step="100" value="${cur[k]??0}" aria-label="${monthLabel(k)} target"></div>`).join('');
+}
+async function saveGoalSettings(){
+  readDraftPhases();
+  const g=id=>document.getElementById(id).value;
+  const start=g('gs-start'),deadline=g('gs-deadline');
+  if(!start||!deadline||deadline<start){toast('Set a start date and a later deadline');return;}
+  const targets={};document.querySelectorAll('#gs-targets input').forEach(inp=>{targets[inp.dataset.key]=Number(inp.value)||0;});
+  SETTINGS={
+    goal:Number(g('gs-goal'))||0,clientTarget:g('gs-clients').trim(),start,deadline,
+    dmTargets:{day:Number(g('gs-dm-day'))||0,week:Number(g('gs-dm-week'))||0,month:Number(g('gs-dm-month'))||0},
+    phases:_draftPhases.filter(p=>p.name&&p.from&&p.to),targets
+  };
+  ls('settings',SETTINGS);applySettings();renderAll();closeModal('goal-settings-modal');
+  const fields={[F.settings.key]:'config',[F.settings.value]:JSON.stringify(SETTINGS)};
+  try{
+    if(SETTINGS_REC_ID){await atPatch(TBL.settings,SETTINGS_REC_ID,fields);}
+    else{const res=await atCreate(TBL.settings,fields);SETTINGS_REC_ID=res.records[0].id;}
+    toast('Settings saved ✓');
+  }catch(e){toast('Saved on this device only: '+e.message);}
+}
+window.openGoalSettings=openGoalSettings;window.addGoalPhase=addGoalPhase;window.removeGoalPhase=removeGoalPhase;window.renderGoalTargets=renderGoalTargets;window.saveGoalSettings=saveGoalSettings;
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
