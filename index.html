@@ -65,6 +65,48 @@ button,input,select,textarea{font-family:inherit}
 .side-foot .row{display:flex;justify-content:space-between;gap:8px}
 .phase-badge{font-weight:600;color:var(--text-primary)}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}
+.nav-alert:not(:empty){color:var(--red-dark);background:var(--red-light);padding:1px 7px;border-radius:99px}
+
+/* ── TODAY ── */
+.alerts{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.alerts:empty{display:none}
+.alert{flex:1 1 300px;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;border:1px solid;font-size:13.5px;line-height:1.45}
+.alert b{font:600 22px var(--f-mono);flex:none}
+.alert.bad{background:var(--red-light);border-color:color-mix(in srgb,var(--red) 40%,transparent);color:var(--text-primary)}
+.alert.bad b{color:var(--red)}
+.alert.warn{background:var(--amber-light);border-color:color-mix(in srgb,var(--amber) 40%,transparent);color:var(--text-primary)}
+.alert.warn b{color:var(--amber)}
+.alert.ok{background:var(--green-light);border-color:color-mix(in srgb,var(--green) 40%,transparent);color:var(--text-primary)}
+.alert.ok b{color:var(--green)}
+.td-stats{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.td-ring-card{display:flex;align-items:center;gap:16px;padding:14px 18px}
+.td-ring-sub{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+.td-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
+.td-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.td-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.td-h{font-size:16px;font-weight:600}
+.td-count{font-size:12px;color:var(--text-tertiary)}
+.td-hint{font-size:12px;color:var(--text-tertiary);margin-bottom:6px}
+.td-more{margin-top:10px;width:100%}
+.lead-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border-subtle)}
+.lead-row:first-child{border-top:none}
+.avatar{width:36px;height:36px;flex:none;border-radius:50%;background:var(--green-light);color:var(--green-dark);display:grid;place-items:center;font-weight:600;font-size:12.5px}
+.lead-main{flex:1;min-width:0}
+.lead-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:none;border:none;color:var(--text-primary);font-size:14px;cursor:pointer;padding:0;text-align:left;max-width:100%}
+.lead-name:hover{color:var(--green)}
+.lead-meta{font-size:12px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.late{font:500 12px var(--f-mono);white-space:nowrap;color:var(--red-dark)}
+.late.soon{color:var(--amber-dark)}
+.lead-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.act{min-height:34px;padding:0 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.act:hover{color:var(--text-primary);border-color:var(--text-tertiary)}
+.act.go{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+.td-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border-subtle);font-size:13px}
+.td-item:first-child{border-top:none}
+.td-item .lead-main span{color:var(--text-tertiary);font-size:12px}
+.td-empty{font-size:13px;color:var(--text-tertiary);padding:8px 0}
+@media (max-width:1180px){.td-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.td-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.lead-row{flex-wrap:wrap}.lead-acts{width:100%;justify-content:flex-start;padding-left:48px}}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 32px;border-bottom:1px solid var(--border)}
@@ -295,7 +337,8 @@ button,input,select,textarea{font-family:inherit}
 <aside class="side">
   <div class="brand"><div class="brand-mark" aria-hidden="true">CF</div><div class="logo">ConvertFlow<span>Systems</span></div></div>
   <nav class="nav" aria-label="Main">
-    <button class="nav-item active" data-tab="overview" onclick="switchTab('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>Overview</button>
+    <button class="nav-item active" data-tab="today" onclick="switchTab('today')" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>Today<span class="nav-count nav-alert" id="nav-today"></span></button>
+    <button class="nav-item" data-tab="overview" onclick="switchTab('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>Overview</button>
     <button class="nav-item" data-tab="pipeline" onclick="switchTab('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Leads<span class="nav-count" id="nav-leads"></span></button>
     <button class="nav-item" data-tab="revenue" onclick="switchTab('revenue')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Revenue</button>
     <button class="nav-item" data-tab="tasks" onclick="switchTab('tasks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>Tasks</button>
@@ -319,8 +362,55 @@ button,input,select,textarea{font-family:inherit}
   </div>
 </header>
 
+<!-- TODAY: what to do in today's 2 hours -->
+<div id="today" class="page active">
+  <div class="pg-header">
+    <div><div class="pg-title" id="td-greeting">Good morning, Abhishek</div><div class="pg-sub" id="td-sub">Your 2 hours</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-s" onclick="logDM()">+1 DM sent</button>
+      <button class="btn btn-p" onclick="openAddProspect()">+ New lead</button>
+    </div>
+  </div>
+
+  <div class="alerts" id="td-alerts" role="status" aria-live="polite"></div>
+
+  <div class="td-stats">
+    <div class="card td-ring-card">
+      <svg class="goal-ring" width="96" height="96" viewBox="0 0 96 96" role="img" aria-labelledby="td-ring-label">
+        <title id="td-ring-label">DMs sent today against today's target</title>
+        <circle class="track" cx="48" cy="48" r="38" fill="none" stroke-width="10"></circle>
+        <circle class="fill" id="td-ring" cx="48" cy="48" r="38" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 238.76" transform="rotate(-90 48 48)"></circle>
+        <text x="48" y="54" text-anchor="middle" font-size="18" font-weight="600" id="td-ring-txt">0/5</text>
+      </svg>
+      <div><div class="metric-label">DMs today</div><div class="td-ring-sub" id="td-ring-sub"></div></div>
+    </div>
+    <div class="metric"><div class="metric-label">Outreach streak</div><div class="metric-value" id="td-streak">0</div><div class="metric-sub" id="td-streak-sub"></div></div>
+    <div class="metric"><div class="metric-label">Follow-ups due</div><div class="metric-value" id="td-due">0</div><div class="metric-sub" id="td-due-sub"></div></div>
+    <div class="metric"><div class="metric-label">This week</div><div class="metric-value" id="td-week">0</div><div class="metric-sub" id="td-week-sub"></div></div>
+  </div>
+
+  <div class="td-grid">
+    <section class="card" aria-labelledby="td-fu-title">
+      <div class="td-head"><h2 class="td-h" id="td-fu-title">Follow up now</h2><span class="mono td-count" id="td-fu-count"></span></div>
+      <div id="td-followups"></div>
+      <button class="btn btn-s td-more" id="td-fu-more" onclick="toggleAllFollowups()" hidden></button>
+    </section>
+    <div class="td-side">
+      <section class="card" aria-labelledby="td-next-title">
+        <div class="td-head"><h2 class="td-h" id="td-next-title">DM next</h2><span class="mono td-count" id="td-next-count"></span></div>
+        <p class="td-hint">Never contacted. Send the DM, then tap the button: the follow-up is booked for 3 days later.</p>
+        <div id="td-next"></div>
+      </section>
+      <section class="card" aria-labelledby="td-tasks-title">
+        <div class="td-head"><h2 class="td-h" id="td-tasks-title">Tasks &amp; content</h2></div>
+        <div id="td-tasks"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
 <!-- OVERVIEW -->
-<div id="overview" class="page active">
+<div id="overview" class="page">
   <div class="pg-header"><div><div class="pg-title" id="ov-greeting">Good morning, Abhishek</div><div class="pg-sub">ConvertFlowSystems command centre</div></div></div>
   <div class="metrics-row">
     <div class="metric"><div class="metric-label">Days remaining</div><div class="metric-value green" id="m-days">0</div><div class="metric-sub" id="m-days-sub"></div></div>
@@ -1052,7 +1142,142 @@ function renderOverview(){
   document.getElementById('tp-pct').textContent=tp+'%';
   document.getElementById('tp-bar').style.width=tp+'%';
   renderOverviewVisuals(earned,goal,pct,rem,wkN);
+  renderToday();// every save path re-renders the Overview, so Today stays current too
 }
+
+// ── TODAY: rule alerts, follow-ups, who to DM next, tasks & content ────────
+const ACTIVE_STATUSES=['DM Sent','Replied','Call Booked','Proposal Sent'];
+const STALE_BACKLOG='Backlog';
+let _showAllFollowups=false;
+
+// DMs per local day: pipeline "DM sent date" plus "+1 DM sent" log entries
+function dmCountsByDay(){
+  const counts={};
+  S.pipeline.forEach(r=>{const d=r.fields[F.pipeline.dmDate];if(d){const k=d.slice(0,10);counts[k]=(counts[k]||0)+1;}});
+  S.weeklylog.forEach(r=>{const n=r.fields[F.weeklylog.name]||'';if(n.startsWith(DM_PREFIX)){const k=n.slice(DM_PREFIX.length);counts[k]=(counts[k]||0)+(parseInt(r.fields[F.weeklylog.dmsSent]||r.fields['DMs sent'])||0);}});
+  return counts;
+}
+// When a lead needs touching next: its follow-up date, else 3 days after the DM
+function followupDue(r){
+  const fu=r.fields[F.pipeline.nextAction];if(fu)return fu.slice(0,10);
+  const dm=r.fields[F.pipeline.dmDate];
+  return getPipeStatus(r)==='DM Sent'&&dm?addDaysKey(dm.slice(0,10),FOLLOWUP_DAYS):'';
+}
+function daysBetween(fromKey,toKey){return Math.round((parseDay(toKey)-parseDay(fromKey))/86400000);}
+function initials(name){return (name||'?').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');}
+function leadMeta(r){return[r.fields[F.pipeline.niche],sv(r.fields[F.pipeline.platform]),getPipeStatus(r)].filter(Boolean).join(' · ');}
+
+function renderToday(){
+  const el=id=>document.getElementById(id);
+  if(!el('today'))return;
+  const today=getTodayKey(),set=(id,v)=>{const e=el(id);if(e)e.textContent=v;};
+  const hr=new Date().getHours();
+  set('td-greeting',(hr<12?'Good morning':hr<17?'Good afternoon':'Good evening')+', Abhishek');
+  set('td-sub',TODAY.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'})+' · your 2 hours');
+
+  // Outreach numbers
+  const counts=dmCountsByDay();
+  const daysWith=Object.keys(counts).filter(k=>counts[k]>0&&k<=today).sort();
+  const last=daysWith[daysWith.length-1]||'';
+  const since=last?daysBetween(last,today):null;
+  let streak=0;{let k=counts[today]?today:addDaysKey(today,-1);while(counts[k]>0){streak++;k=addDaysKey(k,-1);}}
+  const tgt=SETTINGS.dmTargets||{day:5,week:30};
+  const todayN=counts[today]||0,weekN=S.outreach.week||0;
+  const C=2*Math.PI*38;
+  el('td-ring').setAttribute('stroke-dasharray',`${(Math.min(todayN/(tgt.day||1),1)*C).toFixed(1)} ${C.toFixed(1)}`);
+  set('td-ring-txt',todayN+'/'+(tgt.day||0));
+  set('td-ring-sub',todayN>=tgt.day?'Target hit. Nice.':`${tgt.day-todayN} more to hit today's target`);
+  set('td-streak',streak+(streak===1?' day':' days'));
+  set('td-streak-sub',since===null?'No DMs logged yet':since===0?'DMs sent today':`Last DM ${since} day${since===1?'':'s'} ago`);
+  set('td-week',weekN+' / '+(tgt.week||0));
+  set('td-week-sub',weekN>=5?'Weekly minimum met':`${5-weekN} short of the 5-DM minimum`);
+
+  // Follow-ups that are due, oldest first
+  const due=S.pipeline.filter(r=>ACTIVE_STATUSES.includes(getPipeStatus(r))).map(r=>({r,due:followupDue(r)})).filter(x=>x.due&&x.due<=today).sort((a,b)=>a.due<b.due?-1:1);
+  set('td-due',due.length);
+  set('td-due-sub',due.length?`Oldest ${daysBetween(due[0].due,today)} days late`:'All caught up');
+  set('nav-today',due.length||'');
+  set('td-fu-count',due.length?due.length+' due':'');
+  const shown=_showAllFollowups?due:due.slice(0,8);
+  el('td-followups').innerHTML=shown.length?shown.map(({r,due:d})=>{
+    const late=daysBetween(d,today),name=r.fields[F.pipeline.name]||'Unnamed lead';
+    return `<div class="lead-row"><div class="avatar" aria-hidden="true">${esc(initials(name))}</div>
+      <div class="lead-main"><button class="lead-name" onclick="openEditProspect('${r.id}')">${esc(name)}</button><div class="lead-meta">${esc(leadMeta(r))}</div></div>
+      <span class="late${late<=1?' soon':''}">${late===0?'due today':late+'d late'}</span>
+      <div class="lead-acts">
+        <button class="act go" onclick="leadAction('${r.id}','followed')">Followed up</button>
+        <button class="act" onclick="leadAction('${r.id}','replied')">Replied</button>
+        <button class="act" onclick="leadAction('${r.id}','noresp')" aria-label="Mark ${esc(name)} as no response">No reply</button>
+      </div></div>`;}).join(''):'<div class="td-empty">Nobody is waiting on you. Send some new DMs.</div>';
+  const more=el('td-fu-more');more.hidden=due.length<=8;more.textContent=_showAllFollowups?'Show fewer':`Show all ${due.length}`;
+
+  // Never-contacted outreach leads to DM next
+  const fresh=S.pipeline.filter(r=>getPipeStatus(r)==='Not Contacted'&&getPipeLeadType(r)==='Outreach').sort((a,b)=>(a.createdTime||'')<(b.createdTime||'')?-1:1);
+  const need=Math.max(tgt.day-todayN,3);
+  set('td-next-count',fresh.length+' waiting');
+  el('td-next').innerHTML=fresh.length?fresh.slice(0,need).map(r=>{const name=r.fields[F.pipeline.name]||'Unnamed lead';
+    return `<div class="lead-row"><div class="avatar" aria-hidden="true">${esc(initials(name))}</div>
+      <div class="lead-main"><button class="lead-name" onclick="openEditProspect('${r.id}')">${esc(name)}</button><div class="lead-meta">${esc([r.fields[F.pipeline.niche],sv(r.fields[F.pipeline.platform])].filter(Boolean).join(' · '))}</div></div>
+      <div class="lead-acts"><button class="act go" onclick="leadAction('${r.id}','dmsent')">DM sent</button></div></div>`;}).join(''):'<div class="td-empty">No uncontacted leads left. Add new prospects.</div>';
+
+  // Tasks due within 2 days + content scheduled within 2 days
+  const soon=addDaysKey(today,2),monthStart=today.slice(0,8)+'01';
+  const open=S.tasks.filter(r=>getStatus(r)!=='Completed'&&!getArchiveMonth(r));
+  const dueTasks=open.filter(r=>{const d=(r.fields[F.tasks.due]||'').slice(0,10);return d&&d>=monthStart&&d<=soon;}).sort((a,b)=>(a.fields[F.tasks.due]<b.fields[F.tasks.due]?-1:1));
+  const stale=open.filter(r=>{const d=(r.fields[F.tasks.due]||'').slice(0,10);return d&&d<monthStart;});
+  const C2=F.content;
+  const posts=S.content.filter(r=>{const d=(sv(r.fields[C2.scheduled])||'').slice(0,10);return d&&d<=soon&&sv(r.fields[C2.status])!=='Published';});
+  let html=dueTasks.map(r=>{const d=r.fields[F.tasks.due].slice(0,10);return `<div class="td-item"><span class="tc-status-dot ${d<today?'dot-todo':'dot-inp'}" aria-hidden="true"></span><div class="lead-main">${esc(r.fields[F.tasks.name]||'Untitled task')}<br><span>Task · ${d<today?daysBetween(d,today)+'d overdue':d===today?'due today':'due '+d.slice(5)}</span></div></div>`;}).join('');
+  html+=posts.map(r=>`<div class="td-item"><span class="tc-status-dot dot-block" aria-hidden="true"></span><div class="lead-main">${esc(r.fields[C2.name]||'Untitled post')}<br><span>Content · ${esc(sv(r.fields[C2.platform])||'')} ${esc((sv(r.fields[C2.scheduled])||'').slice(5))}</span></div></div>`).join('');
+  if(!html)html='<div class="td-empty">Nothing due in the next 2 days.</div>';
+  if(stale.length)html+=`<div class="td-item"><div class="lead-main">${stale.length} unfinished task${stale.length===1?'':'s'} from earlier months<br><span>Clears them off the board. They stay in Airtable under "${STALE_BACKLOG}".</span></div><button class="act" onclick="archiveStaleTasks()">Move to backlog</button></div>`;
+  el('td-tasks').innerHTML=html;
+
+  // Rule alerts: worst first, at most 3
+  const alerts=[];
+  if(since===null||since>3)alerts.push({lvl:'bad',big:since===null?'0':since+'d',txt:since===null?'No DMs logged yet. Rule 1: never go more than 3 days without outreach.':'since your last DM. Rule 1 says never more than 3 days.'});
+  const props=due.filter(x=>getPipeStatus(x.r)==='Proposal Sent');
+  if(props.length)alerts.push({lvl:'bad',big:props.length,txt:`proposal follow-up${props.length===1?' is':'s are'} overdue. Rule 6: follow up within 48 hours.`});
+  const overdue=due.filter(x=>x.due<today).length;
+  if(overdue)alerts.push({lvl:'warn',big:overdue,txt:`follow-up${overdue===1?' is':'s are'} past due. Clear the oldest first.`});
+  if(weekN<5&&alerts.length<3)alerts.push({lvl:'warn',big:weekN+'/5',txt:'DMs this week. Rule 2: minimum 5 even on the worst week.'});
+  if(!alerts.length)alerts.push({lvl:'ok',big:'✓',txt:'All outreach rules on track today.'});
+  el('td-alerts').innerHTML=alerts.slice(0,3).map(a=>`<div class="alert ${a.lvl}"><b>${esc(a.big)}</b><span>${esc(a.txt)}</span></div>`).join('');
+}
+function toggleAllFollowups(){_showAllFollowups=!_showAllFollowups;renderToday();}
+
+// One-click lead updates from Today. Each one also leaves a dated line in the lead's notes.
+async function leadAction(id,action){
+  const r=S.pipeline.find(x=>x.id===id);if(!r)return;
+  const today=getTodayKey(),P=F.pipeline,patch={};
+  const label={followed:'Followed up',replied:'Replied',noresp:'Marked no response',dmsent:'DM sent'}[action];
+  if(action==='followed'){patch[P.nextAction]=addDaysKey(today,FOLLOWUP_DAYS);}
+  if(action==='replied'){patch[P.status]='Replied';patch[P.nextAction]=addDaysKey(today,1);}
+  if(action==='noresp'){patch[P.status]='No Response';patch[P.nextAction]=null;}
+  if(action==='dmsent'){patch[P.status]='DM Sent';patch[P.dmDate]=today;patch[P.nextAction]=addDaysKey(today,FOLLOWUP_DAYS);}
+  const stamp=TODAY.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const notes=r.fields[P.notes]||'';
+  patch[P.notes]=(notes?notes+'\n':'')+`[${stamp}] ${label}`;
+  Object.assign(r.fields,patch);
+  saveState();recomputeOutreach();renderAll();
+  const name=r.fields[P.name]||'Lead';
+  if(id.startsWith('l')){toast(`${name}: ${label.toLowerCase()} ✓`);return;}
+  try{await atPatch(TBL.pipeline,id,patch);toast(`${name}: ${label.toLowerCase()} ✓`);}
+  catch(e){toast('Saved on this device, will sync next time');}
+}
+
+async function archiveStaleTasks(){
+  const monthStart=getTodayKey().slice(0,8)+'01';
+  const stale=S.tasks.filter(r=>getStatus(r)!=='Completed'&&!getArchiveMonth(r)&&(r.fields[F.tasks.due]||'').slice(0,10)<monthStart&&r.fields[F.tasks.due]);
+  if(!stale.length)return;
+  if(!confirm(`Move ${stale.length} unfinished task(s) from earlier months to the backlog? They stay in Airtable and you can move any of them back from All tasks.`))return;
+  stale.forEach(r=>{r.fields[F.tasks.archiveMonth]=STALE_BACKLOG;});
+  saveState();renderAll();toast(`Moving ${stale.length} tasks to backlog...`);
+  let failed=0;
+  for(const r of stale){if(r.id.startsWith('l'))continue;try{await atPatch(TBL.tasks,r.id,{[F.tasks.archiveMonth]:STALE_BACKLOG});}catch(e){failed++;}}
+  toast(failed?`${stale.length-failed} moved, ${failed} will retry on next sync`:`${stale.length} tasks moved to backlog ✓`);
+}
+window.renderToday=renderToday;window.toggleAllFollowups=toggleAllFollowups;window.leadAction=leadAction;window.archiveStaleTasks=archiveStaleTasks;
 
 // ── OVERVIEW VISUALS: goal ring, lead funnel, outreach heatmap ─────────────
 function renderOverviewVisuals(earned,goal,pct,rem,wkN){
@@ -1106,6 +1331,8 @@ const DM_PREFIX='DM-LOG::';
 // Local calendar date (toISOString would shift to the UTC day, e.g. yesterday in India before 5:30 AM)
 function localKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function getTodayKey(){return localKey(TODAY);}
+function addDaysKey(key,n){const d=parseDay(key);d.setDate(d.getDate()+n);return localKey(d);}
+const FOLLOWUP_DAYS=3;
 
 function recomputeOutreach(){
   const ts=getTodayKey();
@@ -1682,7 +1909,8 @@ async function saveProspect(){
   const ni=document.getElementById('pm-niche').value.trim();if(ni)fields[F.pipeline.niche]=ni;
   const dm=document.getElementById('pm-dmdate').value||(status==='DM Sent'?getTodayKey():'');
   if(dm)fields[F.pipeline.dmDate]=dm;
-  const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  // A DM with no follow-up date gets one 3 days later, so it shows up on Today
+  const fu=document.getElementById('pm-followup').value||(status==='DM Sent'&&dm?addDaysKey(dm,FOLLOWUP_DAYS):'');if(fu)fields[F.pipeline.nextAction]=fu;
   const dv=document.getElementById('pm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
   const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
   const no=document.getElementById('pm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
@@ -1747,7 +1975,8 @@ async function updateProspect(id){
   const existingDmDate=existingRec&&existingRec.fields[F.pipeline.dmDate];
   const dm=document.getElementById('pm-dmdate').value||(status==='DM Sent'&&!existingDmDate?getTodayKey():'');
   if(dm)fields[F.pipeline.dmDate]=dm;
-  const fu=document.getElementById('pm-followup').value;if(fu)fields[F.pipeline.nextAction]=fu;
+  const existingFu=existingRec&&existingRec.fields[F.pipeline.nextAction];
+  const fu=document.getElementById('pm-followup').value||(status==='DM Sent'&&dm&&!existingFu?addDaysKey(dm,FOLLOWUP_DAYS):'');if(fu)fields[F.pipeline.nextAction]=fu;
   const dv=document.getElementById('pm-deal').value;if(dv)fields[F.pipeline.dealValue]=parseFloat(dv);
   const em=document.getElementById('pm-email').value.trim();if(em)fields[F.pipeline.email]=em;
   const no=document.getElementById('pm-notes').value.trim();if(no)fields[F.pipeline.notes]=no;
