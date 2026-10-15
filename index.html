@@ -105,6 +105,32 @@ button,input,select,textarea{font-family:inherit}
 .td-item:first-child{border-top:none}
 .td-item .lead-main span{color:var(--text-tertiary);font-size:12px}
 .td-empty{font-size:13px;color:var(--text-tertiary);padding:8px 0}
+/* ── REVENUE ── */
+.rev-stats{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.rev-goal{padding:14px 18px;gap:18px}
+.rev-goal .goal-body{flex:1 1 140px}
+.rev-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start;margin-bottom:16px}
+.legend-inline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-tertiary)}
+.legend-inline i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-left:8px}
+.lg-paid{background:var(--green)}
+.lg-target{background:var(--surface-2);border-top:2px dashed var(--text-tertiary)}
+.mchart{display:flex;gap:10px;align-items:flex-end;height:210px;padding-top:8px;overflow-x:auto}
+.mcol{flex:1 0 54px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.mbars{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--border);position:relative}
+.mbars i{display:block;border-radius:4px 4px 0 0}
+.mb-paid{position:relative;z-index:1;width:34%;max-width:24px;background:var(--green)}
+.mb-target{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:66%;max-width:46px;background:var(--surface-2);border-top:2px dashed var(--text-tertiary)}
+.rev-goal .goal-big{font-size:26px;white-space:nowrap}
+.mval{font-size:11.5px}
+.mlbl{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em}
+.mcol.now .mlbl{color:var(--green);font-weight:600}
+.f-row.svc{grid-template-columns:minmax(0,130px) minmax(0,1fr) 64px}
+.f-row.svc span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv{min-height:28px;padding:0 10px;border-radius:6px;border:1px dashed var(--border);background:none;color:var(--text-tertiary);font-size:12px;font-weight:600;cursor:pointer}
+.inv.sent{border-style:solid;border-color:transparent;background:var(--green-light);color:var(--green-dark)}
+@media (max-width:1180px){.rev-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.rev-goal{grid-column:span 3}.rev-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.rev-stats{grid-template-columns:minmax(0,1fr)}.rev-goal{grid-column:auto}}
+
 /* ── LEADS CRM ── */
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .muted{color:var(--text-tertiary)}
@@ -625,22 +651,56 @@ td.late{color:var(--red-dark)}
 <!-- REVENUE LOG -->
 <div id="revenue" class="page">
   <div class="pg-header">
-    <div class="pg-title">Revenue log</div>
-    <button class="btn btn-p" onclick="openModal('revenue-modal')">+ Log payment</button>
+    <div><div class="pg-title">Revenue</div><div class="pg-sub" id="rev-sub">Earned, owed and coming</div></div>
+    <button class="btn btn-p" onclick="openAddPayment()">+ Log payment</button>
   </div>
-  <div class="two-col" style="margin-bottom:20px">
-    <div class="metric"><div class="metric-label">Total earned</div><div class="metric-value green" id="rev-total">$0</div><div class="metric-sub" id="rev-total-sub"></div></div>
-    <div class="metric"><div class="metric-label">Payments logged</div><div class="metric-value" id="rev-count">0</div><div class="metric-sub">total clients paid</div></div>
+
+  <div class="rev-stats">
+    <div class="card goal-hero rev-goal">
+      <svg class="goal-ring" width="104" height="104" viewBox="0 0 104 104" role="img" aria-labelledby="rev-ring-label">
+        <title id="rev-ring-label">Share of revenue goal earned</title>
+        <circle class="track" cx="52" cy="52" r="42" fill="none" stroke-width="11"></circle>
+        <circle class="fill" id="rev-ring" cx="52" cy="52" r="42" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="0 263.9" transform="rotate(-90 52 52)"></circle>
+        <text x="52" y="58" text-anchor="middle" font-size="16" font-weight="600" id="rev-ring-pct">0%</text>
+      </svg>
+      <div class="goal-body">
+        <div class="metric-label">Earned</div>
+        <div class="goal-big"><span id="rev-total">$0</span> <small id="rev-total-sub"></small></div>
+        <div class="metric-sub"><span id="rev-count">0</span> payments logged</div>
+      </div>
+    </div>
+    <div class="metric"><div class="metric-label">Pace</div><div class="metric-value" id="rev-pace">$0</div><div class="metric-sub" id="rev-pace-sub"></div></div>
+    <div class="metric"><div class="metric-label">Owed to you</div><div class="metric-value" id="rev-owed">$0</div><div class="metric-sub" id="rev-owed-sub"></div></div>
+    <div class="metric"><div class="metric-label">Forecast</div><div class="metric-value" id="rev-fc">$0</div><div class="metric-sub" id="rev-fc-sub"></div></div>
   </div>
-  <div class="card" style="margin-bottom:20px">
-    <div class="sl">Monthly breakdown</div>
-    <table class="data-table"><thead><tr><th>Month</th><th>Phase</th><th>Target</th><th>Actual</th><th>Gap</th></tr></thead><tbody id="rev-monthly"></tbody></table>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="td-head"><h2 class="td-h">Monthly revenue vs target</h2><span class="legend-inline"><i class="lg-paid"></i>Paid <i class="lg-target"></i>Target</span></div>
+    <div class="mchart" id="rev-chart" role="img" aria-label="Revenue paid per month compared with the monthly target"></div>
   </div>
+
+  <div class="rev-grid">
+    <section class="card" aria-labelledby="rev-clients-title">
+      <div class="td-head"><h2 class="td-h" id="rev-clients-title">Clients</h2><span class="mono td-count" id="rev-clients-count"></span></div>
+      <div id="rev-clients"></div>
+    </section>
+    <div class="td-side">
+      <section class="card" aria-labelledby="rev-fc-title">
+        <div class="td-head"><h2 class="td-h" id="rev-fc-title">Open deals</h2><span class="mono td-count" id="rev-fc-count"></span></div>
+        <div id="rev-forecast"></div>
+      </section>
+      <section class="card" aria-labelledby="rev-svc-title">
+        <div class="td-head"><h2 class="td-h" id="rev-svc-title">By service</h2></div>
+        <div id="rev-services"></div>
+      </section>
+    </div>
+  </div>
+
   <div class="card">
-    <div class="sl">All payments</div>
+    <div class="td-head"><h2 class="td-h">All payments</h2><span class="td-count">Click "Invoice" to mark it sent</span></div>
     <table class="data-table">
-      <thead><tr><th>Client</th><th>Service</th><th>Amount</th><th>Date</th><th>Phase</th><th>Location</th><th>Invoice sent?</th></tr></thead>
-      <tbody id="rev-payments"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No payments yet. Click "+ Log payment" to add your first client.</td></tr></tbody>
+      <thead><tr><th>Client</th><th>Service</th><th>Amount</th><th>Date</th><th>Phase</th><th>Invoice</th><th><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody id="rev-payments"></tbody>
     </table>
   </div>
 </div>
@@ -764,8 +824,11 @@ td.late{color:var(--red-dark)}
 
 <div class="modal-ov" id="revenue-modal">
   <div class="modal">
-    <div class="modal-title">Log payment</div>
-    <label>Client name *</label><input id="rm-client" type="text" placeholder="Client name">
+    <input type="hidden" id="rm-id" value="">
+    <div class="modal-title" id="rm-title">Log payment</div>
+    <label for="rm-lead">Deal this payment is for</label>
+    <select id="rm-lead" onchange="pickPaymentLead()"><option value="">Not linked to a lead</option></select>
+    <label for="rm-client">Client name *</label><input id="rm-client" type="text" placeholder="Client name">
     <div class="form-row">
       <div><label>Amount (USD) *</label><input id="rm-amount" type="number" placeholder="e.g. 700"></div>
       <div><label>Payment date</label><input id="rm-date" type="date"></div>
@@ -781,7 +844,7 @@ td.late{color:var(--red-dark)}
     </label>
     <div class="modal-footer">
       <button class="btn btn-s" onclick="closeModal('revenue-modal')">Cancel</button>
-      <button class="btn btn-p" onclick="savePayment()">Log payment</button>
+      <button class="btn btn-p" id="rm-save" onclick="savePayment()">Log payment</button>
     </div>
   </div>
 </div>
@@ -1326,6 +1389,8 @@ function renderToday(){
   if(props.length)alerts.push({lvl:'bad',big:props.length,txt:`proposal follow-up${props.length===1?' is':'s are'} overdue. Rule 6: follow up within 48 hours.`});
   const overdue=due.filter(x=>x.due<today).length;
   if(overdue)alerts.push({lvl:'warn',big:overdue,txt:`follow-up${overdue===1?' is':'s are'} past due. Clear the oldest first.`});
+  const owing=revenueClients().filter(c=>c.owed>0);
+  if(owing.length&&alerts.length<3)alerts.push({lvl:'warn',big:money(Math.round(owing.reduce((s,c)=>s+c.owed,0))),txt:`still owed by ${owing.map(c=>c.name).slice(0,2).join(' and ')}${owing.length>2?' and others':''}. Send a payment reminder.`});
   if(weekN<5&&alerts.length<3)alerts.push({lvl:'warn',big:weekN+'/5',txt:'DMs this week. Rule 2: minimum 5 even on the worst week.'});
   if(!alerts.length)alerts.push({lvl:'ok',big:'✓',txt:'All outreach rules on track today.'});
   el('td-alerts').innerHTML=alerts.slice(0,3).map(a=>`<div class="alert ${a.lvl}"><b>${esc(a.big)}</b><span>${esc(a.txt)}</span></div>`).join('');
@@ -2054,32 +2119,100 @@ window.updateLead=updateLead;
 function paymentMonthGroup(dateStr){
   return /^\d{4}-\d{2}/.test(dateStr||'')?dateStr.slice(0,7):null;
 }
+// ── REVENUE: earned, owed, pace, forecast ───────────────────────────────────
+const REV_LINK='fldl7StdhDKZrklk5';// Revenue Log -> Outreach Pipeline link
+const FORECAST_WEIGHTS={'Proposal Sent':0.5,'Call Booked':0.25,'Replied':0.1};
+const DEFAULT_DEAL=997;// "Design + Copy", the most recommended tier
+function revAmt(r){return parseFloat(r.fields[F.revenue.amount]||r.fields['Amount'])||0;}
+function revDate(r){return (r.fields[F.revenue.date]||r.fields['Date']||'').slice(0,10);}
+function revClient(r){return r.fields[F.revenue.client]||r.fields['Client']||'';}
+function revLinks(r){const v=r.fields[REV_LINK];return Array.isArray(v)?v.map(x=>typeof x==='object'?x.id:x):[];}
+function payments(){return S.revenue.filter(r=>revAmt(r)>0);}
+// Won deals with what's been paid against them (by link, else by matching client name)
+function revenueClients(){
+  const pays=payments(),used=new Set(),norm=s=>(s||'').trim().toLowerCase();
+  const out=S.pipeline.filter(r=>getPipeStatus(r)==='Closed - Won').map(lead=>{
+    const name=lead.fields[F.pipeline.name]||'Unnamed client';
+    const mine=pays.filter(p=>!used.has(p.id)&&(revLinks(p).includes(lead.id)||(!revLinks(p).length&&norm(revClient(p))===norm(name))));
+    mine.forEach(p=>used.add(p.id));
+    const deal=Number(lead.fields[F.pipeline.dealValue])||0,paid=mine.reduce((s,p)=>s+revAmt(p),0);
+    const owed=deal>0?Math.max(0,deal-paid):0;
+    return {id:lead.id,name,deal,paid,owed:owed<1?0:owed,last:mine.map(revDate).sort().pop()||'',pays:mine};
+  });
+  // Payments from clients who aren't in the pipeline still count as clients
+  const loose={};
+  pays.filter(p=>!used.has(p.id)).forEach(p=>{const k=revClient(p)||'Unnamed client';(loose[k]=loose[k]||[]).push(p);});
+  Object.entries(loose).forEach(([name,ps])=>out.push({id:'',name,deal:0,paid:ps.reduce((s,p)=>s+revAmt(p),0),owed:0,last:ps.map(revDate).sort().pop()||'',pays:ps}));
+  return out.sort((a,b)=>b.owed-a.owed||b.paid-a.paid);
+}
+function openDeals(){
+  return S.pipeline.filter(r=>FORECAST_WEIGHTS[getPipeStatus(r)]).map(r=>{
+    const v=Number(r.fields[F.pipeline.dealValue])||0;
+    return {r,status:getPipeStatus(r),value:v||DEFAULT_DEAL,est:!v,weight:FORECAST_WEIGHTS[getPipeStatus(r)]};
+  }).sort((a,b)=>b.weight-a.weight||b.value-a.value);
+}
+
 function renderRevenue(){
-  const getRevAmt=r=>r.fields[F.revenue.amount]||r.fields['Amount']||0;
-  const payments=S.revenue.filter(r=>parseFloat(getRevAmt(r))>0);
-  const total=payments.reduce((s,r)=>s+(parseFloat(getRevAmt(r))||0),0);
-  document.getElementById('rev-total').textContent='$'+total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('rev-count').textContent=payments.length;
-  // Build actual amounts per month from real payment dates
-  const actuals={};
-  payments.forEach(r=>{
-    const f=r.fields;
-    const dt=f[F.revenue.date]||f['Date']||'';
-    const grp=paymentMonthGroup(dt);
-    if(grp)actuals[grp]=(actuals[grp]||0)+(parseFloat(getRevAmt(r))||0);
-  });
-  const mb=document.getElementById('rev-monthly');mb.innerHTML='';
-  let tt=0,ta=0;
-  MONTHLY.forEach(m=>{
-    tt+=m.t;
-    const act=actuals[m.key]||0;ta+=act;
-    const g=act-m.t;
-    mb.innerHTML+=`<tr><td>${m.m}</td><td><span class="badge ${m.bc}">${m.ph}</span></td><td>$${m.t.toLocaleString()}</td><td style="font-weight:600;color:var(--green-dark)">${act>0?'$'+act.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'$0'}</td><td class="${g>=0?'gap-pos':'gap-neg'}">${g>=0?'+$'+g.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'-$'+Math.abs(g).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
-  });
-  const totalGap=ta-tt;
-  mb.innerHTML+=`<tr class="trow-total"><td>TOTAL</td><td></td><td>$${tt.toLocaleString()}</td><td style="font-weight:700;color:var(--green-dark)">$${ta.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td class="${totalGap>=0?'gap-pos':'gap-neg'}">${totalGap>=0?'+$'+totalGap.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'-$'+Math.abs(totalGap).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td></tr>`;
+  const pays=payments(),total=pays.reduce((s,p)=>s+revAmt(p),0),goal=Number(SETTINGS.goal)||0;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  const pct=goal?Math.min(total/goal*100,100):0,C=2*Math.PI*42;
+  document.getElementById('rev-ring').setAttribute('stroke-dasharray',`${(pct/100*C).toFixed(1)} ${C.toFixed(1)}`);
+  set('rev-ring-pct',pct.toFixed(1)+'%');set('rev-total',money(total));set('rev-total-sub','/ '+money(goal));set('rev-count',pays.length);
+
+  // Pace: last 4 weeks' average vs what's needed per week from here
+  const today=getTodayKey(),from=addDaysKey(today,-27);
+  const recent=pays.filter(p=>{const d=revDate(p);return d>=from&&d<=today;}).reduce((s,p)=>s+revAmt(p),0)/4;
+  const need=WEEKS_LEFT>0?Math.max(0,goal-total)/WEEKS_LEFT:0;
+  set('rev-pace',money(Math.round(recent))+'/wk');
+  const pe=document.getElementById('rev-pace');pe.classList.toggle('green',recent>=need&&need>0);pe.classList.toggle('amber',recent<need);
+  set('rev-pace-sub',need>0?`last 4 weeks · need ${money(Math.ceil(need))}/wk`:'Goal reached');
+
+  // Owed
+  const clients=revenueClients(),owing=clients.filter(c=>c.owed>0),owed=owing.reduce((s,c)=>s+c.owed,0);
+  set('rev-owed',money(Math.round(owed)));document.getElementById('rev-owed').classList.toggle('amber',owed>0);
+  set('rev-owed-sub',owing.length?owing.map(c=>c.name).slice(0,2).join(', ')+(owing.length>2?` +${owing.length-2}`:''):'Everyone has paid in full');
+
+  // Forecast
+  const deals=openDeals(),full=deals.reduce((s,d)=>s+d.value,0),likely=deals.reduce((s,d)=>s+d.value*d.weight,0);
+  set('rev-fc',money(Math.round(likely)));
+  set('rev-fc-sub',deals.length?`likely · ${money(full)} if all close`:'No open deals yet');
+
+  // Monthly chart: paid bar + dashed target per month in the goal period
+  const actual={};pays.forEach(p=>{const k=revDate(p).slice(0,7);if(k)actual[k]=(actual[k]||0)+revAmt(p);});
+  const max=Math.max(1,...MONTHLY.map(m=>Math.max(m.t,actual[m.key]||0)));
+  const curKey=monthKey(TODAY);
+  document.getElementById('rev-chart').innerHTML=MONTHLY.map(m=>{const a=actual[m.key]||0;
+    return `<div class="mcol${m.key===curKey?' now':''}" title="${m.m}: ${money(a)} paid, ${money(m.t)} target">
+      <div class="mbars"><i class="mb-paid" style="height:${a?Math.max(a/max*100,1.5):0}%"></i><i class="mb-target" style="height:${m.t?m.t/max*100:0}%"></i></div>
+      <div class="mval mono">${a?money(Math.round(a)):'$0'}</div><div class="mlbl">${m.m.split(' ')[0]}</div></div>`;}).join('');
+
+  // Clients
+  set('rev-clients-count',clients.length?clients.length+' paying':'');
+  document.getElementById('rev-clients').innerHTML=clients.length?`<table class="data-table"><thead><tr><th>Client</th><th>Deal</th><th>Paid</th><th>Owed</th><th>Last paid</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${clients.map(c=>{
+    const pctPaid=c.deal?Math.min(c.paid/c.deal*100,100):100;
+    return `<tr><td><div class="cell-lead"><div class="avatar sm" aria-hidden="true">${esc(initials(c.name))}</div><div class="lead-main"><div class="ins-name">${c.id?`<button class="lead-name" onclick="openLeadDrawer('${c.id}')">${esc(c.name)}</button>`:esc(c.name)}</div><div class="mini-bar"><i style="width:${pctPaid}%"></i></div></div></div></td>
+      <td class="mono">${c.deal?money(c.deal):'—'}</td><td class="mono">${money(c.paid)}</td>
+      <td class="mono${c.owed?' late':''}">${c.owed?money(Math.round(c.owed*100)/100):c.deal?'Paid':'—'}</td>
+      <td class="mono">${esc(c.last||'—')}</td>
+      <td class="row-acts">${c.owed?`<button class="act" onclick="openAddPayment('','${c.id}',${Math.round(c.owed*100)/100})">Log payment</button>`:''}</td></tr>`;}).join('')}</tbody></table>`:'<div class="td-empty">No paying clients yet. Close a deal, then log the payment.</div>';
+
+  // Open deals
+  set('rev-fc-count',deals.length?deals.length+' open':'');
+  document.getElementById('rev-forecast').innerHTML=deals.length?deals.map(d=>{const name=d.r.fields[F.pipeline.name]||'Unnamed lead';
+    return `<div class="lead-row"><div class="lead-main"><button class="lead-name" onclick="openLeadDrawer('${d.r.id}')">${esc(name)}</button><div class="lead-meta">${esc(d.status)} · ${Math.round(d.weight*100)}% likely</div></div><span class="mono">${money(d.value)}${d.est?' <span class="muted" title="No deal value set; using the $997 tier">est.</span>':''}</span></div>`;}).join('')+`<p class="vis-cap">Likely = Proposal 50%, Call 25%, Replied 10% of deal value. Leads with no deal value count as $${DEFAULT_DEAL}.</p>`:'<div class="td-empty">No proposals, calls or replies yet. Today\'s follow-ups are how deals start.</div>';
+
+  // By service
+  const svc={};pays.forEach(p=>{const k=sv(p.fields[F.revenue.service])||p.fields['Service']||'Other';svc[k]=(svc[k]||0)+revAmt(p);});
+  const svcRows=Object.entries(svc).sort((a,b)=>b[1]-a[1]),svcMax=Math.max(1,...svcRows.map(x=>x[1]));
+  document.getElementById('rev-services').innerHTML=svcRows.length?svcRows.map(([k,v])=>`<div class="f-row svc"><span>${esc(k)}</span><div class="f-bar"><i style="width:${v/svcMax*100}%"></i></div><span class="f-n">${money(Math.round(v))}</span></div>`).join(''):'<div class="td-empty">No payments yet.</div>';
+
+  // All payments
   const pb=document.getElementById('rev-payments');
-  pb.innerHTML=payments.length===0?'<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No payments yet. Click "+ Log payment" to add your first client.</td></tr>':payments.map(r=>{const f=r.fields;const ph=(f[F.revenue.phase]&&f[F.revenue.phase].name)||f[F.revenue.phase]||f['Phase']||'—';const client=f[F.revenue.client]||f['Client']||'—';const svc=f[F.revenue.service]||f['Service']||'—';const amt=getRevAmt(r);const dt=f[F.revenue.date]||f['Date']||'—';const loc=f[F.revenue.location]||f['Location']||'—';const inv=f[F.revenue.invoiceSent]||f['Invoice sent']||false;return `<tr><td style="font-weight:500">${client}</td><td>${svc}</td><td style="font-weight:600;color:var(--green-dark)">$${amt}</td><td style="color:var(--text-secondary)">${dt}</td><td><span class="badge ${ph==='Phase 1'?'bp1':ph==='Phase 2'?'bp2':'bp3'}">${ph}</span></td><td>${loc}</td><td>${inv?'✓ Yes':'—'}</td></tr>`;}).join('');
+  const sorted=[...pays].sort((a,b)=>revDate(a)<revDate(b)?1:-1);
+  pb.innerHTML=sorted.length?sorted.map(r=>{const f=r.fields;const ph=sv(f[F.revenue.phase])||f['Phase']||'—';const inv=!!(f[F.revenue.invoiceSent]||f['Invoice sent']);
+    return `<tr><td style="font-weight:500">${esc(revClient(r)||'—')}</td><td>${esc(sv(f[F.revenue.service])||f['Service']||'—')}</td><td class="mono" style="color:var(--green)">${money(revAmt(r))}</td><td class="mono">${esc(revDate(r)||'—')}</td><td><span class="badge ${ph==='Phase 1'?'bp1':ph==='Phase 2'?'bp2':'bp3'}">${esc(ph)}</span></td>
+      <td><button class="inv${inv?' sent':''}" onclick="toggleInvoice('${r.id}')" aria-pressed="${inv}">${inv?'✓ Sent':'Not sent'}</button></td>
+      <td class="row-acts"><button class="icon-btn" onclick="openEditPayment('${r.id}')" aria-label="Edit payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button><button class="icon-btn danger" onclick="deletePayment('${r.id}')" aria-label="Delete payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button></td></tr>`;}).join(''):'<tr><td colspan="7" class="td-empty" style="text-align:center;padding:2rem">No payments yet. Click "+ Log payment" when a client pays.</td></tr>';
 }
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -2234,44 +2367,83 @@ async function deleteProspect(id){
 }
 window.deleteProspect=deleteProspect;
 
+// Log / edit payments. A payment can be linked to a won (or proposal) lead so "owed" stays exact.
+function fillPaymentLeads(selectedId){
+  const sel=document.getElementById('rm-lead');
+  const leads=S.pipeline.filter(r=>['Closed - Won','Proposal Sent','Call Booked'].includes(getPipeStatus(r)));
+  sel.innerHTML='<option value="">Not linked to a lead</option>'+leads.map(r=>`<option value="${r.id}"${r.id===selectedId?' selected':''}>${esc(r.fields[F.pipeline.name]||'Unnamed')} · ${esc(getPipeStatus(r))}</option>`).join('');
+}
+function pickPaymentLead(){
+  const id=document.getElementById('rm-lead').value,r=S.pipeline.find(x=>x.id===id),cl=document.getElementById('rm-client');
+  if(r&&!cl.value.trim())cl.value=r.fields[F.pipeline.name]||'';
+}
+function openAddPayment(client,leadId,amount){
+  document.getElementById('rm-id').value='';
+  document.getElementById('rm-title').textContent='Log payment';
+  document.getElementById('rm-save').textContent='Log payment';
+  document.getElementById('rm-client').value=client||'';
+  document.getElementById('rm-amount').value=amount||'';
+  document.getElementById('rm-date').value=getTodayKey();
+  document.getElementById('rm-invoice').checked=false;
+  const cur=phaseFor(monthKey(TODAY));if(cur){const ps=document.getElementById('rm-phase');const opt=[...ps.options].find(o=>cur.name.startsWith(o.value));if(opt)ps.value=opt.value;}
+  fillPaymentLeads(leadId||'');
+  if(!client&&leadId)pickPaymentLead();
+  openModal('revenue-modal');
+}
+function openEditPayment(id){
+  const r=S.revenue.find(x=>x.id===id);if(!r)return;const f=r.fields;
+  document.getElementById('rm-id').value=id;
+  document.getElementById('rm-title').textContent='Edit payment';
+  document.getElementById('rm-save').textContent='Save changes';
+  document.getElementById('rm-client').value=revClient(r);
+  document.getElementById('rm-amount').value=revAmt(r)||'';
+  document.getElementById('rm-date').value=revDate(r);
+  const setSel=(elId,v)=>{const s=document.getElementById(elId);if(v&&![...s.options].some(o=>o.value===v))s.add(new Option(v,v));if(v)s.value=v;};
+  setSel('rm-service',sv(f[F.revenue.service])||f['Service']);setSel('rm-phase',sv(f[F.revenue.phase])||f['Phase']);setSel('rm-location',sv(f[F.revenue.location])||f['Location']);
+  document.getElementById('rm-invoice').checked=!!(f[F.revenue.invoiceSent]||f['Invoice sent']);
+  fillPaymentLeads(revLinks(r)[0]||'');
+  openModal('revenue-modal');
+}
 async function savePayment(){
+  const id=document.getElementById('rm-id').value;
   const client=document.getElementById('rm-client').value.trim();
   const amount=parseFloat(document.getElementById('rm-amount').value);
-  if(!client||!amount){toast('Client and amount required');return;}
-  const phaseVal=document.getElementById('rm-phase').value;
-  const fields={
-    [F.revenue.client]:client,
-    [F.revenue.amount]:amount,
-    [F.revenue.service]:document.getElementById('rm-service').value,
-    [F.revenue.date]:document.getElementById('rm-date').value||null,
-    [F.revenue.phase]:phaseVal,
-    [F.revenue.location]:document.getElementById('rm-location').value,
-    [F.revenue.invoiceSent]:document.getElementById('rm-invoice').checked
-  };
+  if(!client||!amount){toast('Client and amount are required');return;}
+  const R=F.revenue,lead=document.getElementById('rm-lead').value;
+  const fields={[R.client]:client,[R.amount]:amount,[R.service]:document.getElementById('rm-service').value,[R.date]:document.getElementById('rm-date').value||null,[R.phase]:document.getElementById('rm-phase').value,[R.location]:document.getElementById('rm-location').value,[R.invoiceSent]:document.getElementById('rm-invoice').checked,[REV_LINK]:lead?[lead]:[]};
   closeModal('revenue-modal');
-  ['rm-client','rm-amount','rm-date'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('rm-invoice').checked=false;
-  toast('Logging payment...');
+  if(id){
+    const r=S.revenue.find(x=>x.id===id);if(r)Object.assign(r.fields,fields);
+    saveState();renderRevenue();renderOverview();
+    if(id.startsWith('l')){toast('Payment updated ✓');return;}
+    try{await atPatch(TBL.revenue,id,fields);toast('Payment updated ✓');}catch(e){toast('Saved on this device, will sync next time');}
+    return;
+  }
   const localRec={id:'l'+Date.now(),fields:{...fields}};
+  S.revenue.push(localRec);saveState();renderRevenue();renderOverview();toast('Logging payment...');
   try{
     const res=await atCreate(TBL.revenue,fields);
-    if(res.records&&res.records[0]){
-      S.revenue.push(res.records[0]);
-      saveState();renderRevenue();renderOverview();
-      toast('Payment logged to Airtable ✓');
-    } else {
-      const errMsg=res.error?.message||JSON.stringify(res);
-      toast('Airtable error — saved locally: '+errMsg);
-      S.revenue.push(localRec);
-      saveState();renderRevenue();renderOverview();
-    }
-  }catch(e){
-    S.revenue.push(localRec);
-    saveState();renderRevenue();renderOverview();
-    toast('Saved locally — syncs next time');
-  }
+    const i=S.revenue.findIndex(x=>x.id===localRec.id);if(i>-1&&res.records&&res.records[0])S.revenue[i]=res.records[0];
+    saveState();renderRevenue();renderOverview();toast(`${money(amount)} from ${client} logged ✓`);
+  }catch(e){toast('Saved on this device, will sync next time');}
 }
-window.savePayment=savePayment;
+async function toggleInvoice(id){
+  const r=S.revenue.find(x=>x.id===id);if(!r)return;
+  const v=!(r.fields[F.revenue.invoiceSent]||r.fields['Invoice sent']);
+  r.fields[F.revenue.invoiceSent]=v;saveState();renderRevenue();renderOverview();
+  if(id.startsWith('l'))return;
+  try{await atPatch(TBL.revenue,id,{[F.revenue.invoiceSent]:v});toast(v?'Invoice marked sent ✓':'Invoice marked not sent');}catch(e){toast('Saved on this device, will sync next time');}
+}
+async function deletePayment(id){
+  const r=S.revenue.find(x=>x.id===id);if(!r)return;
+  if(!confirm(`Delete the ${money(revAmt(r))} payment from ${revClient(r)||'this client'}? This cannot be undone.`))return;
+  S.revenue=S.revenue.filter(x=>x.id!==id);saveState();renderRevenue();renderOverview();
+  if(id.startsWith('l')){toast('Payment deleted');return;}
+  try{const res=await fetch(`https://api.airtable.com/v0/${BASE}/${TBL.revenue}/${id}`,{method:'DELETE',headers:{Authorization:'Bearer '+TOKEN}});if(!res.ok)throw new Error('HTTP '+res.status);toast('Payment deleted');}
+  catch(e){toast('Could not delete in Airtable: '+e.message);}
+}
+window.savePayment=savePayment;window.openAddPayment=openAddPayment;window.openEditPayment=openEditPayment;window.pickPaymentLead=pickPaymentLead;window.toggleInvoice=toggleInvoice;window.deletePayment=deletePayment;
+
 
 async function saveWeeklyLog(){
   const week=document.getElementById('wlm-week').value.trim();
