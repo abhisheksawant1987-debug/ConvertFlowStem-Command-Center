@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ConvertFlowSystems — Command Centre</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0E1210">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Command Centre">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>/* apply theme before first paint to avoid a light flash */try{if(localStorage.getItem('cfs_theme')!=='light')document.documentElement.classList.add('dark')}catch(e){document.documentElement.classList.add('dark')}</script>
@@ -105,6 +113,19 @@ button,input,select,textarea{font-family:inherit}
 .td-item:first-child{border-top:none}
 .td-item .lead-main span{color:var(--text-tertiary);font-size:12px}
 .td-empty{font-size:13px;color:var(--text-tertiary);padding:8px 0}
+/* ── POLISH: sync bar, page transition, shortcuts, safe areas ── */
+.sync-bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:9998;background:linear-gradient(90deg,transparent,var(--green),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:syncSlide 1.1s ease-in-out infinite}
+@keyframes syncSlide{from{background-position:-40% 0}to{background-position:140% 0}}
+.page.active{animation:pageIn .18s ease-out}
+@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;align-items:center;font-size:13.5px}
+.keys dd{color:var(--text-secondary)}
+kbd{display:inline-block;min-width:24px;padding:2px 7px;border-radius:6px;border:1px solid var(--border);border-bottom-width:2px;background:var(--bg);font:600 12px var(--f-mono);text-align:center;color:var(--text-primary)}
+.kbd-hint{font-size:11px;color:var(--text-tertiary);padding:0 8px}
+.side{padding-top:max(22px,env(safe-area-inset-top))}
+.toast{bottom:max(24px,env(safe-area-inset-bottom))}
+@media (max-width:860px){.side{padding-top:max(10px,env(safe-area-inset-top))}.kbd-hint{display:none}}
+
 /* ── WEEKLY REVIEW ── */
 .wr-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
 .metric-sub.up{color:var(--green)}
@@ -201,7 +222,8 @@ i.pl-cs,.pl-cs>i{background:var(--pl-cs)}i.pl-cw,.pl-cw>i{background:var(--pl-cw
 @media (max-width:520px){.rev-stats{grid-template-columns:minmax(0,1fr)}.rev-goal{grid-column:auto}}
 
 /* ── LEADS CRM ── */
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sr-only{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.data-table th{position:relative}/* keeps the hidden label inside the table's scroll box */
 .muted{color:var(--text-tertiary)}
 .ps{font-family:inherit;color:inherit;cursor:pointer;transition:border-color .15s}
 .ps:hover{border-color:var(--text-tertiary)}
@@ -273,7 +295,7 @@ td.late{color:var(--red-dark)}
 .ld-foot{display:flex;gap:8px;margin-top:20px;padding-top:14px;border-top:1px solid var(--border)}
 @media (max-width:1180px){.ins-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:1180px){.td-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.td-grid{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:520px){.lead-row{flex-wrap:wrap}.lead-acts{width:100%;justify-content:flex-start;padding-left:48px}}
+@media (max-width:520px){.td-ring-card{grid-column:span 2}.lead-row{flex-wrap:wrap}.lead-acts{width:100%;justify-content:flex-start;padding-left:48px}}
 
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .topbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 32px;border-bottom:1px solid var(--border)}
@@ -517,6 +539,7 @@ td.late{color:var(--red-dark)}
     <div class="row"><span class="phase-badge" id="phase-badge"></span><span class="mono" id="side-days"></span></div>
     <div><span class="sync-dot" aria-hidden="true"></span><span id="sync-status">Synced with Airtable</span></div>
   </div>
+  <button class="kbd-hint link-btn" style="text-decoration:none;text-align:left" onclick="openModal('keys-modal')">Press <kbd>?</kbd> for shortcuts</button>
 </aside>
 
 <div class="main">
@@ -865,6 +888,27 @@ td.late{color:var(--red-dark)}
 </div><!-- /.main -->
 </div><!-- /.app -->
 
+<div class="sync-bar" id="sync-bar" role="progressbar" aria-label="Syncing with Airtable" hidden></div>
+
+<!-- KEYBOARD SHORTCUTS -->
+<div class="modal-ov" id="keys-modal" onclick="if(event.target===this)closeModal('keys-modal')">
+  <div class="modal" style="width:420px">
+    <div class="modal-title">Keyboard shortcuts</div>
+    <dl class="keys">
+      <dt><kbd>N</kbd></dt><dd>New lead</dd>
+      <dt><kbd>D</kbd></dt><dd>Log one DM sent</dd>
+      <dt><kbd>P</kbd></dt><dd>Log a payment</dd>
+      <dt><kbd>C</kbd></dt><dd>New content post</dd>
+      <dt><kbd>T</kbd></dt><dd>New task</dd>
+      <dt><kbd>/</kbd></dt><dd>Search leads</dd>
+      <dt><kbd>1</kbd>–<kbd>7</kbd></dt><dd>Today, Overview, Leads, Revenue, Tasks, Content, Weekly review</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Close a window or panel</dd>
+      <dt><kbd>?</kbd></dt><dd>Show this list</dd>
+    </dl>
+    <div class="modal-footer"><button class="btn btn-p" onclick="closeModal('keys-modal')">Got it</button></div>
+  </div>
+</div>
+
 <!-- LEAD DRAWER -->
 <div class="drawer-ov" id="lead-drawer-ov" onclick="closeLeadDrawer()" hidden></div>
 <aside class="drawer" id="lead-drawer" role="dialog" aria-modal="true" aria-labelledby="ld-title" hidden><div id="ld-body"></div></aside>
@@ -974,27 +1018,6 @@ td.late{color:var(--red-dark)}
     <div class="modal-footer">
       <button class="btn btn-s" onclick="closeModal('revenue-modal')">Cancel</button>
       <button class="btn btn-p" id="rm-save" onclick="savePayment()">Log payment</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-ov" id="wl-modal">
-  <div class="modal">
-    <div class="modal-title">Log this week</div>
-    <label>Week label *</label><input id="wlm-week" type="text" placeholder="e.g. Week 2 · Jun 16–22">
-    <div class="form-row">
-      <div><label>Calls booked</label><input id="wlm-calls" type="number" placeholder="0" min="0"></div>
-      <div><label>Clients closed</label><input id="wlm-closed" type="number" placeholder="0" min="0"></div>
-    </div>
-    <div class="form-row">
-      <div><label>Content posted</label><input id="wlm-content" type="number" placeholder="0" min="0"></div>
-      <div><label>DMs sent</label><input id="wlm-dms" type="number" placeholder="0" min="0"></div>
-    </div>
-    <label>Blocker</label><input id="wlm-blocker" type="text" placeholder="What blocked you this week?">
-    <label>Key win</label><input id="wlm-win" type="text" placeholder="What was your biggest win?">
-    <div class="modal-footer">
-      <button class="btn btn-s" onclick="closeModal('wl-modal')">Cancel</button>
-      <button class="btn btn-p" onclick="saveWeeklyLog()">Save log</button>
     </div>
   </div>
 </div>
@@ -1330,6 +1353,8 @@ function initArchiveBtn(){
 let _syncing=false;
 async function syncAll(){
   if(_syncing)return;_syncing=true;
+  const bar=document.getElementById('sync-bar');if(bar)bar.hidden=false;
+  const ss0=document.getElementById('sync-status');if(ss0)ss0.textContent='Syncing...';
   toast('Syncing with Airtable...');
   const failures=[];
   try{
@@ -1365,7 +1390,7 @@ async function syncAll(){
     else toast('Synced ✓');
   }catch(e){
     toast('Sync failed, nothing was changed: '+e.message);
-  }finally{_syncing=false;}
+  }finally{_syncing=false;const b=document.getElementById('sync-bar');if(b)b.hidden=true;}
 }
 window.syncAll=syncAll;
 
@@ -2766,17 +2791,7 @@ async function deletePayment(id){
 window.savePayment=savePayment;window.openAddPayment=openAddPayment;window.openEditPayment=openEditPayment;window.pickPaymentLead=pickPaymentLead;window.toggleInvoice=toggleInvoice;window.deletePayment=deletePayment;
 
 
-async function saveWeeklyLog(){
-  const week=document.getElementById('wlm-week').value.trim();
-  if(!week){toast('Week label required');return;}
-  const W=F.weeklylog,num=id=>parseInt(document.getElementById(id).value)||0;
-  const fields={[W.name]:week,[W.calls]:num('wlm-calls'),[W.closed]:num('wlm-closed'),[W.contentPosted]:num('wlm-content'),[W.dmsSent]:num('wlm-dms'),[W.challenges]:document.getElementById('wlm-blocker').value,[W.accomplishments]:document.getElementById('wlm-win').value};
-  closeModal('wl-modal');toast('Saving...');
-  try{const res=await atCreate(TBL.weeklylog,fields);if(res.records){S.weeklylog.push(res.records[0]);saveState();renderWeeklyLog();toast('Weekly log saved to Airtable ✓');}}
-  catch(e){S.weeklylog.push({id:'l'+Date.now(),fields});saveState();renderWeeklyLog();toast('Saved locally');}
-  ['wlm-week','wlm-calls','wlm-closed','wlm-content','wlm-dms','wlm-blocker','wlm-win'].forEach(id=>document.getElementById(id).value='');
-}
-window.saveWeeklyLog=saveWeeklyLog;
+
 
 function openAddContent(date){
   document.getElementById('cm-id').value='';
@@ -2934,7 +2949,33 @@ function openSettings(){
 }
 window.setupConnect=setupConnect;window.setupSkip=setupSkip;window.openSettings=openSettings;
 
+// ── KEYBOARD SHORTCUTS ───────────────────────────────────────────────────────
+const TAB_KEYS=['today','overview','pipeline','revenue','tasks','content','weeklylog'];
+function anyModalOpen(){return !!document.querySelector('.modal-ov.open')||document.getElementById('setup-modal').style.display==='flex';}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){const m=document.querySelector('.modal-ov.open');if(m){m.classList.remove('open');return;}}
+  const t=e.target,typing=t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  if(typing||e.ctrlKey||e.metaKey||e.altKey||anyModalOpen()||_drawerId)return;
+  const k=e.key.toLowerCase();
+  if(/^[1-7]$/.test(k)){switchTab(TAB_KEYS[Number(k)-1]);return;}
+  const act={
+    n:()=>openAddProspect(),
+    p:()=>openAddPayment(),
+    c:()=>{switchTab('content');openAddContent();},
+    t:()=>openModal('task-modal'),
+    d:()=>logDM(),
+    '/':()=>{switchTab('pipeline');setTimeout(()=>document.getElementById('pf-q').focus(),30);},
+    '?':()=>openModal('keys-modal')
+  }[e.key==='?'?'?':k];
+  if(act){e.preventDefault();act();}
+});
+
 // ── STARTUP ──────────────────────────────────────────────────────────────────
+// Home-screen shortcuts and links can open a page directly, e.g. index.html#revenue
+function openFromHash(){const h=(location.hash||'').slice(1);if(TAB_KEYS.includes(h))switchTab(h);}
+openFromHash();window.addEventListener('hashchange',openFromHash);
+// Offline shell for the installed app (needs https or localhost)
+if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 document.getElementById('date-txt').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 syncThemeLabel();
 if(TOKEN){
