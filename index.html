@@ -105,6 +105,78 @@ button,input,select,textarea{font-family:inherit}
 .td-item:first-child{border-top:none}
 .td-item .lead-main span{color:var(--text-tertiary);font-size:12px}
 .td-empty{font-size:13px;color:var(--text-tertiary);padding:8px 0}
+/* ── LEADS CRM ── */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--text-tertiary)}
+.ps{font-family:inherit;color:inherit;cursor:pointer;transition:border-color .15s}
+.ps:hover{border-color:var(--text-tertiary)}
+.pipe-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px}
+.pipe-tools select{min-height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:12.5px}
+.search{flex:1 1 240px;display:flex;align-items:center;gap:8px;min-height:34px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.search svg{width:15px;height:15px;color:var(--text-tertiary);flex:none}
+.search input{flex:1;min-width:0;border:none;background:none;color:var(--text-primary);font-size:13px;outline:none}
+.search:focus-within{border-color:var(--green)}
+.pf-count{margin-left:auto;font-size:12px;color:var(--text-tertiary)}
+.link-btn{background:none;border:none;color:var(--green);font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+.click-row{cursor:pointer}
+.cell-lead{display:flex;align-items:center;gap:10px;min-width:180px}
+.avatar.sm{width:30px;height:30px;font-size:11px}
+.avatar.lg{width:48px;height:48px;font-size:16px}
+.note-cell{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-secondary)}
+td.late{color:var(--red-dark)}
+.data-table td.mono{white-space:nowrap;font-size:12px}
+.row-acts{white-space:nowrap;text-align:right}
+.icon-btn{width:32px;height:32px;display:inline-grid;place-items:center;border-radius:7px;border:1px solid transparent;background:none;color:var(--text-tertiary);cursor:pointer}
+.icon-btn svg{width:16px;height:16px}
+.icon-btn:hover{color:var(--text-primary);border-color:var(--border)}
+.icon-btn.danger:hover,.btn.danger:hover{color:var(--red-dark);border-color:var(--red)}
+.pboard{display:grid;grid-template-columns:repeat(7,minmax(200px,1fr));gap:10px;overflow-x:auto;padding-bottom:8px}
+.pcol{background:var(--side-bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;min-height:320px;transition:border-color .15s,background .15s}
+.pcol.drop{border-color:var(--green);background:var(--green-light)}
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 11px;margin-bottom:8px;cursor:grab;transition:border-color .15s,transform .15s}
+.pcard:hover{border-color:var(--green)}
+.pcard.od{box-shadow:inset 2px 0 0 var(--red)}
+.pcard.dragging{opacity:.4}
+.pc-name{font-weight:600;font-size:13px;margin-bottom:2px}
+.pc-due{font-size:11px;color:var(--text-tertiary);margin-top:6px}
+.pc-due.late{color:var(--red-dark)}
+.pcol-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0;border:1px dashed var(--border);border-radius:8px}
+.ins-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.f-row.ins{grid-template-columns:96px minmax(0,1fr) 34px 44px}
+.f-pct{text-align:right;color:var(--text-tertiary);font-size:12px}
+.ins-name{font-weight:500;margin-bottom:4px}
+.mini-bar{height:4px;border-radius:99px;background:var(--surface-2);max-width:160px}
+.mini-bar i{display:block;height:100%;border-radius:99px;background:var(--green)}
+.ins-table td.good{color:var(--green)}
+.drawer-ov{position:fixed;inset:0;background:rgba(5,8,6,.5);z-index:400}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--surface);border-left:1px solid var(--border);z-index:450;overflow-y:auto;padding:22px;box-shadow:var(--shadow-md);transform:translateX(100%);transition:transform .2s ease}
+.drawer.open{transform:none}
+.ld-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.ld-name{font-size:20px;font-weight:700;line-height:1.2}
+.ld-status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px}
+.ld-status select{min-height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-size:13px;font-weight:600}
+.ld-next{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--amber-light);font-size:13px;margin-bottom:10px}
+.ld-next b{font-size:16px;color:var(--amber)}
+.ld-next.late{background:var(--red-light)}
+.ld-next.late b{color:var(--red)}
+.ld-acts{justify-content:flex-start;margin-bottom:14px}
+.facts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 16px}
+.fact{display:flex;flex-direction:column;gap:2px;font-size:13px;min-width:0}
+.fact span:first-child{font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.fact span:last-child{overflow-wrap:anywhere}
+.sel{user-select:all}
+.ld-free{font-size:13px;color:var(--text-secondary);white-space:pre-wrap;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 12px}
+.ld-note{display:flex;gap:8px;margin-bottom:12px}
+.ld-note input{flex:1;min-width:0;min-height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text-primary);font-size:13px;outline:none}
+.ld-note input:focus{border-color:var(--green)}
+.timeline{list-style:none;position:relative;padding-left:18px}
+.timeline::before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:var(--border)}
+.timeline li{position:relative;display:flex;gap:10px;padding:6px 0;font-size:13px}
+.timeline li::before{content:"";position:absolute;left:-18px;top:11px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--surface)}
+.timeline li.sys::before{background:var(--text-tertiary)}
+.t-when{color:var(--text-tertiary);font-size:12px;min-width:48px;padding-top:1px}
+.ld-foot{display:flex;gap:8px;margin-top:20px;padding-top:14px;border-top:1px solid var(--border)}
+@media (max-width:1180px){.ins-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:1180px){.td-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.td-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:520px){.lead-row{flex-wrap:wrap}.lead-acts{width:100%;justify-content:flex-start;padding-left:48px}}
 
@@ -225,7 +297,8 @@ button,input,select,textarea{font-family:inherit}
 .dot-todo{background:var(--red)}.dot-inp{background:var(--amber)}.dot-done{background:var(--green)}.dot-block{background:var(--purple)}
 
 /* ── PIPELINE ── */
-.pipe-stages{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:16px 0 20px}
+.pipe-stages{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin:16px 0 14px}
+@media (max-width:1180px) and (min-width:861px){.pipe-stages{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .ps{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;text-align:center}
 .ps.on{border-color:var(--green);box-shadow:inset 0 -2px 0 var(--green)}
 .ps-count{font-size:26px;font-weight:600;color:var(--text-primary)}
@@ -530,13 +603,22 @@ button,input,select,textarea{font-family:inherit}
     </div>
   </div>
   <div class="sub-tabs" style="margin-bottom:0">
-    <button class="sub-tab active" id="pl-outreach" onclick="setPipeSection('outreach')">📤 Outreach</button>
-    <button class="sub-tab" id="pl-leads" onclick="setPipeSection('leads')">📥 Incoming Leads</button>
+    <button class="sub-tab active" id="pl-outreach" onclick="setPipeSection('outreach')">Outreach</button>
+    <button class="sub-tab" id="pl-leads" onclick="setPipeSection('leads')">Incoming leads</button>
     <div style="flex:1"></div>
-    <button class="sub-tab" id="pv-table" onclick="setPipeView('table')">Table</button>
+    <button class="sub-tab active" id="pv-table" onclick="setPipeView('table')">Table</button>
     <button class="sub-tab" id="pv-board" onclick="setPipeView('board')">Board</button>
+    <button class="sub-tab" id="pv-insights" onclick="setPipeView('insights')">Insights</button>
   </div>
   <div class="pipe-stages" id="pipe-stages"></div>
+  <div class="pipe-tools" id="pipe-tools">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input id="pf-q" type="search" placeholder="Search name, niche, notes..." aria-label="Search leads" oninput="setPipeFilter('q',this.value)"></div>
+    <select id="pf-status" aria-label="Filter by stage" onchange="setPipeFilter('status',this.value)"><option value="">All stages</option><option>Not Contacted</option><option>DM Sent</option><option>Replied</option><option>Call Booked</option><option>Proposal Sent</option><option>Closed - Won</option><option>No Response</option></select>
+    <select id="pf-plat" aria-label="Filter by platform" onchange="setPipeFilter('plat',this.value)"><option value="">All platforms</option></select>
+    <button class="sub-tab" id="pf-overdue" onclick="setPipeFilter('overdue',!S.pf.overdue)">Overdue only</button>
+    <select id="pf-sort" aria-label="Sort leads" onchange="setPipeFilter('sort',this.value)"><option value="due">Sort: follow-up due</option><option value="new">Sort: newest</option><option value="name">Sort: name</option><option value="value">Sort: deal value</option></select>
+    <span class="pf-count mono" id="pf-count"></span>
+  </div>
   <div id="pipe-view"><div class="loading"><span class="sp"></span>Loading pipeline...</div></div>
 </div>
 
@@ -593,6 +675,10 @@ button,input,select,textarea{font-family:inherit}
 
 </div><!-- /.main -->
 </div><!-- /.app -->
+
+<!-- LEAD DRAWER -->
+<div class="drawer-ov" id="lead-drawer-ov" onclick="closeLeadDrawer()" hidden></div>
+<aside class="drawer" id="lead-drawer" role="dialog" aria-modal="true" aria-labelledby="ld-title" hidden><div id="ld-body"></div></aside>
 
 <!-- MODALS -->
 <div class="modal-ov" id="task-modal">
@@ -1688,45 +1774,188 @@ window.setTaskView=setTaskView;
 function getPipeStatus(r){return (r.fields[F.pipeline.status]&&r.fields[F.pipeline.status].name)||r.fields[F.pipeline.status]||'Not Contacted';}
 function getPipeLeadType(r){return (r.fields[F.pipeline.leadType]&&r.fields[F.pipeline.leadType].name)||r.fields[F.pipeline.leadType]||'Outreach';}
 
-function renderPipeline(){
-  const sec=S.pipeSection||'outreach';
-  const isLeads=sec==='leads';
-  const filtered=S.pipeline.filter(r=>isLeads?getPipeLeadType(r)==='Incoming Lead':getPipeLeadType(r)!=='Incoming Lead');
-
-  const stages=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won'];
-  const counts={};stages.forEach(s=>counts[s]=0);
-  filtered.forEach(r=>{const s=getPipeStatus(r);if(counts[s]!==undefined)counts[s]++;});
-  document.getElementById('pipe-stages').innerHTML=stages.map(s=>`<div class="ps ${counts[s]>0?'on':''}"><div class="ps-count">${counts[s]}</div><div class="ps-name">${s}</div></div>`).join('');
-
-  const pv=document.getElementById('pipe-view');
-  if(S.pipeView==='table'){
-    const headers=isLeads
-      ?`<tr><th>Name</th><th>Source</th><th>Company</th><th>Niche</th><th>Email</th><th>Deal value</th><th>Follow-up</th><th>Notes</th><th>Status</th><th></th></tr>`
-      :`<tr><th>Name</th><th>DM sent date</th><th>Deal value</th><th>Follow-up date</th><th>Location</th><th>Niche</th><th>Notes</th><th>Platform</th><th>Status</th><th></th></tr>`;
-    const rows=filtered.map(r=>{
-      const s=getPipeStatus(r);
-      const dv=r.fields[F.pipeline.dealValue];
-      const src=(r.fields[F.pipeline.leadSource]&&r.fields[F.pipeline.leadSource].name)||r.fields[F.pipeline.leadSource]||'—';
-      const loc=(r.fields[F.pipeline.location]&&r.fields[F.pipeline.location].name)||r.fields[F.pipeline.location]||'—';
-      const plat=(r.fields[F.pipeline.platform]&&r.fields[F.pipeline.platform].name)||r.fields[F.pipeline.platform]||'—';
-      const editFn=isLeads?`openEditLead('${r.id}')`:`openEditProspect('${r.id}')`;
-      const delFn=`deleteProspect('${r.id}')`;
-      const actions=`<td style="white-space:nowrap"><button onclick="${editFn}" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px" title="Edit">✏️</button><button onclick="${delFn}" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:14px;padding:2px 5px" title="Delete">🗑</button></td>`;
-      if(isLeads){
-        return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td><span class="badge bind">${src}</span></td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.company]||'—'}</td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.email]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td style="color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td>${actions}</tr>`;
-      }
-      return `<tr><td style="font-weight:500">${r.fields[F.pipeline.name]||'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.dmDate]||'—'}</td><td>${dv?'$'+dv:'—'}</td><td style="color:var(--text-secondary)">${r.fields[F.pipeline.nextAction]||'—'}</td><td><span class="badge ${loc==='International'?'bint':'bind'}">${loc}</span></td><td>${r.fields[F.pipeline.niche]||'—'}</td><td style="color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.fields[F.pipeline.notes]||'—'}</td><td>${plat}</td><td><span class="badge ${badgeCls(s)}">${s}</span></td>${actions}</tr>`;
-    }).join('');
-    pv.innerHTML=`<div class="card"><table class="data-table"><thead>${headers}</thead><tbody>${rows||'<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No records yet. Click "+ Add" to create one.</td></tr>'}</tbody></table></div>`;
-  } else {
-    const sts=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won','No Response'];
-    pv.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">${sts.map(s=>{
-      const items=filtered.filter(r=>getPipeStatus(r)===s);
-      const editFn=isLeads?`openEditLead`:`openEditProspect`;
-      return `<div style="background:var(--bg);border-radius:var(--radius);padding:12px;min-height:180px"><div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">${s} <span style="background:var(--border);color:var(--text-tertiary);padding:1px 6px;border-radius:10px;font-size:10px">${items.length}</span></div>${items.map(r=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:12px;font-weight:500;position:relative;padding-right:44px">${r.fields[F.pipeline.name]||'—'}<div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">${r.fields[F.pipeline.niche]||r.fields[F.pipeline.company]||''}</div><div style="position:absolute;top:4px;right:4px;display:flex;gap:2px"><button onclick="${editFn}('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1">✏️</button><button onclick="deleteProspect('${r.id}')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:11px;padding:2px;line-height:1">✕</button></div></div>`).join('')}</div>`;
-    }).join('')}</div>`;
-  }
+// ── LEADS CRM: filters, table, drag-and-drop board, insights, lead drawer ───
+const PIPE_STAGES=['Not Contacted','DM Sent','Replied','Call Booked','Proposal Sent','Closed - Won','No Response'];
+S.pf={q:'',status:'',plat:'',overdue:false,sort:'due'};
+let _drawerId='',_dragId='';
+function statusBadge(s){
+  const m={'Not Contacted':'bnot','DM Sent':'bint','Replied':'bp2','Call Booked':'bblock','Proposal Sent':'bprop','Closed - Won':'bclosed','Closed - Lost':'btodo','No Response':'btodo'};
+  return `<span class="badge ${m[s]||'bnot'}">${esc(s)}</span>`;
 }
+function pipeSectionRecords(){
+  const isLeads=(S.pipeSection||'outreach')==='leads';
+  return S.pipeline.filter(r=>isLeads?getPipeLeadType(r)==='Incoming Lead':getPipeLeadType(r)!=='Incoming Lead');
+}
+function isOverdue(r){const d=followupDue(r);return ACTIVE_STATUSES.includes(getPipeStatus(r))&&d&&d<getTodayKey();}
+function applyPipeFilters(list){
+  const f=S.pf,q=f.q.trim().toLowerCase();
+  let out=list.filter(r=>{
+    if(f.status&&getPipeStatus(r)!==f.status)return false;
+    if(f.plat&&(sv(r.fields[F.pipeline.platform])||'')!==f.plat)return false;
+    if(f.overdue&&!isOverdue(r))return false;
+    if(q){const P=F.pipeline;const hay=[r.fields[P.name],r.fields[P.niche],r.fields[P.company],r.fields[P.email],r.fields[P.notes],sv(r.fields[P.platform])].join(' ').toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  const name=r=>(r.fields[F.pipeline.name]||'').toLowerCase();
+  if(f.sort==='due')out.sort((a,b)=>{const x=followupDue(a)||'9999',y=followupDue(b)||'9999';return x<y?-1:x>y?1:name(a)<name(b)?-1:1;});
+  if(f.sort==='new')out.sort((a,b)=>(a.createdTime||'')>(b.createdTime||'')?-1:1);
+  if(f.sort==='name')out.sort((a,b)=>name(a)<name(b)?-1:1);
+  if(f.sort==='value')out.sort((a,b)=>(Number(b.fields[F.pipeline.dealValue])||0)-(Number(a.fields[F.pipeline.dealValue])||0));
+  return out;
+}
+function setPipeFilter(key,val){S.pf[key]=val;renderPipeline();}
+function togglePipeStatus(s){S.pf.status=S.pf.status===s?'':s;const sel=document.getElementById('pf-status');if(sel)sel.value=S.pf.status;renderPipeline();}
+function clearPipeFilters(){S.pf={...S.pf,q:'',status:'',plat:'',overdue:false};['pf-q','pf-status','pf-plat'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.getElementById('pf-overdue').classList.remove('active');renderPipeline();}
+window.setPipeFilter=setPipeFilter;window.togglePipeStatus=togglePipeStatus;window.clearPipeFilters=clearPipeFilters;
+
+function renderPipeline(){
+  const all=pipeSectionRecords();
+  // Platform options follow the data
+  const platSel=document.getElementById('pf-plat');
+  if(platSel){const plats=[...new Set(all.map(r=>sv(r.fields[F.pipeline.platform])).filter(Boolean))].sort();const cur=S.pf.plat;platSel.innerHTML='<option value="">All platforms</option>'+plats.map(p=>`<option${p===cur?' selected':''}>${esc(p)}</option>`).join('');}
+  const ov=document.getElementById('pf-overdue');if(ov)ov.classList.toggle('active',S.pf.overdue);
+
+  // Stage strip doubles as a status filter
+  const counts={};PIPE_STAGES.forEach(s=>counts[s]=0);
+  all.forEach(r=>{const s=getPipeStatus(r);if(counts[s]!==undefined)counts[s]++;});
+  document.getElementById('pipe-stages').innerHTML=PIPE_STAGES.map(s=>`<button class="ps${S.pf.status===s?' on':''}" onclick="togglePipeStatus('${s}')" aria-pressed="${S.pf.status===s}"><div class="ps-count">${counts[s]}</div><div class="ps-name">${s}</div></button>`).join('');
+
+  const list=applyPipeFilters(all);
+  const filtered=list.length!==all.length;
+  document.getElementById('pf-count').innerHTML=`${list.length} of ${all.length}`+(filtered?` · <button class="link-btn" onclick="clearPipeFilters()">Clear filters</button>`:'');
+  const pv=document.getElementById('pipe-view');
+  if(S.pipeView==='board')pv.innerHTML=renderPipeBoard(list);
+  else if(S.pipeView==='insights')pv.innerHTML=renderPipeInsights(all);
+  else pv.innerHTML=renderPipeTable(list);
+  if(_drawerId)renderLeadDrawer();
+}
+
+function renderPipeTable(list){
+  const today=getTodayKey(),P=F.pipeline;
+  const rows=list.map(r=>{
+    const name=r.fields[P.name]||'Unnamed lead',due=followupDue(r),od=isOverdue(r),dv=r.fields[P.dealValue];
+    const notes=(r.fields[P.notes]||'').split('\n').filter(Boolean),lastNote=notes[notes.length-1]||'';
+    return `<tr class="click-row" onclick="openLeadDrawer('${r.id}')">
+      <td><div class="cell-lead"><div class="avatar sm" aria-hidden="true">${esc(initials(name))}</div><div class="lead-main"><button class="lead-name" onclick="event.stopPropagation();openLeadDrawer('${r.id}')">${esc(name)}</button><div class="lead-meta">${esc(r.fields[P.niche]||r.fields[P.company]||'')}</div></div></div></td>
+      <td>${statusBadge(getPipeStatus(r))}</td>
+      <td>${esc(sv(r.fields[P.platform])||sv(r.fields[P.leadSource])||'—')}</td>
+      <td class="mono">${esc((r.fields[P.dmDate]||'—').slice(0,10))}</td>
+      <td class="mono${od?' late':''}">${due?esc(due)+(od?` · ${daysBetween(due,today)}d late`:''):'—'}</td>
+      <td class="mono">${dv?money(dv):'—'}</td>
+      <td class="note-cell">${esc(lastNote)||'<span class="muted">—</span>'}</td>
+      <td class="row-acts"><button class="icon-btn" onclick="event.stopPropagation();editLead('${r.id}')" aria-label="Edit ${esc(name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button><button class="icon-btn danger" onclick="event.stopPropagation();deleteProspect('${r.id}')" aria-label="Delete ${esc(name)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6M14 11v6"></path></svg></button></td>
+    </tr>`;}).join('');
+  return `<div class="card"><table class="data-table"><thead><tr><th>Lead</th><th>Status</th><th>Platform</th><th>DM sent</th><th>Follow-up</th><th>Deal</th><th>Latest note</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="td-empty" style="text-align:center;padding:2rem">No leads match. Clear the filters or add a lead.</td></tr>'}</tbody></table></div>`;
+}
+
+// Board: drag a card onto another column to change its stage
+function renderPipeBoard(list){
+  const today=getTodayKey(),P=F.pipeline;
+  return `<div class="pboard">${PIPE_STAGES.map(s=>{
+    const items=list.filter(r=>getPipeStatus(r)===s);
+    return `<div class="pcol" data-status="${s}" ondragover="pipeDragOver(event)" ondragleave="this.classList.remove('drop')" ondrop="pipeDrop(event,'${s}')">
+      <div class="kc-header"><span class="kc-title">${s}</span><span class="kc-count mono">${items.length}</span></div>
+      ${items.map(r=>{const name=r.fields[P.name]||'Unnamed lead',due=followupDue(r),od=isOverdue(r);
+        return `<div class="pcard${od?' od':''}" draggable="true" ondragstart="pipeDragStart(event,'${r.id}')" ondragend="this.classList.remove('dragging')" onclick="openLeadDrawer('${r.id}')" tabindex="0" onkeydown="if(event.key==='Enter')openLeadDrawer('${r.id}')">
+          <div class="pc-name">${esc(name)}</div>
+          <div class="lead-meta">${esc([r.fields[P.niche],sv(r.fields[P.platform])].filter(Boolean).join(' · '))}</div>
+          ${due&&ACTIVE_STATUSES.includes(s)?`<div class="pc-due mono${od?' late':''}">${od?daysBetween(due,today)+'d late':'follow up '+due.slice(5)}</div>`:''}
+        </div>`;}).join('')||'<div class="pcol-empty">Drop leads here</div>'}
+    </div>`;}).join('')}</div>`;
+}
+function pipeDragStart(e,id){_dragId=id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);e.currentTarget.classList.add('dragging');}
+function pipeDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drop');}
+function pipeDrop(e,status){e.preventDefault();e.currentTarget.classList.remove('drop');const id=e.dataTransfer.getData('text/plain')||_dragId;_dragId='';if(id)setLeadStatus(id,status);}
+window.pipeDragStart=pipeDragStart;window.pipeDragOver=pipeDragOver;window.pipeDrop=pipeDrop;
+
+// Change a lead's stage from the board or drawer; logs the move in notes
+async function setLeadStatus(id,status){
+  const r=S.pipeline.find(x=>x.id===id);if(!r||getPipeStatus(r)===status)return;
+  const P=F.pipeline,today=getTodayKey(),patch={[P.status]:status};
+  if(status==='DM Sent'){if(!r.fields[P.dmDate])patch[P.dmDate]=today;patch[P.nextAction]=addDaysKey(patch[P.dmDate]||today,FOLLOWUP_DAYS);}
+  if(status==='Replied'||status==='Call Booked')patch[P.nextAction]=addDaysKey(today,1);
+  if(status==='Proposal Sent')patch[P.nextAction]=addDaysKey(today,2);// Rule 6: follow up within 48h
+  if(status==='Closed - Won'||status==='No Response'||status==='Closed - Lost')patch[P.nextAction]=null;
+  const stamp=TODAY.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  patch[P.notes]=(r.fields[P.notes]?r.fields[P.notes]+'\n':'')+`[${stamp}] Moved to ${status}`;
+  Object.assign(r.fields,patch);saveState();recomputeOutreach();renderPipeline();renderOverview();
+  const name=r.fields[P.name]||'Lead';
+  if(id.startsWith('l')){toast(`${name} → ${status} ✓`);return;}
+  try{await atPatch(TBL.pipeline,id,patch);toast(`${name} → ${status} ✓`);}catch(e){toast('Saved on this device, will sync next time');}
+}
+window.setLeadStatus=setLeadStatus;
+
+// Insights: conversion per stage + reply rates by platform / niche / location
+function renderPipeInsights(list){
+  const st=r=>getPipeStatus(r);
+  const won=['Closed - Won'],prop=['Proposal Sent',...won],call=['Call Booked',...prop],resp=['Replied',...call];
+  const reach=(l,set)=>l.filter(r=>set.includes(st(r))).length;
+  const contacted=l=>l.filter(r=>st(r)!=='Not Contacted').length;
+  const total=list.length,c=contacted(list);
+  const steps=[['Contacts',total,null],['Contacted',c,total],['Responded',reach(list,resp),c],['Call booked',reach(list,call),reach(list,resp)],['Proposal',reach(list,prop),reach(list,call)],['Won',reach(list,won),reach(list,prop)]];
+  const funnel=steps.map(([l,n,prev])=>{const pct=prev?Math.round(n/prev*100):null;return `<div class="f-row ins"><span>${l}</span><div class="f-bar"><i style="width:${total?Math.max(n/total*100,n?2:0.5):0.5}%"></i></div><span class="f-n">${n}</span><span class="f-pct mono">${pct===null?'':prev?pct+'%':'—'}</span></div>`;}).join('');
+  const group=(keyFn,label,col,limit)=>{
+    const g={};list.forEach(r=>{const k=keyFn(r)||'Not set';(g[k]=g[k]||[]).push(r);});
+    const rows=Object.entries(g).map(([k,l])=>({k,n:l.length,c:contacted(l),resp:reach(l,resp),won:reach(l,won)})).sort((a,b)=>b.n-a.n).slice(0,limit||8);
+    const max=Math.max(...rows.map(x=>x.n),1);
+    return `<div class="card"><div class="sl">${label}</div><table class="data-table ins-table"><thead><tr><th>${col}</th><th>Leads</th><th>Contacted</th><th>Reply rate</th><th>Won</th></tr></thead><tbody>${rows.map(x=>{const rate=x.c?Math.round(x.resp/x.c*100):null;return `<tr><td><div class="ins-name">${esc(x.k)}</div><div class="mini-bar"><i style="width:${x.n/max*100}%"></i></div></td><td class="mono">${x.n}</td><td class="mono">${x.c}</td><td class="mono${rate?' good':''}">${rate===null?'—':rate+'%'}</td><td class="mono">${x.won}</td></tr>`;}).join('')}</tbody></table></div>`;
+  };
+  const isLeads=(S.pipeSection||'outreach')==='leads';
+  return `<div class="ins-grid">
+    <div class="card ins-funnel"><div class="sl">Stage conversion</div><div class="funnel">${funnel}</div><p class="vis-cap">The % is how many moved on from the stage above. The biggest drop is where to focus.</p></div>
+    ${group(r=>sv(r.fields[F.pipeline[isLeads?'leadSource':'platform']]),isLeads?'By source':'By platform',isLeads?'Source':'Platform')}
+    ${group(r=>(r.fields[F.pipeline.niche]||'').trim(),'By niche (top 8)','Niche',8)}
+    ${group(r=>sv(r.fields[F.pipeline.location]),'By location','Location')}
+  </div>`;
+}
+
+// ── LEAD DRAWER ──
+function openLeadDrawer(id){_drawerId=id;renderLeadDrawer();const d=document.getElementById('lead-drawer');d.hidden=false;document.getElementById('lead-drawer-ov').hidden=false;requestAnimationFrame(()=>d.classList.add('open'));setTimeout(()=>{const c=document.getElementById('ld-close');if(c)c.focus();},50);}
+function closeLeadDrawer(){_drawerId='';const d=document.getElementById('lead-drawer');d.classList.remove('open');document.getElementById('lead-drawer-ov').hidden=true;setTimeout(()=>{if(!_drawerId)d.hidden=true;},200);}
+function editLead(id){const r=S.pipeline.find(x=>x.id===id);if(!r)return;if(getPipeLeadType(r)==='Incoming Lead')openEditLead(id);else openEditProspect(id);}
+function leadTimeline(r){
+  const P=F.pipeline,ev=[];
+  if(r.createdTime)ev.push({when:new Date(r.createdTime).toLocaleDateString('en-US',{month:'short',day:'numeric'}),txt:'Added to pipeline',kind:'sys'});
+  const dm=r.fields[P.dmDate];
+  let loggedDm=false;const free=[];
+  (r.fields[P.notes]||'').split('\n').map(s=>s.trim()).filter(Boolean).forEach(line=>{
+    const m=line.match(/^\[([A-Za-z]{3} \d{1,2})\]\s*(.*)$/);
+    if(m){ev.push({when:m[1],txt:m[2],kind:'log'});if(/DM sent/i.test(m[2]))loggedDm=true;}else free.push(line);
+  });
+  if(dm&&!loggedDm)ev.splice(1,0,{when:parseDay(dm.slice(0,10)).toLocaleDateString('en-US',{month:'short',day:'numeric'}),txt:'DM sent',kind:'sys'});
+  return {events:ev.reverse(),free:free.join('\n')};
+}
+function renderLeadDrawer(){
+  const r=S.pipeline.find(x=>x.id===_drawerId),body=document.getElementById('ld-body');
+  if(!r){if(_drawerId)closeLeadDrawer();return;}
+  const P=F.pipeline,today=getTodayKey(),name=r.fields[P.name]||'Unnamed lead',s=getPipeStatus(r),due=followupDue(r),od=isOverdue(r);
+  const fact=(l,v)=>v?`<div class="fact"><span>${l}</span><span>${v}</span></div>`:'';
+  const {events,free}=leadTimeline(r);
+  const active=ACTIVE_STATUSES.includes(s);
+  body.innerHTML=`
+    <div class="ld-top"><div class="avatar lg" aria-hidden="true">${esc(initials(name))}</div><div class="lead-main"><h2 class="ld-name" id="ld-title">${esc(name)}</h2><div class="lead-meta">${esc([r.fields[P.niche],r.fields[P.company]].filter(Boolean).join(' · '))}</div></div>
+      <button class="icon-btn" id="ld-close" onclick="closeLeadDrawer()" aria-label="Close lead details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></div>
+    <div class="ld-status"><label for="ld-stage" class="sl" style="margin:0">Stage</label><select id="ld-stage" onchange="setLeadStatus('${r.id}',this.value)">${PIPE_STAGES.map(x=>`<option${x===s?' selected':''}>${x}</option>`).join('')}</select></div>
+    ${due&&active?`<div class="ld-next${od?' late':''}"><b class="mono">${od?daysBetween(due,today)+'d late':due===today?'Today':due.slice(5)}</b><span>Next follow-up${od?' was due '+esc(due):''}</span></div>`:''}
+    ${active?`<div class="lead-acts ld-acts"><button class="act go" onclick="leadAction('${r.id}','followed')">Followed up</button><button class="act" onclick="leadAction('${r.id}','replied')">Replied</button><button class="act" onclick="leadAction('${r.id}','noresp')">No reply</button></div>`:s==='Not Contacted'?`<div class="lead-acts ld-acts"><button class="act go" onclick="leadAction('${r.id}','dmsent')">DM sent</button></div>`:''}
+    <div class="facts">${fact('Platform',esc(sv(r.fields[P.platform])||''))}${fact('Source',esc(sv(r.fields[P.leadSource])||''))}${fact('Location',esc(sv(r.fields[P.location])||''))}${fact('Email',r.fields[P.email]?`<span class="mono sel">${esc(r.fields[P.email])}</span>`:'')}${fact('Deal value',r.fields[P.dealValue]?`<span class="mono">${money(r.fields[P.dealValue])}</span>`:'')}${fact('DM sent',r.fields[P.dmDate]?`<span class="mono">${esc(r.fields[P.dmDate].slice(0,10))}</span>`:'')}</div>
+    ${free?`<div class="sl" style="margin:16px 0 6px">Notes</div><div class="ld-free">${esc(free)}</div>`:''}
+    <div class="sl" style="margin:18px 0 8px">History</div>
+    <form class="ld-note" onsubmit="event.preventDefault();addLeadNote('${r.id}')"><input id="ld-note-in" type="text" placeholder="Add a note, e.g. Asked for pricing" aria-label="Add a note"><button class="btn btn-s" type="submit">Add</button></form>
+    <ol class="timeline">${events.map(e=>`<li class="${e.kind}"><span class="t-when mono">${esc(e.when)}</span><span class="t-txt">${esc(e.txt)}</span></li>`).join('')||'<li class="sys"><span class="t-txt">No history yet.</span></li>'}</ol>
+    <div class="ld-foot"><button class="btn btn-s" onclick="editLead('${r.id}')">Edit details</button><button class="btn btn-s danger" onclick="deleteProspect('${r.id}')">Delete</button></div>`;
+}
+async function addLeadNote(id){
+  const inp=document.getElementById('ld-note-in'),txt=(inp.value||'').trim();if(!txt)return;
+  const r=S.pipeline.find(x=>x.id===id);if(!r)return;
+  const P=F.pipeline,stamp=TODAY.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const notes=(r.fields[P.notes]?r.fields[P.notes]+'\n':'')+`[${stamp}] ${txt.replace(/\n/g,' ')}`;
+  r.fields[P.notes]=notes;saveState();renderPipeline();inp.value='';
+  if(id.startsWith('l')){toast('Note added ✓');return;}
+  try{await atPatch(TBL.pipeline,id,{[P.notes]:notes});toast('Note added ✓');}catch(e){toast('Saved on this device, will sync next time');}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&_drawerId)closeLeadDrawer();});
+window.openLeadDrawer=openLeadDrawer;window.closeLeadDrawer=closeLeadDrawer;window.editLead=editLead;window.addLeadNote=addLeadNote;
 
 function setPipeSection(sec){
   S.pipeSection=sec;
@@ -1741,7 +1970,8 @@ window.setPipeSection=setPipeSection;
 
 function setPipeView(v){
   S.pipeView=v;
-  ['table','board'].forEach(k=>document.getElementById('pv-'+k).classList.toggle('active',k===v));
+  ['table','board','insights'].forEach(k=>document.getElementById('pv-'+k).classList.toggle('active',k===v));
+  document.getElementById('pipe-tools').hidden=v==='insights';
   renderPipeline();
 }
 window.setPipeView=setPipeView;
