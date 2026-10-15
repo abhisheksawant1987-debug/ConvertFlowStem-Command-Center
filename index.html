@@ -105,6 +105,34 @@ button,input,select,textarea{font-family:inherit}
 .td-item:first-child{border-top:none}
 .td-item .lead-main span{color:var(--text-tertiary);font-size:12px}
 .td-empty{font-size:13px;color:var(--text-tertiary);padding:8px 0}
+/* ── WEEKLY REVIEW ── */
+.wr-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.metric-sub.up{color:var(--green)}
+.metric-sub.down{color:var(--red-dark)}
+.wr-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start;margin-bottom:16px}
+.rules-list{list-style:none;display:flex;flex-direction:column}
+.rules-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border-subtle)}
+.rules-list li:first-child{border-top:none}
+.rule-mark{width:24px;height:24px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px}
+.rules-list .pass .rule-mark{background:var(--green-light);color:var(--green)}
+.rules-list .fail .rule-mark{background:var(--red-light);color:var(--red)}
+.rules-list .na .rule-mark{background:var(--surface-2);color:var(--text-tertiary)}
+.rules-list .na .rtxt{color:var(--text-tertiary)}
+.wr-label{display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin:4px 0 6px}
+#weeklylog textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text-primary);background:var(--bg);resize:vertical;outline:none;margin-bottom:10px}
+#weeklylog textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-light)}
+.trends{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.trend{min-width:0}
+.trend-top,.trend-foot{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+.trend-top span:first-child{color:var(--text-secondary);font-weight:500}
+.trend-foot{color:var(--text-tertiary);font-size:11px;margin-top:4px}
+.spark{display:block;width:100%;height:48px;margin-top:6px;overflow:visible}
+.spark-base{stroke:var(--border);stroke-width:1}
+.spark-area{fill:var(--green-light);stroke:none}
+.spark-line{fill:none;stroke:var(--green);stroke-width:2;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.spark-dot{fill:var(--green);stroke:var(--surface);stroke-width:2}
+@media (max-width:1180px){.wr-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.wr-grid{grid-template-columns:minmax(0,1fr)}.trends{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 /* ── CONTENT ── */
 :root{--pl-cs:#2563EB;--pl-cw:#16A34A;--pl-tt:#D97706;--pl-none:#7A8A80}
 html.dark{--pl-cs:#6AA8FF;--pl-cw:#3DDC84;--pl-tt:#F5B544;--pl-none:#869790}
@@ -483,7 +511,7 @@ td.late{color:var(--red-dark)}
     <button class="nav-item" data-tab="revenue" onclick="switchTab('revenue')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Revenue</button>
     <button class="nav-item" data-tab="tasks" onclick="switchTab('tasks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>Tasks</button>
     <button class="nav-item" data-tab="content" onclick="switchTab('content')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Content</button>
-    <button class="nav-item" data-tab="weeklylog" onclick="switchTab('weeklylog')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>Weekly log</button>
+    <button class="nav-item" data-tab="weeklylog" onclick="switchTab('weeklylog')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>Weekly review</button>
   </nav>
   <div class="side-foot">
     <div class="row"><span class="phase-badge" id="phase-badge"></span><span class="mono" id="side-days"></span></div>
@@ -749,15 +777,51 @@ td.late{color:var(--red-dark)}
 <!-- WEEKLY LOG -->
 <div id="weeklylog" class="page">
   <div class="pg-header">
-    <div class="pg-title">Weekly log</div>
-    <button class="btn btn-p" onclick="openModal('wl-modal')">+ Log this week</button>
+    <div><div class="pg-title">Weekly review</div><div class="pg-sub" id="wr-sub">Built from your data. Read it every Monday.</div></div>
+    <div class="cal-nav">
+      <button class="icon-btn" onclick="shiftReviewWeek(-1)" aria-label="Previous week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <button class="sub-tab" id="wr-week-label" onclick="shiftReviewWeek(0)">This week</button>
+      <button class="icon-btn" onclick="shiftReviewWeek(1)" aria-label="Next week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+    </div>
   </div>
-  <div class="card">
+
+  <div class="wr-metrics" id="wr-metrics"></div>
+
+  <div class="wr-grid">
+    <section class="card" aria-labelledby="wr-rules-title">
+      <div class="td-head"><h2 class="td-h" id="wr-rules-title">Your 6 rules</h2><span class="mono td-count" id="wr-rules-score"></span></div>
+      <ol class="rules-list" id="wr-rules"></ol>
+    </section>
+    <section class="card" aria-labelledby="wr-reflect-title">
+      <div class="td-head"><h2 class="td-h" id="wr-reflect-title">Reflection</h2><span class="td-count" id="wr-saved"></span></div>
+      <form onsubmit="event.preventDefault();saveWeeklyReview()">
+        <label class="wr-label" for="wr-blocker">What blocked you this week?</label>
+        <textarea id="wr-blocker" rows="3" placeholder="e.g. Client delivery ate my outreach time"></textarea>
+        <label class="wr-label" for="wr-win">Biggest win?</label>
+        <textarea id="wr-win" rows="3" placeholder="e.g. Jophiya paid the first half"></textarea>
+        <p class="td-hint" style="margin-top:8px">Saving also stores this week's numbers in your Weekly Log in Airtable.</p>
+        <button class="btn btn-p" type="submit" style="margin-top:6px">Save review</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="card" style="margin-bottom:16px" aria-labelledby="wr-trends-title">
+    <div class="td-head"><h2 class="td-h" id="wr-trends-title">Last 8 weeks</h2><span class="td-count">Ending with the selected week</span></div>
+    <div class="trends" id="wr-trends"></div>
+  </section>
+
+  <section class="card" style="margin-bottom:16px" aria-labelledby="wr-heat-title">
+    <div class="td-head"><h2 class="td-h" id="wr-heat-title">Outreach days · last 26 weeks</h2><span class="legend-inline">less <i style="background:var(--heat0)"></i><i style="background:var(--heat1)"></i><i style="background:var(--heat2)"></i><i style="background:var(--heat3)"></i> more</span></div>
+    <div class="heat-wrap"><div class="heat" id="wr-heat" role="img" aria-label="Calendar of days DMs were sent over the last 26 weeks"></div></div>
+  </section>
+
+  <section class="card" aria-labelledby="wr-past-title">
+    <div class="td-head"><h2 class="td-h" id="wr-past-title">Past reviews</h2></div>
     <table class="data-table">
-      <thead><tr><th>Week</th><th>Blocker</th><th>Calls booked</th><th>Clients closed</th><th>Content posted</th><th>DMs sent</th><th>Key win</th></tr></thead>
+      <thead><tr><th>Week</th><th>DMs</th><th>Calls</th><th>Closed</th><th>Posts</th><th>Blocker</th><th>Win</th></tr></thead>
       <tbody id="wl-body"></tbody>
     </table>
-  </div>
+  </section>
 </div>
 
 <!-- CONTENT PLANNER -->
@@ -2293,13 +2357,120 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 // Read a field by ID, falling back to the plain name used by records saved before the field existed.
 function fv(r,id,name){const v=sv(r.fields[id]);return v!==undefined&&v!==null&&v!==''?v:(name?sv(r.fields[name]):undefined);}
 
-function renderWeeklyLog(){
-  const b=document.getElementById('wl-body');
-  const rows=S.weeklylog.filter(r=>{const n=r.fields[F.weeklylog.name]||'';return n&&!n.startsWith(DM_PREFIX);});
-  if(rows.length===0){b.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No weeks logged yet. Click "+ Log this week" every Monday.</td></tr>';return;}
-  const W=F.weeklylog;
-  b.innerHTML=rows.map(r=>`<tr><td style="font-weight:500">${esc(r.fields[W.name])}</td><td style="color:var(--text-secondary)">${esc(r.fields[W.challenges]||'—')}</td><td>${fv(r,W.calls,'Calls booked')||0}</td><td>${fv(r,W.closed,'Clients closed')||0}</td><td>${fv(r,W.contentPosted,'Content posted')||0}</td><td>${fv(r,W.dmsSent,'DMs sent')||0}</td><td style="color:var(--text-secondary)">${esc(r.fields[W.accomplishments]||'—')}</td></tr>`).join('');
+// ── WEEKLY REVIEW: numbers, rules, trends, heatmap, reflection ──────────────
+const WR_START='fldtLGWJyxRPG6PaX',WR_END='fldIveCXbgEgoRWvn';// Weekly Log week start / end dates
+S.reviewWeek=S.reviewWeek||'';
+// Logged lines in lead notes look like "[Oct 15] Moved to Call Booked". Dates carry no year:
+// use this year, or last year if that would be in the future.
+function noteEvents(r){
+  const out=[],y=TODAY.getFullYear();
+  (r.fields[F.pipeline.notes]||'').split('\n').forEach(line=>{
+    const m=line.trim().match(/^\[([A-Za-z]{3}) (\d{1,2})\]\s*(.*)$/);if(!m)return;
+    const mi=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(m[1]);if(mi<0)return;
+    let d=new Date(y,mi,Number(m[2]));if(d>TODAY)d=new Date(y-1,mi,Number(m[2]));
+    out.push({date:localKey(d),txt:m[3]});
+  });
+  return out;
 }
+function weekMetrics(ws){
+  const we=addDaysKey(ws,6),inW=d=>d&&d>=ws&&d<=we;
+  const counts=dmCountsByDay();let dms=0;for(let i=0;i<7;i++)dms+=counts[addDaysKey(ws,i)]||0;
+  const ev={replied:0,call:0,proposal:0,won:0},wonNames=[];
+  S.pipeline.forEach(r=>noteEvents(r).forEach(e=>{if(!inW(e.date))return;
+    if(/^(Replied|Moved to Replied)/.test(e.txt))ev.replied++;
+    if(/Moved to Call Booked/.test(e.txt))ev.call++;
+    if(/Moved to Proposal Sent/.test(e.txt))ev.proposal++;
+    if(/Moved to Closed - Won/.test(e.txt)){ev.won++;wonNames.push(r);}
+  }));
+  const revenue=payments().filter(p=>inW(revDate(p))).reduce((s,p)=>s+revAmt(p),0);
+  const posts=S.content.filter(r=>contentStatus(r)==='Published'&&inW(contentDate(r))).length;
+  const tasks=S.tasks.filter(r=>inW((r.fields[F.tasks.completedAt]||'').slice(0,10))).length;
+  return {ws,we,dms,replied:ev.replied,call:ev.call,proposal:ev.proposal,won:ev.won,wonLeads:wonNames,revenue,posts,tasks,counts};
+}
+function weekLabel(ws){const a=parseDay(ws),b=parseDay(addDaysKey(ws,6));const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});return `${f(a)} to ${f(b)}`;}
+
+// Pass / fail for the six rules on the overview, for one week
+function weekRules(m){
+  const today=getTodayKey(),until=m.we<today?m.we:today,R=[];
+  // 1. Never more than 3 days without outreach (counts the run-in from the previous week)
+  let gap=0,maxGap=0;for(let k=addDaysKey(m.ws,-3);k<=until;k=addDaysKey(k,1)){if(m.counts[k])gap=0;else{gap++;if(k>=m.ws)maxGap=Math.max(maxGap,gap);}}
+  R.push({txt:'Never go more than 3 days without outreach',ok:maxGap<=3,note:maxGap>3?`${maxGap} days in a row with no DMs`:'Outreach every few days'});
+  R.push({txt:'Minimum 5 DMs, even on the worst week',ok:m.dms>=5,note:`${m.dms} DMs sent`});
+  const titles=S.content.map(r=>((r.fields[F.content.name]||'')+' '+(r.fields[F.content.notes]||'')).toLowerCase());
+  const unposted=m.wonLeads.filter(r=>{const n=(r.fields[F.pipeline.name]||'').toLowerCase();return n&&!titles.some(t=>t.includes(n));});
+  R.push({txt:'Every finished funnel gets a LinkedIn post',ok:m.wonLeads.length?unposted.length===0:null,note:m.wonLeads.length?(unposted.length?`No post yet for ${unposted.map(r=>r.fields[F.pipeline.name]).join(', ')}`:'Posted'):'No funnels finished this week'});
+  const cheap=m.wonLeads.filter(r=>{const v=Number(r.fields[F.pipeline.dealValue]);return v&&v<350;});
+  R.push({txt:'Never discount below $350',ok:m.wonLeads.length?cheap.length===0:null,note:m.wonLeads.length?(cheap.length?`${cheap.length} deal under $350`:'All deals at $350+'):'No deals closed this week'});
+  const delivery=m.revenue>0||m.won>0;
+  R.push({txt:'Keep doing outreach during delivery weeks',ok:delivery?m.dms>0:null,note:delivery?`${m.dms} DMs during a delivery week`:'Not a delivery week'});
+  const lateProps=S.pipeline.filter(r=>{if(getPipeStatus(r)!=='Proposal Sent')return false;const d=followupDue(r);return d&&d<=m.we&&daysBetween(d,until)>0;});
+  const hasProps=S.pipeline.some(r=>getPipeStatus(r)==='Proposal Sent');
+  R.push({txt:'Follow up every open proposal within 48 hours',ok:hasProps?lateProps.length===0:null,note:lateProps.length?`${lateProps.length} proposal follow-up${lateProps.length===1?' was':'s were'} late`:hasProps?'Proposals followed up on time':'No open proposals'});
+  return R;
+}
+
+function sparkline(vals,fmt){
+  const w=180,h=44,max=Math.max(1,...vals),step=w/(vals.length-1);
+  const pts=vals.map((v,i)=>[i*step,h-4-(v/max)*(h-10)]);
+  const line=pts.map(p=>p.map(n=>n.toFixed(1)).join(',')).join(' ');
+  const last=pts[pts.length-1];
+  return `<svg viewBox="0 0 ${w} ${h}" class="spark" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="${h-4}" x2="${w}" y2="${h-4}" class="spark-base"></line><polygon points="0,${h-4} ${line} ${w},${h-4}" class="spark-area"></polygon><polyline points="${line}" class="spark-line"></polyline><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="3.5" class="spark-dot"></circle></svg>`;
+}
+
+function renderWeeklyLog(){
+  if(!document.getElementById('wr-metrics'))return;
+  const thisWeek=weekStartKey(getTodayKey());
+  if(!S.reviewWeek)S.reviewWeek=thisWeek;
+  const ws=S.reviewWeek,m=weekMetrics(ws),prev=weekMetrics(addDaysKey(ws,-7));
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('wr-week-label',ws===thisWeek?'This week':ws===addDaysKey(thisWeek,-7)?'Last week':weekLabel(ws));
+  set('wr-sub',weekLabel(ws)+(ws===thisWeek?' · in progress':''));
+
+  const tiles=[['DMs sent','dms',v=>v],['Replies','replied',v=>v],['Calls booked','call',v=>v],['Proposals','proposal',v=>v],['Clients won','won',v=>v],['Revenue','revenue',v=>money(Math.round(v))],['Posts','posts',v=>v],['Tasks done','tasks',v=>v]];
+  document.getElementById('wr-metrics').innerHTML=tiles.map(([l,k,f])=>{const d=m[k]-prev[k];
+    return `<div class="metric"><div class="metric-label">${l}</div><div class="metric-value">${f(m[k])}</div><div class="metric-sub ${d>0?'up':d<0?'down':''}">${d>0?'▲ ':d<0?'▼ ':''}${d===0?'Same as week before':(k==='revenue'?money(Math.abs(Math.round(d))):Math.abs(d))+' vs week before'}</div></div>`;}).join('');
+
+  const rules=weekRules(m),scored=rules.filter(r=>r.ok!==null),passed=scored.filter(r=>r.ok).length;
+  set('wr-rules-score',scored.length?`${passed} / ${scored.length} passed`:'');
+  document.getElementById('wr-rules').innerHTML=rules.map(r=>`<li class="${r.ok===null?'na':r.ok?'pass':'fail'}"><span class="rule-mark" aria-label="${r.ok===null?'Not applicable':r.ok?'Passed':'Failed'}">${r.ok===null?'–':r.ok?'✓':'✕'}</span><div><div class="rtxt">${esc(r.txt)}</div><div class="lead-meta">${esc(r.note)}</div></div></li>`).join('');
+
+  // 8-week trends ending at the selected week
+  const weeks=[];for(let i=7;i>=0;i--)weeks.push(weekMetrics(addDaysKey(ws,-7*i)));
+  const tr=[['DMs sent','dms',v=>v],['Replies','replied',v=>v],['Revenue','revenue',v=>money(Math.round(v))],['Posts','posts',v=>v],['Tasks done','tasks',v=>v]];
+  document.getElementById('wr-trends').innerHTML=tr.map(([l,k,f])=>{const vals=weeks.map(w=>w[k]),total=vals.reduce((a,b)=>a+b,0);
+    return `<div class="trend"><div class="trend-top"><span>${l}</span><span class="mono">${f(total)} total</span></div>${sparkline(vals)}<div class="trend-foot mono"><span>${parseDay(weeks[0].ws).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span><span>${f(vals[vals.length-1])} this week</span></div></div>`;}).join('');
+
+  // 26-week heatmap ending with the selected week
+  const end=addDaysKey(ws,6),start=addDaysKey(ws,-25*7),today=getTodayKey();let cells='';
+  for(let k=start;k<=end;k=addDaysKey(k,1)){const n=m.counts[k]||0;cells+=`<b class="${n>=6?'l3':n>=2?'l2':n>=1?'l1':''}${k===today?' today':''}" title="${k}: ${n} DM${n===1?'':'s'}"></b>`;}
+  document.getElementById('wr-heat').innerHTML=cells;
+
+  // Reflection for the selected week, if saved
+  const rec=S.weeklylog.find(r=>(r.fields[F.weeklylog.name]||'')==='Week of '+ws);
+  document.getElementById('wr-blocker').value=rec?(rec.fields[F.weeklylog.challenges]||''):'';
+  document.getElementById('wr-win').value=rec?(rec.fields[F.weeklylog.accomplishments]||''):'';
+  set('wr-saved',rec?'Saved':'Not saved yet');
+
+  // Past reviews
+  const W=F.weeklylog,rows=S.weeklylog.filter(r=>{const n=r.fields[W.name]||'';return n&&!n.startsWith(DM_PREFIX);}).sort((a,b)=>(a.fields[W.name]<b.fields[W.name]?1:-1));
+  document.getElementById('wl-body').innerHTML=rows.length?rows.map(r=>`<tr><td style="font-weight:500;white-space:nowrap">${esc(r.fields[W.name])}</td><td class="mono">${fv(r,W.dmsSent,'DMs sent')||0}</td><td class="mono">${fv(r,W.calls,'Calls booked')||0}</td><td class="mono">${fv(r,W.closed,'Clients closed')||0}</td><td class="mono">${fv(r,W.contentPosted,'Content posted')||0}</td><td class="note-cell">${esc(r.fields[W.challenges]||'—')}</td><td class="note-cell">${esc(r.fields[W.accomplishments]||'—')}</td></tr>`).join(''):'<tr><td colspan="7" class="td-empty" style="text-align:center;padding:2rem">No reviews saved yet. Save this week\'s above.</td></tr>';
+}
+function shiftReviewWeek(n){const t=weekStartKey(getTodayKey());S.reviewWeek=n===0?t:addDaysKey(S.reviewWeek||t,7*n);if(S.reviewWeek>t)S.reviewWeek=t;renderWeeklyLog();}
+
+// Save: one Weekly Log record per week, named "Week of YYYY-MM-DD"
+async function saveWeeklyReview(){
+  const W=F.weeklylog,ws=S.reviewWeek||weekStartKey(getTodayKey()),m=weekMetrics(ws),name='Week of '+ws;
+  const fields={[W.name]:name,[WR_START]:ws,[WR_END]:m.we,[W.dmsSent]:m.dms,[W.calls]:m.call,[W.closed]:m.won,[W.contentPosted]:m.posts,[W.challenges]:document.getElementById('wr-blocker').value.trim(),[W.accomplishments]:document.getElementById('wr-win').value.trim()};
+  let rec=S.weeklylog.find(r=>(r.fields[W.name]||'')===name);
+  if(rec){Object.assign(rec.fields,fields);}else{rec={id:'l'+Date.now(),fields:{...fields}};S.weeklylog.push(rec);}
+  saveState();renderWeeklyLog();
+  try{
+    if(rec.id.startsWith('l')){const res=await atCreate(TBL.weeklylog,fields);const i=S.weeklylog.findIndex(x=>x.id===rec.id);if(i>-1&&res.records&&res.records[0])S.weeklylog[i]=res.records[0];saveState();}
+    else await atPatch(TBL.weeklylog,rec.id,fields);
+    renderWeeklyLog();toast('Weekly review saved ✓');
+  }catch(e){toast('Saved on this device, will sync next time');}
+}
+window.shiftReviewWeek=shiftReviewWeek;window.saveWeeklyReview=saveWeeklyReview;
 
 // ── CONTENT ENGINE: calendar, idea bank, streak, pillar mix, Rule 3 prompts ──
 const CONTENT_FLOW=['Idea','Draft','Ready','Published'];
