@@ -105,6 +105,47 @@ button,input,select,textarea{font-family:inherit}
 .td-item:first-child{border-top:none}
 .td-item .lead-main span{color:var(--text-tertiary);font-size:12px}
 .td-empty{font-size:13px;color:var(--text-tertiary);padding:8px 0}
+/* ── CONTENT ── */
+:root{--pl-cs:#2563EB;--pl-cw:#16A34A;--pl-tt:#D97706;--pl-none:#7A8A80}
+html.dark{--pl-cs:#6AA8FF;--pl-cw:#3DDC84;--pl-tt:#F5B544;--pl-none:#869790}
+.ct-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.3fr);gap:12px;margin-bottom:16px}
+.mix-row{display:grid;grid-template-columns:80px minmax(0,1fr) 22px;gap:8px;align-items:center;font-size:12px;margin-top:5px}
+.mix-row span:first-child{color:var(--text-secondary)}
+.mix-row .f-bar{height:10px}
+.ct-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+.cal-head{align-items:center}
+.cal-nav{display:flex;align-items:center;gap:4px}
+.cal-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--text-secondary);margin-bottom:10px}
+.cal-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
+i.pl-cs,.pl-cs>i{background:var(--pl-cs)}i.pl-cw,.pl-cw>i{background:var(--pl-cw)}i.pl-tt,.pl-tt>i{background:var(--pl-tt)}.pl-none>i{background:var(--pl-none)}
+.mix-row .f-bar i{display:block;height:100%;border-radius:3px}
+.mix-row .f-bar i.pl-cs{background:var(--pl-cs)}.mix-row .f-bar i.pl-cw{background:var(--pl-cw)}.mix-row .f-bar i.pl-tt{background:var(--pl-tt)}
+.cal-wrap{overflow-x:auto}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(96px,1fr));gap:4px;min-width:700px}
+.cal-dow{font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.08em;padding:0 6px 4px}
+.cal-day{min-height:96px;background:var(--side-bg);border:1px solid var(--border-subtle);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;transition:border-color .15s,background .15s}
+.cal-day.out{opacity:.45}
+.cal-day.today{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.cal-day.drop,.bank.drop{border-color:var(--green);background:var(--green-light)}
+.cal-top{display:flex;justify-content:space-between;align-items:center}
+.cal-num{font-size:12px;color:var(--text-tertiary)}
+.cal-day.today .cal-num{color:var(--green);font-weight:600}
+.cal-add{width:22px;height:22px;border-radius:5px;border:none;background:none;color:var(--text-tertiary);cursor:pointer;font-size:15px;line-height:1;opacity:0;transition:opacity .15s}
+.cal-day:hover .cal-add,.cal-add:focus-visible{opacity:1}
+.cal-add:hover{background:var(--surface-2);color:var(--text-primary)}
+.post-chip{display:flex;align-items:center;gap:6px;width:100%;padding:4px 7px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:11.5px;font-weight:500;text-align:left;cursor:grab;min-width:0}
+.post-chip i{width:7px;height:7px;border-radius:50%;flex:none}
+.post-chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.post-chip:hover{border-color:var(--text-tertiary)}
+.post-chip.st-idea{border-style:dashed;color:var(--text-secondary)}
+.post-chip.st-published{background:var(--surface-2);color:var(--text-tertiary);text-decoration:line-through}
+.post-chip.st-ready{border-color:var(--green)}
+.bank{position:sticky;top:16px;transition:border-color .15s,background .15s}
+.bank-item{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bank-item .post-chip{flex:1;font-size:12.5px;padding:7px 9px}
+#ct-suggest .alert .act{margin-left:auto}
+@media (max-width:1180px){.ct-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ct-grid{grid-template-columns:minmax(0,1fr)}.bank{position:static}}
+
 /* ── REVENUE ── */
 .rev-stats{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
 .rev-goal{padding:14px 18px;gap:18px}
@@ -722,14 +763,38 @@ td.late{color:var(--red-dark)}
 <!-- CONTENT PLANNER -->
 <div id="content" class="page">
   <div class="pg-header">
-    <div class="pg-title">Content planner</div>
-    <button class="btn btn-p" onclick="openModal('content-modal')">+ Add content</button>
+    <div><div class="pg-title">Content</div><div class="pg-sub">Plan it, post it, keep the rhythm</div></div>
+    <button class="btn btn-p" onclick="openAddContent()">+ New post</button>
   </div>
-  <div class="card">
-    <table class="data-table">
-      <thead><tr><th>Title</th><th>Format</th><th>Platform</th><th>Status</th><th>Scheduled date</th><th>Notes</th></tr></thead>
-      <tbody id="ct-body"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No content planned yet. Add your first idea.</td></tr></tbody>
-    </table>
+
+  <div class="ct-stats">
+    <div class="metric"><div class="metric-label">Posted this week</div><div class="metric-value" id="ct-week">0</div><div class="metric-sub" id="ct-week-sub"></div></div>
+    <div class="metric"><div class="metric-label">Posting streak</div><div class="metric-value" id="ct-streak">0</div><div class="metric-sub" id="ct-streak-sub"></div></div>
+    <div class="metric"><div class="metric-label">Next 7 days</div><div class="metric-value" id="ct-next">0</div><div class="metric-sub" id="ct-next-sub"></div></div>
+    <div class="metric ct-mix"><div class="metric-label">Pillar mix this month</div><div id="ct-mix"></div></div>
+  </div>
+
+  <div class="alerts" id="ct-suggest"></div>
+
+  <div class="ct-grid">
+    <section class="card" aria-labelledby="ct-cal-title">
+      <div class="td-head cal-head">
+        <h2 class="td-h" id="ct-cal-title">October 2026</h2>
+        <div class="cal-nav">
+          <button class="icon-btn" onclick="shiftCalMonth(-1)" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+          <button class="sub-tab" onclick="shiftCalMonth(0)">Today</button>
+          <button class="icon-btn" onclick="shiftCalMonth(1)" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+        </div>
+      </div>
+      <div class="cal-legend"><span><i class="pl-cs"></i>Contrarian Simplicity</span><span><i class="pl-cw"></i>Client Wins</span><span><i class="pl-tt"></i>Tactical Funnel Teaching</span><span class="muted">Drag posts between days</span></div>
+      <div class="cal-wrap"><div class="cal" id="ct-cal"></div></div>
+    </section>
+    <section class="card bank" id="ct-bank-card" aria-labelledby="ct-bank-title" ondragover="contentDragOver(event)" ondragleave="this.classList.remove('drop')" ondrop="contentDrop(event,'')">
+      <div class="td-head"><h2 class="td-h" id="ct-bank-title">Idea bank</h2><span class="mono td-count" id="ct-bank-count"></span></div>
+      <p class="td-hint">Unscheduled ideas. Drag one onto a day to schedule it, or drop a post here to unschedule it.</p>
+      <div id="ct-bank"></div>
+      <button class="btn btn-s td-more" onclick="openAddContent()">+ Add idea</button>
+    </section>
   </div>
 </div>
 
@@ -872,20 +937,25 @@ td.late{color:var(--red-dark)}
 
 <div class="modal-ov" id="content-modal">
   <div class="modal">
-    <div class="modal-title">Add content idea</div>
-    <label>Title *</label><input id="cm-title" type="text" placeholder="e.g. 5 funnel mistakes coaches make">
+    <input type="hidden" id="cm-id" value="">
+    <div class="modal-title" id="cm-heading">New post</div>
+    <label for="cm-title">Title or hook *</label><input id="cm-title" type="text" placeholder="e.g. I built 5 funnels for one client. 4 were a waste.">
     <div class="form-row">
-      <div><label>Format</label><select id="cm-format"><option>Reel</option><option>Carousel</option><option>Text post</option><option>Educational video</option><option>Funnel breakdown</option><option>Behind the scenes</option><option>AI clone video</option></select></div>
-      <div><label>Platform</label><select id="cm-platform"><option>LinkedIn</option><option>Instagram</option><option>Facebook</option><option>YouTube</option><option>Twitter</option></select></div>
+      <div><label for="cm-pillar">Pillar</label><select id="cm-pillar"><option value="">No pillar</option><option>Contrarian Simplicity</option><option>Client Wins</option><option>Tactical Funnel Teaching</option></select></div>
+      <div><label for="cm-status">Stage</label><select id="cm-status"><option>Idea</option><option>Draft</option><option>Ready</option><option>Published</option></select></div>
     </div>
     <div class="form-row">
-      <div><label>Status</label><select id="cm-status"><option>Idea</option><option>In progress</option><option>Ready</option><option>Published</option></select></div>
-      <div><label>Scheduled date</label><input id="cm-date" type="date"></div>
+      <div><label for="cm-format">Format</label><select id="cm-format"><option>Text post</option><option>Carousel</option><option>Reel</option><option>Funnel breakdown</option><option>Educational video</option><option>Behind the scenes</option></select></div>
+      <div><label for="cm-platform">Platform</label><select id="cm-platform"><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Twitter</option></select></div>
     </div>
-    <label>Notes / hook</label><textarea id="cm-notes" placeholder="Hook, key points, CTA..."></textarea>
-    <div class="modal-footer">
-      <button class="btn btn-s" onclick="closeModal('content-modal')">Cancel</button>
-      <button class="btn btn-p" onclick="saveContent()">Save idea</button>
+    <label for="cm-date">Scheduled date</label><input id="cm-date" type="date">
+    <label for="cm-notes">Notes, outline, CTA</label><textarea id="cm-notes" placeholder="Story, lesson, CTA..."></textarea>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-s danger" id="cm-delete" onclick="deleteContent()" hidden>Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn btn-s" onclick="closeModal('content-modal')">Cancel</button>
+        <button class="btn btn-p" id="cm-save" onclick="saveContent()">Save post</button>
+      </div>
     </div>
   </div>
 </div>
@@ -960,6 +1030,10 @@ td.late{color:var(--red-dark)}
       <div><input id="gs-dm-week" type="number" min="0" aria-label="DMs per week"><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px">per week</div></div>
       <div><input id="gs-dm-month" type="number" min="0" aria-label="DMs per month"><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px">per month</div></div>
     </div>
+    <div class="form-row">
+      <div><label for="gs-content">Posts per week</label><input id="gs-content" type="number" min="0"></div>
+      <div></div>
+    </div>
     <label>Phases</label>
     <div id="gs-phases" style="display:flex;flex-direction:column;gap:8px"></div>
     <button class="btn btn-s" style="margin-top:8px;font-size:12px;padding:6px 12px" onclick="addGoalPhase()">+ Add phase</button>
@@ -1003,7 +1077,7 @@ const F={
   pipeline:{name:'fldD1YbaqSCHcNflA',company:'fldP1xy5e2EXpIjyW',email:'fldGPyY0wMIuHByz0',status:'fldD72PJVy3vFU4cw',nextAction:'fldVts8jV7yrGBRsP',notes:'fldw8efQiuAnoJqF3',platform:'fld9QMK5M2cy4ue84',niche:'fldcuWl3YXgWXQSU0',location:'fldUx10mSXbFrPoRW',dealValue:'fldosRkhRxznrtYKP',dmDate:'fldX1JdLbE3pxlDch',leadType:'fldliJPlCpCPbn6K5',leadSource:'fldj7PFQTddIKquOY'},
   revenue:{client:'fldLs7MuBKHERBv9X',notes:'fldvz0aqHbGYtQZf0',phase:'fldGfDeUAsV0H3oyD',amount:'fldu7Q6IjNYUzBYYH',service:'fld2Cxmig0V1OfbAV',date:'fld9sJm4nE9dtKkOL',location:'fld3ZAil2DoV5vPB4',invoiceSent:'fldr0EpLnyzfkH3j8'},
   weeklylog:{name:'fldW5FiQ0DlMD2Jox',challenges:'fldgnFS0zJSaFFcqk',accomplishments:'fldBJDpG2eYXHXYhA',dmsSent:'fldKqPlG1bsaQng65',calls:'fldibhFm3qNkauw1l',closed:'fldGFTglU2YgIUu6o',contentPosted:'fldCqyzTOb9S3SKWB'},
-  content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i',format:'fldW7hF0VMQi4BKD9',platform:'fldtQ14n8nE8x2uVD',scheduled:'fldafnntbJtXcelTO'}
+  content:{name:'fldg6HEH5ivyNRygN',notes:'fldef6ZQPAhG3Nwe0',status:'fldR6mizXg7tcrA5i',format:'fldW7hF0VMQi4BKD9',platform:'fldtQ14n8nE8x2uVD',scheduled:'fldafnntbJtXcelTO',pillar:'fldX0nsuPxuUTf2Tm'}
 };
 // Airtable returns single-select values as {id,name,color}; local records hold plain strings.
 function sv(v){return v&&typeof v==='object'&&!Array.isArray(v)&&'name' in v?v.name:v;}
@@ -1013,7 +1087,7 @@ const TODAY=new Date();TODAY.setHours(0,0,0,0);
 // Stored in the "Dashboard Settings" Airtable table so every device shares them.
 const DEFAULT_SETTINGS={
   goal:10000,start:'2026-06-15',deadline:'2026-12-31',clientTarget:'5-7',
-  dmTargets:{day:5,week:30,month:130},
+  dmTargets:{day:5,week:30,month:130},contentPerWeek:3,
   phases:[
     {name:'Phase 1 · Foundation',from:'2026-06',to:'2026-07'},
     {name:'Phase 2',from:'2026-08',to:'2026-09'},
@@ -2227,14 +2301,90 @@ function renderWeeklyLog(){
   b.innerHTML=rows.map(r=>`<tr><td style="font-weight:500">${esc(r.fields[W.name])}</td><td style="color:var(--text-secondary)">${esc(r.fields[W.challenges]||'—')}</td><td>${fv(r,W.calls,'Calls booked')||0}</td><td>${fv(r,W.closed,'Clients closed')||0}</td><td>${fv(r,W.contentPosted,'Content posted')||0}</td><td>${fv(r,W.dmsSent,'DMs sent')||0}</td><td style="color:var(--text-secondary)">${esc(r.fields[W.accomplishments]||'—')}</td></tr>`).join('');
 }
 
+// ── CONTENT ENGINE: calendar, idea bank, streak, pillar mix, Rule 3 prompts ──
+const CONTENT_FLOW=['Idea','Draft','Ready','Published'];
+const PILLARS={'Contrarian Simplicity':'cs','Client Wins':'cw','Tactical Funnel Teaching':'tt'};
+S.calMonth=S.calMonth||'';
+let _ctDragId='';
+// Older records used Todo / In progress / Done
+function contentStatus(r){const s=sv(r.fields[F.content.status])||'Idea';return {'Todo':'Idea','In progress':'Draft','Done':'Published'}[s]||s;}
+function contentDate(r){return (sv(r.fields[F.content.scheduled])||r.fields['Scheduled date']||'').slice(0,10);}
+function contentPillar(r){return sv(r.fields[F.content.pillar])||'';}
+function weekStartKey(key){const d=parseDay(key);d.setDate(d.getDate()-((d.getDay()+6)%7));return localKey(d);}
+
 function renderContent(){
-  const b=document.getElementById('ct-body');
-  const C=F.content;
-  const rows=S.content.filter(r=>r.fields[C.name]);
-  if(rows.length===0){b.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-tertiary)">No content planned yet. Add your first idea.</td></tr>';return;}
-  const sc=s=>s==='Published'?'bdone':s==='Ready'?'binp':s==='In progress'?'binp':'bnot';
-  b.innerHTML=rows.map(r=>{const st=fv(r,C.status)||'Idea';return `<tr><td style="font-weight:500">${esc(r.fields[C.name])}</td><td>${esc(fv(r,C.format,'Format')||'—')}</td><td>${esc(fv(r,C.platform,'Platform')||'—')}</td><td><span class="badge ${sc(st)}">${esc(st)}</span></td><td style="color:var(--text-secondary)">${esc(fv(r,C.scheduled,'Scheduled date')||'—')}</td><td style="color:var(--text-secondary)">${esc(r.fields[C.notes]||'—')}</td></tr>`;}).join('');
+  if(!document.getElementById('ct-cal'))return;
+  const C=F.content,today=getTodayKey(),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  const posts=S.content.filter(r=>r.fields[C.name]);
+  const target=Number(SETTINGS.contentPerWeek)||3;
+
+  // This week, streak (consecutive weeks with a published post), next 7 days
+  const wk=weekStartKey(today),wkEnd=addDaysKey(wk,6);
+  const published=posts.filter(r=>contentStatus(r)==='Published'&&contentDate(r));
+  const thisWeek=published.filter(r=>{const d=contentDate(r);return d>=wk&&d<=wkEnd;}).length;
+  set('ct-week',thisWeek+' / '+target);
+  set('ct-week-sub',thisWeek>=target?'Weekly target hit':`${target-thisWeek} more to hit ${target} this week`);
+  document.getElementById('ct-week').classList.toggle('green',thisWeek>=target);
+  const weeks=new Set(published.map(r=>weekStartKey(contentDate(r))));
+  let streak=0,w=weeks.has(wk)?wk:addDaysKey(wk,-7);while(weeks.has(w)){streak++;w=addDaysKey(w,-7);}
+  set('ct-streak',streak+(streak===1?' week':' weeks'));
+  const lastPub=published.map(contentDate).filter(d=>d<=today).sort().pop();
+  const ago=lastPub?daysBetween(lastPub,today):null;
+  set('ct-streak-sub',ago===null?'Nothing published yet':`Last post ${ago===0?'today':ago===1?'yesterday':ago+' days ago'}`);
+  const next7=posts.filter(r=>{const d=contentDate(r);return d&&d>=today&&d<=addDaysKey(today,6)&&contentStatus(r)!=='Published';});
+  set('ct-next',next7.length);
+  set('ct-next-sub',next7.length?`${next7.filter(r=>contentStatus(r)==='Ready').length} ready to go`:'Nothing scheduled');
+
+  // Pillar mix: posts dated in the current month
+  const mk=monthKey(TODAY),month=posts.filter(r=>contentDate(r).startsWith(mk));
+  const mix=Object.keys(PILLARS).map(p=>[p,month.filter(r=>contentPillar(r)===p).length]);
+  const mixMax=Math.max(1,...mix.map(x=>x[1]));
+  document.getElementById('ct-mix').innerHTML=mix.map(([p,n])=>`<div class="mix-row"><span>${{'Contrarian Simplicity':'Contrarian','Client Wins':'Client wins','Tactical Funnel Teaching':'Tactical'}[p]}</span><div class="f-bar"><i class="pl-${PILLARS[p]}" style="width:${n?n/mixMax*100:0}%"></i></div><span class="mono">${n}</span></div>`).join('');
+
+  // Rule 3: every finished funnel becomes a post. Won clients with no post mentioning them.
+  const titles=posts.map(r=>(r.fields[C.name]||'').toLowerCase()+' '+(r.fields[C.notes]||'').toLowerCase());
+  const wins=S.pipeline.filter(r=>getPipeStatus(r)==='Closed - Won').filter(r=>{const n=(r.fields[F.pipeline.name]||'').trim().toLowerCase();return n&&!titles.some(t=>t.includes(n));});
+  document.getElementById('ct-suggest').innerHTML=wins.slice(0,3).map(r=>{const n=r.fields[F.pipeline.name];
+    return `<div class="alert ok"><b>R3</b><span>You finished ${esc(n)}'s funnel. Rule 3: post a screenshot of it on LinkedIn.</span><button class="act go" onclick="addWinPost('${r.id}')">Add to today</button></div>`;}).join('');
+
+  // Calendar month grid, Monday first
+  if(!S.calMonth)S.calMonth=mk;
+  const [y,m]=S.calMonth.split('-').map(Number),first=new Date(y,m-1,1);
+  set('ct-cal-title',first.toLocaleDateString('en-US',{month:'long',year:'numeric'}));
+  const start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
+  const last=new Date(y,m,0),cells=[];
+  for(const d=new Date(start);d<=last||((d.getDay()+6)%7)!==0;d.setDate(d.getDate()+1))cells.push(localKey(d));
+  const byDay={};posts.forEach(r=>{const d=contentDate(r);if(d)(byDay[d]=byDay[d]||[]).push(r);});
+  const chip=r=>{const st=contentStatus(r),pl=PILLARS[contentPillar(r)]||'none';
+    return `<div class="post-chip pl-${pl} st-${st.toLowerCase()}" role="button" tabindex="0" draggable="true" ondragstart="contentDragStart(event,'${r.id}')" onclick="openEditContent('${r.id}')" onkeydown="if(event.key==='Enter')openEditContent('${r.id}')" title="${esc(st)} · ${esc(r.fields[C.name])}"><i aria-hidden="true"></i><span>${esc(r.fields[C.name])}</span></div>`;};
+  document.getElementById('ct-cal').innerHTML=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="cal-dow">${d}</div>`).join('')+cells.map(k=>{
+    const inMonth=k.slice(0,7)===S.calMonth,day=Number(k.slice(8));
+    return `<div class="cal-day${inMonth?'':' out'}${k===today?' today':''}${k<today?' past':''}" ondragover="contentDragOver(event)" ondragleave="this.classList.remove('drop')" ondrop="contentDrop(event,'${k}')">
+      <div class="cal-top"><span class="cal-num mono">${day}</span><button class="cal-add" onclick="openAddContent('${k}')" aria-label="Add a post on ${k}">+</button></div>
+      ${(byDay[k]||[]).map(chip).join('')}</div>`;}).join('');
+
+  // Idea bank: undated, not yet published
+  const bank=posts.filter(r=>!contentDate(r)&&contentStatus(r)!=='Published').sort((a,b)=>CONTENT_FLOW.indexOf(contentStatus(b))-CONTENT_FLOW.indexOf(contentStatus(a)));
+  set('ct-bank-count',bank.length?bank.length+' ideas':'');
+  document.getElementById('ct-bank').innerHTML=bank.length?bank.map(r=>`<div class="bank-item">${chip(r)}<span class="badge ${contentStatus(r)==='Ready'?'bdone':contentStatus(r)==='Draft'?'binp':'bnot'}">${contentStatus(r)}</span></div>`).join(''):'<div class="td-empty">No ideas waiting. Capture hooks here as they come to you.</div>';
 }
+function shiftCalMonth(n){
+  if(n===0){S.calMonth=monthKey(TODAY);}else{const [y,m]=(S.calMonth||monthKey(TODAY)).split('-').map(Number);S.calMonth=monthKey(new Date(y,m-1+n,1));}
+  renderContent();
+}
+function contentDragStart(e,id){_ctDragId=id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);e.stopPropagation();}
+function contentDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drop');}
+function contentDrop(e,date){e.preventDefault();e.stopPropagation();e.currentTarget.classList.remove('drop');const id=e.dataTransfer.getData('text/plain')||_ctDragId;_ctDragId='';if(id)moveContent(id,date);}
+async function moveContent(id,date){
+  const r=S.content.find(x=>x.id===id);if(!r||contentDate(r)===date)return;
+  r.fields[F.content.scheduled]=date||null;
+  if(date&&contentStatus(r)==='Idea')r.fields[F.content.status]='Draft';// scheduling an idea commits to writing it
+  saveState();renderContent();renderOverview();
+  const patch={[F.content.scheduled]:date||null,[F.content.status]:sv(r.fields[F.content.status])};
+  if(id.startsWith('l'))return;
+  try{await atPatch(TBL.content,id,patch);toast(date?`Scheduled for ${date} ✓`:'Moved back to the idea bank');}catch(e){toast('Saved on this device, will sync next time');}
+}
+window.shiftCalMonth=shiftCalMonth;window.contentDragStart=contentDragStart;window.contentDragOver=contentDragOver;window.contentDrop=contentDrop;
 
 function switchTab(n){
   document.querySelectorAll('.nav-item').forEach(t=>{const on=t.dataset.tab===n;t.classList.toggle('active',on);if(on)t.setAttribute('aria-current','page');else t.removeAttribute('aria-current');});
@@ -2457,25 +2607,81 @@ async function saveWeeklyLog(){
 }
 window.saveWeeklyLog=saveWeeklyLog;
 
+function openAddContent(date){
+  document.getElementById('cm-id').value='';
+  document.getElementById('cm-heading').textContent='New post';
+  document.getElementById('cm-save').textContent='Save post';
+  document.getElementById('cm-delete').hidden=true;
+  ['cm-title','cm-notes'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('cm-date').value=typeof date==='string'?date:'';
+  document.getElementById('cm-status').value=date?'Draft':'Idea';
+  document.getElementById('cm-pillar').value='';
+  openModal('content-modal');
+  setTimeout(()=>document.getElementById('cm-title').focus(),50);
+}
+function openEditContent(id){
+  const r=S.content.find(x=>x.id===id);if(!r)return;const C=F.content;
+  const setSel=(elId,v)=>{const s=document.getElementById(elId);if(v&&![...s.options].some(o=>o.value===v))s.add(new Option(v,v));s.value=v||s.options[0].value;};
+  document.getElementById('cm-id').value=id;
+  document.getElementById('cm-heading').textContent='Edit post';
+  document.getElementById('cm-save').textContent='Save changes';
+  document.getElementById('cm-delete').hidden=false;
+  document.getElementById('cm-title').value=r.fields[C.name]||'';
+  document.getElementById('cm-notes').value=r.fields[C.notes]||'';
+  document.getElementById('cm-date').value=contentDate(r);
+  setSel('cm-status',contentStatus(r));setSel('cm-pillar',contentPillar(r));
+  setSel('cm-format',sv(r.fields[C.format])||r.fields['Format']);setSel('cm-platform',sv(r.fields[C.platform])||r.fields['Platform']);
+  openModal('content-modal');
+}
 async function saveContent(){
   const title=document.getElementById('cm-title').value.trim();
-  if(!title){toast('Title required');return;}
-  const C=F.content;
-  const fields={[C.name]:title,[C.format]:document.getElementById('cm-format').value,[C.platform]:document.getElementById('cm-platform').value,[C.status]:document.getElementById('cm-status').value,[C.notes]:document.getElementById('cm-notes').value};
-  const when=document.getElementById('cm-date').value;if(when)fields[C.scheduled]=when;
-  closeModal('content-modal');toast('Saving...');
-  try{const res=await atCreate(TBL.content,fields);if(res.records){S.content.push(res.records[0]);saveState();renderContent();toast('Content idea saved to Airtable ✓');}}
-  catch(e){S.content.push({id:'l'+Date.now(),fields});saveState();renderContent();toast('Saved locally');}
-  ['cm-title','cm-date','cm-notes'].forEach(id=>document.getElementById(id).value='');
+  if(!title){toast('Add a title or hook first');return;}
+  const C=F.content,id=document.getElementById('cm-id').value,g=i=>document.getElementById(i).value;
+  const fields={[C.name]:title,[C.format]:g('cm-format'),[C.platform]:g('cm-platform'),[C.status]:g('cm-status'),[C.notes]:g('cm-notes'),[C.scheduled]:g('cm-date')||null,[C.pillar]:g('cm-pillar')||null};
+  closeModal('content-modal');
+  if(id){
+    const r=S.content.find(x=>x.id===id);if(r)Object.assign(r.fields,fields);
+    saveState();renderContent();renderOverview();
+    if(id.startsWith('l')){toast('Post updated ✓');return;}
+    try{await atPatch(TBL.content,id,fields);toast('Post updated ✓');}catch(e){toast('Saved on this device, will sync next time');}
+    return;
+  }
+  const localRec={id:'l'+Date.now(),fields:{...fields}};
+  S.content.push(localRec);saveState();renderContent();renderOverview();
+  try{
+    const res=await atCreate(TBL.content,fields);
+    const i=S.content.findIndex(x=>x.id===localRec.id);if(i>-1&&res.records&&res.records[0])S.content[i]=res.records[0];
+    saveState();renderContent();toast('Post saved ✓');
+  }catch(e){toast('Saved on this device, will sync next time');}
 }
-window.saveContent=saveContent;
+async function deleteContent(){
+  const id=document.getElementById('cm-id').value,r=S.content.find(x=>x.id===id);if(!r)return;
+  if(!confirm(`Delete "${r.fields[F.content.name]}"? This cannot be undone.`))return;
+  closeModal('content-modal');
+  S.content=S.content.filter(x=>x.id!==id);saveState();renderContent();renderOverview();
+  if(id.startsWith('l')){toast('Post deleted');return;}
+  try{const res=await fetch(`https://api.airtable.com/v0/${BASE}/${TBL.content}/${id}`,{method:'DELETE',headers:{Authorization:'Bearer '+TOKEN}});if(!res.ok)throw new Error('HTTP '+res.status);toast('Post deleted');}
+  catch(e){toast('Could not delete in Airtable: '+e.message);}
+}
+// Rule 3: turn a won client into a "finished funnel" post scheduled for today
+async function addWinPost(leadId){
+  const lead=S.pipeline.find(x=>x.id===leadId);if(!lead)return;
+  const C=F.content,name=lead.fields[F.pipeline.name]||'client';
+  const fields={[C.name]:`Funnel breakdown: what we built for ${name}`,[C.format]:'Funnel breakdown',[C.platform]:'LinkedIn',[C.status]:'Draft',[C.pillar]:'Client Wins',[C.scheduled]:getTodayKey(),[C.notes]:'Screenshot of the finished funnel. Mistake first, lesson second. End with the specific result and timeframe.'};
+  const localRec={id:'l'+Date.now(),fields:{...fields}};
+  S.content.push(localRec);saveState();renderContent();renderOverview();
+  try{const res=await atCreate(TBL.content,fields);const i=S.content.findIndex(x=>x.id===localRec.id);if(i>-1&&res.records&&res.records[0])S.content[i]=res.records[0];saveState();renderContent();toast(`Post for ${name} added to today ✓`);}
+  catch(e){toast('Saved on this device, will sync next time');}
+}
+window.saveContent=saveContent;window.openAddContent=openAddContent;window.openEditContent=openEditContent;window.deleteContent=deleteContent;window.addWinPost=addWinPost;
+
 
 // ── GOAL & TIMELINE SETTINGS PANEL ──────────────────────────────────────────
 let _draftPhases=[];
 function openGoalSettings(){
   const s=SETTINGS,set=(id,v)=>document.getElementById(id).value=v;
   set('gs-goal',s.goal);set('gs-clients',s.clientTarget||'');set('gs-start',s.start);set('gs-deadline',s.deadline);
-  set('gs-dm-day',s.dmTargets.day);set('gs-dm-week',s.dmTargets.week);set('gs-dm-month',s.dmTargets.month);
+  set('gs-dm-day',s.dmTargets.day);set('gs-dm-week',s.dmTargets.week);set('gs-dm-month',s.dmTargets.month);set('gs-content',s.contentPerWeek??3);
   _draftPhases=s.phases.map(p=>({...p}));
   document.getElementById('gs-targets').innerHTML='';
   renderGoalPhases();renderGoalTargets(s.targets);
@@ -2514,7 +2720,7 @@ async function saveGoalSettings(){
   const targets={};document.querySelectorAll('#gs-targets input').forEach(inp=>{targets[inp.dataset.key]=Number(inp.value)||0;});
   SETTINGS={
     goal:Number(g('gs-goal'))||0,clientTarget:g('gs-clients').trim(),start,deadline,
-    dmTargets:{day:Number(g('gs-dm-day'))||0,week:Number(g('gs-dm-week'))||0,month:Number(g('gs-dm-month'))||0},
+    dmTargets:{day:Number(g('gs-dm-day'))||0,week:Number(g('gs-dm-week'))||0,month:Number(g('gs-dm-month'))||0},contentPerWeek:Number(g('gs-content'))||0,
     phases:_draftPhases.filter(p=>p.name&&p.from&&p.to),targets
   };
   ls('settings',SETTINGS);applySettings();renderAll();closeModal('goal-settings-modal');
